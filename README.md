@@ -44,6 +44,53 @@ After deploying, add the deployed origin (e.g. `https://<user>.github.io`) to th
 client's authorised JavaScript origins in the Cloud Console. If you skip this, Google
 auth fails silently — the "Connect" buttons won't do anything.
 
+### Building an Android APK
+
+The app is also wrapped with [Capacitor](https://capacitorjs.com) (see `android/`), which
+bundles the built `dist/` straight into a native shell — no hosting required, the app
+just opens a local copy of the same code that runs in the browser.
+
+A GitHub Actions workflow (`.github/workflows/build-android.yml`) builds a debug APK on
+every push to `main`, or on demand from the Actions tab (**Actions → Build Android APK →
+Run workflow**). It needs one repo secret:
+
+1. **Settings → Secrets and variables → Actions → New repository secret**
+2. Name: `VITE_GOOGLE_CLIENT_ID`, value: the same OAuth client ID from `.env` (see
+   [note on secrets](#a-note-on-api-keys-and-secrets) below — this one is safe to store
+   this way, it's not confidential).
+
+Once the workflow run finishes, download the `life-dashboard-debug-apk` artifact from the
+run's summary page, transfer the `.apk` to the phone, and install it (Android will need
+"install unknown apps" enabled for whatever app you used to open the file).
+
+This produces a **debug-signed** APK — fine for installing on your own device, but each
+CI run's debug key may differ, and it isn't set up for a Play Store release. If you want
+a stable signing identity across rebuilds (so updates install over the old copy instead
+of needing a fresh uninstall/reinstall), generate a release keystore, store it (and its
+passwords) as repo secrets, and add a `signingConfig` to `android/app/build.gradle` — not
+done here to avoid managing a keystore for a single-user personal app.
+
+This sandbox couldn't produce the `.apk` directly — building Android requires the
+Android SDK, which isn't reachable from here, only from GitHub's own runners.
+
+#### A note on API keys and secrets
+
+`VITE_GOOGLE_CLIENT_ID` is an OAuth **client ID**, not a secret — Google's client IDs for
+public/web clients are meant to be visible (it's already exposed in the redirect URL
+every time the auth flow runs) and are safe to bake into a client build. That's true
+whether the build is a hosted PWA, a wrapped APK, or in a private or public repo —
+repo visibility doesn't add any protection to a value that ends up compiled into the
+artifact you install.
+
+The Spotify integration (see [below](#spotify)) is specced to use Authorization Code +
+PKCE specifically so it never needs a real client *secret* baked in. If any future
+integration does need a genuine secret (a confidential OAuth client secret, a
+rate-limited/paid API key), it must **not** go into client-side code at all — anyone
+holding the APK or the built JS bundle can extract it (an APK is just a zip file). That
+would need a small backend/serverless proxy to hold the secret server-side, which is a
+deliberate departure from this project's "no backend" design — worth doing only if a
+specific integration actually requires it.
+
 ## Architecture
 
 `src/theme/modes.ts` is the single source of truth for layout. Each mode is:
@@ -93,6 +140,9 @@ automatically.
   Fine at 5-10 unread; switch to the Gmail API's `batch` endpoint
   (`src/lib/gmail.ts`) if that list grows.
 - **No tests.**
+- **The Android APK uses Capacitor's default launcher icon.** Swap the files under
+  `android/app/src/main/res/mipmap-*` (and the PWA icons above) for a real icon whenever
+  you get around to making one.
 
 ### Spotify
 
@@ -107,4 +157,5 @@ automatically.
 ## Stack
 
 React + TypeScript + Vite, Tailwind v4 via the `@tailwindcss/vite` plugin,
-`vite-plugin-pwa` for installability. No state library, no router — it's a single page.
+`vite-plugin-pwa` for installability, Capacitor for the optional Android APK build. No
+state library, no router — it's a single page.
