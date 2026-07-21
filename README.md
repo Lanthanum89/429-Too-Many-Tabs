@@ -40,9 +40,23 @@ Open the app and use the "Connect" buttons on the Calendar/Email widgets to gran
 
 ### Deploying to GitHub Pages
 
-After deploying, add the deployed origin (e.g. `https://<user>.github.io`) to the OAuth
-client's authorised JavaScript origins in the Cloud Console. If you skip this, Google
-auth fails silently — the "Connect" buttons won't do anything.
+`.github/workflows/deploy-pages.yml` builds and deploys automatically on every push to
+`main` (or on demand from **Actions → Deploy to GitHub Pages → Run workflow**). One-time
+setup:
+
+1. **Settings → Pages → Source: GitHub Actions.**
+2. **Settings → Secrets and variables → Actions → New repository secret** named
+   `VITE_GOOGLE_CLIENT_ID` (same value as your local `.env`; also used by the Android
+   workflow, so you only need to set it once).
+3. Once it's deployed, add the resulting URL — a GitHub Pages project page, so
+   `https://<user>.github.io/429-Too-Many-Tabs/` (note the trailing repo path) — to the
+   OAuth client's authorised JavaScript origins in the Cloud Console. Skip this and
+   Google auth fails silently; the "Connect" buttons won't do anything.
+
+`vite.config.ts` sets `base: '/429-Too-Many-Tabs/'` to match that project-page URL. If
+you ever rename the repo or deploy somewhere else (a custom domain, a user/org root page
+at `<user>.github.io`), update `base` there to match — everything else (asset paths, the
+manifest's `start_url`/`scope`) derives from that one value.
 
 ### Building an Android APK
 
@@ -133,16 +147,16 @@ automatically.
   the app backend-free, which was the point — but if the reconnect prompt gets
   annoying for daily use, the fix is a small token-refresh proxy (that would need a
   backend, i.e. no longer purely static).
-- **No PWA icons yet.** `icon-192.png` and `icon-512.png` are referenced in
-  `vite.config.ts`'s manifest but don't exist in `public/` — the app will install with a
-  blank icon until they're added.
 - **Gmail widget fetches message metadata one request per message** (no batching).
   Fine at 5-10 unread; switch to the Gmail API's `batch` endpoint
   (`src/lib/gmail.ts`) if that list grows.
 - **No tests.**
-- **The Android APK uses Capacitor's default launcher icon.** Swap the files under
-  `android/app/src/main/res/mipmap-*` (and the PWA icons above) for a real icon whenever
-  you get around to making one.
+- **PWA icons (`public/icon-192.png`/`icon-512.png`) are a generated placeholder**
+  (three stacked bars, nodding to the sm/md/lg widget sizing) — good enough to satisfy
+  installability, swap for a real design whenever you make one.
+- **The Android APK still uses Capacitor's default launcher icon**, not the PWA one
+  above. Swap the files under `android/app/src/main/res/mipmap-*` too if you want them
+  to match.
 
 ### Spotify
 
