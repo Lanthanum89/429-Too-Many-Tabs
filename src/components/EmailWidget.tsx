@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from './Card'
 import type { WidgetSize } from '../theme/modes'
-import { fetchUnreadMessages, type UnreadMessage } from '../lib/gmail'
+import { fetchUnreadMessages, hasValidGmailToken, type UnreadMessage } from '../lib/gmail'
 
 export function EmailWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
   const [messages, setMessages] = useState<UnreadMessage[] | null>(null)
@@ -20,6 +20,11 @@ export function EmailWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
       setLoading(false)
     }
   }
+
+  // See CalendarWidget for why this restores silently on mount.
+  useEffect(() => {
+    if (hasValidGmailToken()) connect()
+  }, [])
 
   return (
     <Card className="flex flex-col gap-2">

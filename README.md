@@ -185,11 +185,13 @@ automatically.
 
 ## Known gaps / decisions to revisit
 
-- **Google auth is implicit-flow only.** Tokens expire after about an hour with no
-  silent refresh, so you'll see the "Connect" button reappear periodically. This keeps
-  the app backend-free, which was the point — but if the reconnect prompt gets
-  annoying for daily use, the fix is a small token-refresh proxy (that would need a
-  backend, i.e. no longer purely static).
+- **Google auth is implicit-flow only.** Tokens are cached in `localStorage` (see
+  `lib/googleAuth.ts`) so a reload within the token's own ~1hr lifetime restores the
+  widget automatically instead of forcing a reconnect — but there's still no refresh
+  token with this flow, so once it actually expires, the "Connect" button will
+  reappear. This keeps the app backend-free, which was the point — but if the hourly
+  reconnect gets annoying for daily use, the fix is a small token-refresh proxy (that
+  would need a backend, i.e. no longer purely static).
 - **Gmail widget fetches message metadata one request per message** (no batching).
   Fine at 5-10 unread; switch to the Gmail API's `batch` endpoint
   (`src/lib/gmail.ts`) if that list grows.

@@ -1,6 +1,13 @@
-import { requestGoogleToken, type GoogleToken } from './googleAuth'
+import {
+  isTokenValid,
+  loadCachedToken,
+  requestGoogleToken,
+  saveCachedToken,
+  type GoogleToken,
+} from './googleAuth'
 
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
+const STORAGE_KEY = 'life-dashboard:google-calendar-token'
 
 export interface CalendarEvent {
   id: string
@@ -15,14 +22,17 @@ interface CalendarApiEvent {
   start?: { dateTime?: string; date?: string }
 }
 
-let cachedToken: GoogleToken | null = null
+let cachedToken: GoogleToken | null = loadCachedToken(STORAGE_KEY)
 
 async function getToken(): Promise<string> {
-  if (cachedToken && cachedToken.expiresAt - 60_000 > Date.now()) {
-    return cachedToken.accessToken
-  }
+  if (isTokenValid(cachedToken)) return cachedToken.accessToken
   cachedToken = await requestGoogleToken(CALENDAR_SCOPE)
+  saveCachedToken(STORAGE_KEY, cachedToken)
   return cachedToken.accessToken
+}
+
+export function hasValidCalendarToken(): boolean {
+  return isTokenValid(cachedToken)
 }
 
 export async function fetchUpcomingEvents(maxResults = 5): Promise<CalendarEvent[]> {
