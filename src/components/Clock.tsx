@@ -3,7 +3,7 @@ import { Card } from './Card'
 import type { WidgetSize } from '../theme/modes'
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 function formatDate(date: Date): string {
@@ -22,8 +22,12 @@ export function Clock({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
 
   return (
     <Card className="flex flex-col items-center justify-center text-center">
-      <span className={`font-semibold tabular-nums ${timeClass}`}>{formatTime(now)}</span>
-      {size !== 'sm' && <span className="mt-1 text-sm text-gray-400">{formatDate(now)}</span>}
+      <span className={`font-display font-semibold tabular-nums text-cream ${timeClass}`}>
+        {formatTime(now)}
+      </span>
+      {size !== 'sm' && (
+        <span className="mt-1 text-sm tracking-wide text-tan uppercase">{formatDate(now)}</span>
+      )}
     </Card>
   )
 }

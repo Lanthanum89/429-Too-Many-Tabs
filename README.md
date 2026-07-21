@@ -7,6 +7,14 @@ The core idea is **modes, not themes**: instead of picking a colour scheme, you 
 functional layout — *Working*, *Chilling*, *Gaming* — and the dashboard changes which
 widgets show and how big they are.
 
+Visual style is mid-century modern: warm walnut/cream/mustard palette (`src/index.css`'s
+`@theme` block — `walnut`, `cream`, `mustard`, `terracotta`, `olive`), Jost (a
+Futura-inspired geometric sans) for headings and the clock, Work Sans for body text.
+Both fonts are self-hosted via `@fontsource` rather than a CDN link, so they're bundled
+into the build and precached by the service worker like everything else — no external
+font request needed once installed. The clock defaults to 24-hour time
+(`hour12: false`), matched by Calendar's event times for consistency.
+
 ## Widgets
 
 | Widget | What it shows |
