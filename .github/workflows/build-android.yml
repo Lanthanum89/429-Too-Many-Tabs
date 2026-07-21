@@ -34,7 +34,8 @@ jobs:
       - name: Build web assets
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-        run: npm run build
+          VITE_SPOTIFY_CLIENT_ID: ${{ secrets.VITE_SPOTIFY_CLIENT_ID }}
+        run: npm run build:capacitor
 
       - name: Sync Capacitor
         run: npx cap sync android
