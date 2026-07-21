@@ -28,6 +28,24 @@ export interface GoogleToken {
   expiresAt: number
 }
 
+// Tokens are cached in localStorage (keyed per scope's caller) so a reload —
+// a tab the OS evicted in the background, closing and reopening the PWA —
+// doesn't lose them for no reason within their own ~1hr lifetime. There's
+// still no refresh token with this flow, so once actually expired, a fresh
+// "Connect" click is unavoidable.
+export function loadCachedToken(storageKey: string): GoogleToken | null {
+  const raw = window.localStorage.getItem(storageKey)
+  return raw ? (JSON.parse(raw) as GoogleToken) : null
+}
+
+export function saveCachedToken(storageKey: string, token: GoogleToken): void {
+  window.localStorage.setItem(storageKey, JSON.stringify(token))
+}
+
+export function isTokenValid(token: GoogleToken | null): token is GoogleToken {
+  return token !== null && token.expiresAt - 60_000 > Date.now()
+}
+
 const tokenClients = new Map<string, google.accounts.oauth2.TokenClient>()
 
 export async function requestGoogleToken(scope: string): Promise<GoogleToken> {

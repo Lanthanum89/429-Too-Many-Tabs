@@ -1,6 +1,13 @@
-import { requestGoogleToken, type GoogleToken } from './googleAuth'
+import {
+  isTokenValid,
+  loadCachedToken,
+  requestGoogleToken,
+  saveCachedToken,
+  type GoogleToken,
+} from './googleAuth'
 
 const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
+const STORAGE_KEY = 'life-dashboard:google-gmail-token'
 
 export interface UnreadMessage {
   id: string
@@ -21,14 +28,17 @@ interface MessageMetadataResponse {
   payload?: { headers?: MessageHeader[] }
 }
 
-let cachedToken: GoogleToken | null = null
+let cachedToken: GoogleToken | null = loadCachedToken(STORAGE_KEY)
 
 async function getToken(): Promise<string> {
-  if (cachedToken && cachedToken.expiresAt - 60_000 > Date.now()) {
-    return cachedToken.accessToken
-  }
+  if (isTokenValid(cachedToken)) return cachedToken.accessToken
   cachedToken = await requestGoogleToken(GMAIL_SCOPE)
+  saveCachedToken(STORAGE_KEY, cachedToken)
   return cachedToken.accessToken
+}
+
+export function hasValidGmailToken(): boolean {
+  return isTokenValid(cachedToken)
 }
 
 async function gmailFetch<T>(path: string, token: string): Promise<T> {

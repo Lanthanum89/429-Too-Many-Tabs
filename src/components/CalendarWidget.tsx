@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from './Card'
 import type { WidgetSize } from '../theme/modes'
-import { fetchUpcomingEvents, type CalendarEvent } from '../lib/googleCalendar'
+import { fetchUpcomingEvents, hasValidCalendarToken, type CalendarEvent } from '../lib/googleCalendar'
 
 export function CalendarWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
   const [events, setEvents] = useState<CalendarEvent[] | null>(null)
@@ -20,6 +20,13 @@ export function CalendarWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> }
       setLoading(false)
     }
   }
+
+  // Restore silently on mount if the cached token's still valid — a reload
+  // (widget remount on a mode switch, a backgrounded tab the OS evicted)
+  // shouldn't force reconnecting within the token's own lifetime.
+  useEffect(() => {
+    if (hasValidCalendarToken()) connect()
+  }, [])
 
   return (
     <Card className="flex flex-col gap-2">
