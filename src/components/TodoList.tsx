@@ -46,18 +46,18 @@ export function TodoList({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
 
   return (
     <Card className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium text-gray-400">To-do</h2>
+      <h2 className="font-display text-sm font-medium tracking-wide text-tan uppercase">To-do</h2>
       <ul className="flex flex-col gap-1 overflow-y-auto">
-        {items.length === 0 && <li className="text-sm text-gray-500">Nothing here.</li>}
+        {items.length === 0 && <li className="text-sm text-dim">Nothing here.</li>}
         {items.map((todo) => (
           <li key={todo.id} className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={todo.done}
               onChange={() => toggleTodo(todo.id)}
-              className="h-4 w-4 rounded border-gray-600 bg-gray-800"
+              className="h-4 w-4 rounded border-line bg-walnut-hover accent-mustard"
             />
-            <span className={todo.done ? 'text-gray-500 line-through' : ''}>{todo.text}</span>
+            <span className={todo.done ? 'text-dim line-through' : 'text-cream'}>{todo.text}</span>
           </li>
         ))}
       </ul>
@@ -68,11 +68,11 @@ export function TodoList({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTodo()}
             placeholder="Add a task"
-            className="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-2 py-1 text-sm outline-none focus:border-gray-500"
+            className="flex-1 rounded-lg border border-line bg-walnut-hover px-2 py-1 text-sm text-cream outline-none placeholder:text-dim focus:border-mustard"
           />
           <button
             onClick={addTodo}
-            className="rounded-lg bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600"
+            className="rounded-lg bg-olive px-3 py-1 text-sm text-cream hover:bg-mustard hover:text-walnut"
           >
             Add
           </button>

@@ -23,26 +23,26 @@ export function EmailWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
 
   return (
     <Card className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium text-gray-400">Email</h2>
+      <h2 className="font-display text-sm font-medium tracking-wide text-tan uppercase">Email</h2>
       {messages === null ? (
         <button
           onClick={connect}
           disabled={loading}
-          className="self-start rounded-lg bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600 disabled:opacity-50"
+          className="self-start rounded-lg bg-olive px-3 py-1 text-sm text-cream hover:bg-mustard hover:text-walnut disabled:opacity-50"
         >
           {loading ? 'Connecting…' : 'Connect Gmail'}
         </button>
       ) : (
         <ul className="flex flex-col gap-1 overflow-y-auto">
-          {messages.length === 0 && <li className="text-sm text-gray-500">Inbox zero.</li>}
+          {messages.length === 0 && <li className="text-sm text-dim">Inbox zero.</li>}
           {messages.map((message) => (
-            <li key={message.id} className="truncate text-sm">
+            <li key={message.id} className="truncate text-sm text-cream">
               {message.subject}
             </li>
           ))}
         </ul>
       )}
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-terracotta">{error}</p>}
     </Card>
   )
 }

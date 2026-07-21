@@ -18,24 +18,27 @@ function App() {
   const { mode, modes, setModeId } = useMode()
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col gap-4 p-4">
-      <header className="flex flex-col gap-2">
+    <div className="mx-auto flex min-h-screen max-w-3xl flex-col gap-5 p-4">
+      <header className="flex flex-col gap-3 border-b border-line pb-4">
+        <h1 className="font-display text-lg font-semibold tracking-wide text-mustard-bright uppercase">
+          Life Dashboard
+        </h1>
         <div className="flex gap-2">
           {modes.map((m) => (
             <button
               key={m.id}
               onClick={() => setModeId(m.id)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+              className={`rounded-full px-4 py-1.5 font-display text-sm font-medium tracking-wide transition ${
                 m.id === mode.id
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  ? 'bg-mustard text-walnut'
+                  : 'border border-line text-tan hover:border-mustard hover:text-cream'
               }`}
             >
               {m.label}
             </button>
           ))}
         </div>
-        <p className="text-sm text-gray-500">{mode.blurb}</p>
+        <p className="text-sm text-tan">{mode.blurb}</p>
       </header>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

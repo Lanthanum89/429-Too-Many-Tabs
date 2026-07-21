@@ -47,21 +47,25 @@ export function SpotifyWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> })
   if (!connected) {
     return (
       <Card className="flex flex-col items-center justify-center gap-2 text-center">
-        <h2 className="text-sm font-medium text-gray-400">Spotify</h2>
+        <h2 className="font-display text-sm font-medium tracking-wide text-tan uppercase">
+          Spotify
+        </h2>
         <button
           onClick={connect}
-          className="rounded-lg bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600"
+          className="rounded-lg bg-olive px-3 py-1 text-sm text-cream hover:bg-mustard hover:text-walnut"
         >
           Connect Spotify
         </button>
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-terracotta">{error}</p>}
       </Card>
     )
   }
 
   return (
     <Card className="flex flex-col items-center justify-center gap-1 text-center">
-      <h2 className="text-sm font-medium text-gray-400">Spotify</h2>
+      <h2 className="font-display text-sm font-medium tracking-wide text-tan uppercase">
+        Spotify
+      </h2>
       {nowPlaying?.isPlaying ? (
         <>
           {size === 'lg' && nowPlaying.albumArtUrl && (
@@ -71,13 +75,13 @@ export function SpotifyWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> })
               className="mt-1 h-24 w-24 rounded-lg object-cover"
             />
           )}
-          <p className="text-sm font-medium">{nowPlaying.trackName}</p>
-          <p className="text-xs text-gray-400">{nowPlaying.artistName}</p>
+          <p className="text-sm font-medium text-cream">{nowPlaying.trackName}</p>
+          <p className="text-xs text-tan">{nowPlaying.artistName}</p>
         </>
       ) : (
-        <p className="text-sm text-gray-500">Nothing playing.</p>
+        <p className="text-sm text-dim">Nothing playing.</p>
       )}
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-terracotta">{error}</p>}
     </Card>
   )
 }
