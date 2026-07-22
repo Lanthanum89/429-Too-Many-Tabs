@@ -98,12 +98,15 @@ body {
     'email'
     'spotify';
   padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 480px) {
   .dashboard {
     gap: 0.5rem;
     padding: 0.5rem;
+    max-width: none;
   }
 
   .dashboard > header {
