@@ -2,7 +2,7 @@
 // to build into a static bundle (see README's note on API keys/secrets).
 
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
-const SCOPE = 'user-read-currently-playing'
+const SCOPE = 'user-read-currently-playing playlist-read-private'
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize'
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token'
 
@@ -145,15 +145,53 @@ export interface NowPlaying {
   trackName: string | null
   artistName: string | null
   albumArtUrl: string | null
+  trackUrl: string | null
+  progressMs: number
+  durationMs: number
+  contextName: string | null
 }
 
 interface CurrentlyPlayingResponse {
   is_playing: boolean
+  progress_ms: number | null
   item: {
     name: string
+    duration_ms: number
     artists: { name: string }[]
     album: { images: { url: string }[] }
+    external_urls: { spotify: string }
   } | null
+  context: { uri: string; href: string } | null
+}
+
+// Cached across polls so an unchanged context (still on the same playlist)
+// doesn't refetch its name every 15s — only refetched when the URI changes.
+let cachedContextUri: string | null = null
+let cachedContextName: string | null = null
+
+async function resolveContextName(
+  token: string,
+  context: CurrentlyPlayingResponse['context'],
+): Promise<string | null> {
+  if (!context) {
+    cachedContextUri = null
+    cachedContextName = null
+    return null
+  }
+  if (context.uri === cachedContextUri) return cachedContextName
+
+  try {
+    const res = await fetch(context.href, { headers: { Authorization: `Bearer ${token}` } })
+    // Missing playlist-read-private scope on an older session, a since-deleted
+    // playlist, etc. — degrade to no context name rather than failing the widget.
+    if (!res.ok) return null
+    const data = (await res.json()) as { name?: string }
+    cachedContextUri = context.uri
+    cachedContextName = data.name ?? null
+    return cachedContextName
+  } catch {
+    return null
+  }
 }
 
 export async function fetchCurrentlyPlaying(): Promise<NowPlaying | null> {
@@ -166,15 +204,30 @@ export async function fetchCurrentlyPlaying(): Promise<NowPlaying | null> {
 
   // 204 means nothing's playing right now — not an error.
   if (res.status === 204) {
-    return { isPlaying: false, trackName: null, artistName: null, albumArtUrl: null }
+    return {
+      isPlaying: false,
+      trackName: null,
+      artistName: null,
+      albumArtUrl: null,
+      trackUrl: null,
+      progressMs: 0,
+      durationMs: 0,
+      contextName: null,
+    }
   }
   if (!res.ok) throw new Error(`Spotify API error: ${res.status}`)
 
   const data = (await res.json()) as CurrentlyPlayingResponse
+  const contextName = await resolveContextName(token, data.context)
+
   return {
     isPlaying: data.is_playing,
     trackName: data.item?.name ?? null,
     artistName: data.item?.artists.map((artist) => artist.name).join(', ') ?? null,
     albumArtUrl: data.item?.album.images[0]?.url ?? null,
+    trackUrl: data.item?.external_urls.spotify ?? null,
+    progressMs: data.progress_ms ?? 0,
+    durationMs: data.item?.duration_ms ?? 0,
+    contextName,
   }
 }
