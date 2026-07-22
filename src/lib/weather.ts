@@ -52,33 +52,31 @@ interface OpenMeteoResponse {
 
 async function getLocationName(lat: number, lon: number, fallbackName?: string): Promise<string> {
   try {
-    const url = `https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lon}&language=en&limit=1`
-    const res = await fetch(url)
-    console.log(`Geocoding API (${lat}, ${lon}): ${res.status}`)
-    if (!res.ok) {
-      console.log(`Geocoding API error: ${res.status}`)
-      return fallbackName ?? 'Current location'
-    }
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`,
+      { headers: { 'User-Agent': '429-Too-Many-Tabs (personal dashboard)' } },
+    )
+    if (!res.ok) return fallbackName ?? 'Current location'
     const data = (await res.json()) as {
-      results?: Array<{
-        name?: string
-        admin1?: string
+      address?: {
+        city?: string
+        town?: string
+        village?: string
+        county?: string
+        state?: string
         country?: string
-      }>
-    }
-    console.log('Geocoding results:', data.results)
-    const result = data.results?.[0]
-    if (result?.name) {
-      const parts = [result.name]
-      if (result.admin1 && result.admin1 !== result.name) {
-        parts.push(result.admin1)
       }
-      return parts.join(', ')
     }
-    console.log('No results from geocoding API')
+    const addr = data.address
+    if (addr) {
+      const city = addr.city || addr.town || addr.village
+      const state = addr.state || addr.county
+      if (city) {
+        return state && state !== city ? `${city}, ${state}` : city
+      }
+    }
     return fallbackName ?? 'Current location'
-  } catch (err) {
-    console.log('Geocoding API error:', err)
+  } catch {
     return fallbackName ?? 'Current location'
   }
 }
