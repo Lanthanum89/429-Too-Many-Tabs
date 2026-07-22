@@ -105,9 +105,10 @@ body {
   max-width: 100%;
 }
 
-@media (max-width: 360px) {
+
+@media (max-width: 640px) {
   .dashboard {
-    max-width: 95vw;
+    max-width: 90vw;
     margin: 0 auto;
   }
 }
@@ -116,7 +117,7 @@ body {
   .dashboard {
     gap: 0.5rem;
     padding: 0.5rem;
-    max-width: 100%;
+    max-width: 90vw;
     margin: 0 auto;
   }
 
