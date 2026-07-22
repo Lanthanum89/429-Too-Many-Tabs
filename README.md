@@ -10,22 +10,23 @@ just stacks everything and scrolls normally — see [Layout](#layout) below.
 
 Visual style is dark lilac, matching the [SoundTracks](https://github.com/Lanthanum89/spotify-stats-app)
 app: near-black background, lilac accent (`src/index.css`'s `@theme` block — `void`,
-`surface`, `line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`). Inter for
-body text, JetBrains Mono for headings/labels, and VT323 — a pixel/LED-style display font
-— for the clock's digits, giving it a retro digital-alarm-clock look. All three are
-self-hosted via `@fontsource` rather than a CDN link, so they're bundled into the build
-and precached by the service worker — no external font request needed once installed.
-The clock defaults to 24-hour time (`hour12: false`).
+`surface`, `line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`), with an
+editorial, magazine-style type pairing on top of it — Playfair Display (a high-contrast
+serif) for the clock's big digits and every widget's section heading, Inter for body text,
+and JetBrains Mono kept only for small technical labels (the date caption, binary-clock
+digit labels). All fonts are self-hosted via `@fontsource` rather than a CDN link, so
+they're bundled into the build and precached by the service worker — no external font
+request needed once installed. The clock defaults to 24-hour time (`hour12: false`).
 
 ## Widgets
 
 | Widget | What it shows |
 |---|---|
-| Clock | Big retro-LED-style time display, and the date |
+| Clock | Big serif time display, and the date |
 | Binary clock | Same binary-coded-decimal format as [Binary Bloom](https://github.com/Lanthanum89/binary-clock) — hours/minutes/seconds each split into tens/ones digits, each digit a column of 4 dots (8-4-2-1). Always 24-hour |
 | Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day — click an event to open it in Google Calendar (read-only) |
-| Email | Your inbox — read and unread, with star status — click a subject to read it in-app, or open it in Gmail from there (read-only) |
-| Spotify | Currently-playing track (read-only) — see [Spotify](#spotify) below |
+| Email | Your inbox — read and unread, with star status. Starred messages sort to the top, then everything else newest-first — click a subject to read it in-app, or open it in Gmail from there |
+| Spotify | Currently-playing track with album art, progress bar, and playlist/album context — plus skip, pause/resume controls (requires Spotify Premium) — see [Spotify](#spotify) below |
 
 ## Setup
 

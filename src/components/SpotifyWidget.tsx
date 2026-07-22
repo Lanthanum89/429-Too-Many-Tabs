@@ -134,7 +134,7 @@ export function SpotifyWidget() {
   if (!connected) {
     return (
       <Card className="flex flex-col items-center justify-center gap-3 text-center">
-        <h2 className="font-display text-sm tracking-wide text-muted uppercase">Spotify</h2>
+        <h2 className="font-display text-lg text-muted">Spotify</h2>
         <button
           onClick={connect}
           className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
@@ -159,7 +159,7 @@ export function SpotifyWidget() {
             <img
               src={nowPlaying.albumArtUrl}
               alt=""
-              className="mt-1 h-28 w-28 rounded-lg object-cover"
+              className="mt-1 h-40 w-40 rounded-lg object-cover shadow-lg sm:h-44 sm:w-44"
             />
           )}
           {nowPlaying.trackUrl ? (

@@ -5,13 +5,16 @@
 @import '@fontsource/inter/600.css';
 @import '@fontsource/jetbrains-mono/400.css';
 @import '@fontsource/jetbrains-mono/500.css';
-@import '@fontsource/jetbrains-mono/600.css';
-@import '@fontsource/jetbrains-mono/700.css';
-@import '@fontsource/vt323/400.css';
+@import '@fontsource/playfair-display/500.css';
+@import '@fontsource/playfair-display/600.css';
+@import '@fontsource/playfair-display/700.css';
+@import '@fontsource/playfair-display/900.css';
 
-/* Dark lilac, matching the SoundTracks app: near-black base, lilac accent,
-   Inter for body copy, JetBrains Mono for technical/UI chrome, VT323 (a
-   pixel/LED-style display font) for the clock's digits only. */
+/* Dark lilac, matching the SoundTracks app: near-black base, lilac accent.
+   Editorial pairing: Playfair Display (a high-contrast serif — magazine
+   masthead territory) for headings and the clock's big digits, Inter for
+   body copy, JetBrains Mono kept only for the smallest technical labels
+   (timestamps, the sidebar-collapse-in-SoundTracks-adjacent kicker feel). */
 @theme {
   --color-void: #0b0a0f;
   --color-surface: #131119;
@@ -26,8 +29,9 @@
   --color-danger: #e18088;
 
   --font-sans: 'Inter', system-ui, sans-serif;
-  --font-display: 'JetBrains Mono', ui-monospace, monospace;
-  --font-clock: 'VT323', ui-monospace, monospace;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-clock: 'Playfair Display', Georgia, 'Times New Roman', serif;
 }
 
 html,

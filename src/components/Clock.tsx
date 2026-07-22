@@ -21,12 +21,12 @@ export function Clock() {
 
   return (
     <Card className="flex flex-col items-center justify-center border-2 border-line-strong text-center">
-      <span className="clock-display font-clock leading-none tracking-wider text-accent-bright">
+      <span className="clock-display font-clock font-black leading-none tracking-tight text-accent-bright">
         {hours}
         <span className="animate-pulse">:</span>
         {minutes}
       </span>
-      <span className="font-display mt-2 text-sm tracking-[0.2em] text-muted uppercase">
+      <span className="font-mono mt-2 text-sm tracking-[0.2em] text-muted uppercase">
         {formatDate(now)}
       </span>
     </Card>

@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="dashboard p-6">
       <header className="border-b border-line pb-4">
-        <h1 className="font-display text-lg font-semibold tracking-wide text-accent-bright uppercase">
+        <h1 className="font-display text-2xl font-semibold text-accent-bright">
           429: Too Many Tabs
         </h1>
       </header>
