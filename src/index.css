@@ -83,6 +83,14 @@ body {
 .dashboard-binary {
   grid-area: binary;
 }
+.mini-widgets-row {
+  display: flex;
+  gap: 1rem;
+}
+.mini-widgets-row > * {
+  flex: 1;
+  min-width: 0;
+}
 .dashboard-calendar {
   grid-area: calendar;
   display: flex;
@@ -151,6 +159,10 @@ body {
   .dashboard-binary {
     display: flex;
     flex-direction: column;
+  }
+  .dashboard-binary .mini-widgets-row {
+    flex: 1;
+    min-height: 0;
   }
   .dashboard-binary .card {
     flex: 1;

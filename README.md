@@ -27,6 +27,7 @@ request needed once installed. The clock defaults to 24-hour time (`hour12: fals
 | Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day — click a day to open a popup listing all of its events, each still linking out to Google Calendar |
 | Email | Your inbox — read and unread, with star status. Starred messages sort to the top, then everything else newest-first — click a subject to read it in-app, or open it in Gmail from there. "Load more" paginates further back |
 | Spotify | Currently-playing track with album art, progress bar, and playlist/album context — plus skip, pause/resume controls (requires Spotify Premium) — see [Spotify](#spotify) below |
+| Weather | Current temperature and conditions for your location (via browser geolocation, falling back to London if denied), refreshed every 15 minutes from [Open-Meteo](https://open-meteo.com) — no API key needed |
 
 ## Setup
 
