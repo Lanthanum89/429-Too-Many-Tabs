@@ -55,15 +55,25 @@ async function getLocationName(lat: number, lon: number): Promise<string> {
     const res = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lon}&language=en&limit=1`,
     )
-    if (!res.ok) return 'Unknown'
-    const data = (await res.json()) as { results?: Array<{ name?: string; admin1?: string }> }
+    if (!res.ok) return ''
+    const data = (await res.json()) as {
+      results?: Array<{
+        name?: string
+        admin1?: string
+        country?: string
+      }>
+    }
     const result = data.results?.[0]
     if (result?.name) {
-      return result.admin1 ? `${result.name}, ${result.admin1}` : result.name
+      const parts = [result.name]
+      if (result.admin1 && result.admin1 !== result.name) {
+        parts.push(result.admin1)
+      }
+      return parts.join(', ')
     }
-    return 'Unknown'
+    return ''
   } catch {
-    return 'Unknown'
+    return ''
   }
 }
 

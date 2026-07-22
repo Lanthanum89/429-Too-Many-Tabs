@@ -124,12 +124,12 @@ body {
     height: 100vh;
     gap: 1rem;
     grid-template-columns: clamp(18rem, 22vw, 30rem) 1fr;
-    grid-template-rows: auto auto minmax(4rem, 1fr) auto;
+    grid-template-rows: auto auto minmax(6rem, auto) 1fr;
     grid-template-areas:
       'header   header'
       'clock    calendar'
       'binary   email'
-      'spotify  email';
+      'spotify  spotify';
   }
 
   /* Calendar is a compact current-week strip (see WeekCalendar), so it only
