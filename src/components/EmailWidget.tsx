@@ -89,7 +89,7 @@ export function EmailWidget() {
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
-            <h2 className="font-display text-lg text-muted">Email</h2>
+            <h2 className="font-mono text-lg text-muted">Email</h2>
           </div>
           {openLoading && <p className="text-sm text-dim">Loading…</p>}
           {openError && <p className="text-xs text-danger">{openError}</p>}
@@ -112,7 +112,7 @@ export function EmailWidget() {
         </>
       ) : (
         <>
-          <h2 className="font-display text-lg text-muted">Email</h2>
+          <h2 className="font-mono text-lg text-muted">Email</h2>
           {messages === null ? (
             <button
               onClick={connect}
