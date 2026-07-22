@@ -1,4 +1,4 @@
-# Life Dashboard
+# 429: Too Many Tabs
 
 A read-only personal dashboard for a phone or tablet propped up on a desk. No backend —
 it's a static PWA meant to be hosted on GitHub Pages.
@@ -115,7 +115,7 @@ Email, or Spotify to actually work inside the installed APK (not just the web ve
 add `https://localhost` as a Google-authorised JavaScript origin and `https://localhost/`
 as a Spotify redirect URI too — that's the origin Capacitor's WebView runs at by default.
 
-Once the workflow run finishes, download the `life-dashboard-debug-apk` artifact from the
+Once the workflow run finishes, download the `429-too-many-tabs-debug-apk` artifact from the
 run's summary page, transfer the `.apk` to the phone, and install it (Android will need
 "install unknown apps" enabled for whatever app you used to open the file).
 

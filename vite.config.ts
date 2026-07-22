@@ -21,8 +21,8 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         manifest: {
-          name: 'Life Dashboard',
-          short_name: 'Dashboard',
+          name: '429: Too Many Tabs',
+          short_name: '429',
           description: 'Read-only personal dashboard: clock, to-do, calendar, email, Spotify.',
           theme_color: '#0b0a0f',
           background_color: '#0b0a0f',

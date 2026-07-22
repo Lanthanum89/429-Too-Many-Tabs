@@ -10,7 +10,7 @@ function App() {
     <div className="dashboard p-6">
       <header className="border-b border-line pb-4">
         <h1 className="font-display text-lg font-semibold tracking-wide text-accent-bright uppercase">
-          Life Dashboard
+          429: Too Many Tabs
         </h1>
       </header>
 
