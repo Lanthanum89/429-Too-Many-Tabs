@@ -94,6 +94,9 @@ body {
 }
 .dashboard-email {
   grid-area: email;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .dashboard-spotify {
   grid-area: spotify;
@@ -117,18 +120,21 @@ body {
     height: 100vh;
     gap: 1rem;
     grid-template-columns: clamp(18rem, 22vw, 30rem) 1fr;
-    grid-template-rows: auto auto auto minmax(4rem, 1fr) auto auto;
+    grid-template-rows: auto auto auto minmax(4rem, 1fr) auto;
     grid-template-areas:
       'header   header'
       'clock    calendar'
-      'binary   calendar'
-      'todo     calendar'
-      'email    calendar'
-      'spotify  calendar';
+      'binary   email'
+      'todo     email'
+      'spotify  email';
   }
 
+  /* Calendar is now a compact current-week strip (see WeekCalendar), so it
+     no longer needs the whole right-hand column — Email takes the rest of
+     that column instead, and To-do gets the sidebar's flexible row. */
   .dashboard-calendar,
-  .dashboard-todo {
+  .dashboard-todo,
+  .dashboard-email {
     overflow-y: auto;
   }
 

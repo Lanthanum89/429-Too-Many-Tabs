@@ -25,7 +25,7 @@ The clock defaults to 24-hour time (`hour12: false`).
 | Binary clock | Same binary-coded-decimal format as [Binary Bloom](https://github.com/Lanthanum89/binary-clock) — hours/minutes/seconds each split into tens/ones digits, each digit a column of 4 dots (8-4-2-1). Always 24-hour |
 | Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day (read-only) |
 | To-do | A simple localStorage-only to-do list |
-| Email | Unread Gmail subjects (read-only) |
+| Email | Unread Gmail subjects (read-only) — click one to open it in Gmail |
 | Spotify | Currently-playing track (read-only) — see [Spotify](#spotify) below |
 
 ## Setup
@@ -168,11 +168,12 @@ at different breakpoints without touching the JSX:
 2. **`sm` and up:** two columns; Email and Spotify pair into a row since there's width to
    spare, everything else stays full-width.
 3. **`md` and up, `orientation: landscape`** (a tablet on its side): a fixed-height
-   sidebar (Clock, Binary clock, To-do, Email, Spotify stacked) next to a Calendar column
-   that fills the remaining width — the whole `.dashboard` is `height: 100vh` with no
-   page-level scroll. To-do gets `overflow-y: auto` as an individual fallback in case its
-   own content doesn't fit (a long to-do list) — the page itself still won't scroll, only
-   that one panel does.
+   sidebar (Clock, Binary clock, To-do, Spotify — To-do gets the sidebar's flexible row,
+   so it grows to fill whatever space the others don't need) next to a right-hand column
+   with the compact Calendar strip on top and Email filling the rest of that column below
+   it — the whole `.dashboard` is `height: 100vh` with no page-level scroll. Calendar,
+   To-do, and Email each get `overflow-y: auto` as an individual fallback in case their
+   own content doesn't fit — the page itself still won't scroll, only that one panel does.
 
 There's no outer `max-width` — the dashboard fills whatever width it's given, from a
 small tablet in landscape up to an ultrawide monitor. The sidebar in layout 3 scales with
@@ -198,11 +199,6 @@ No registry, no per-mode sizing — just the one grid to update.
 
 ## Known gaps / decisions to revisit
 
-- **The landscape-breakpoint Calendar column is still sized for the old month grid.**
-  Now that Calendar shows a compact current-week strip instead, it leaves empty space
-  below it in that column at the `md`+landscape breakpoint (layout 3 above). Works fine,
-  just not tightly laid out — a follow-up would reflow that breakpoint's grid so Calendar
-  takes only the height it needs and something else (or a taller To-do) uses the rest.
 - **Google auth is implicit-flow only.** Tokens are cached in `localStorage` (see
   `lib/googleAuth.ts`) so a reload within the token's own ~1hr lifetime restores the
   widget automatically instead of forcing a reconnect — but there's still no refresh
