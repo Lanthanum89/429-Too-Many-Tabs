@@ -7,25 +7,15 @@ import {
   type CalendarEvent,
 } from '../lib/googleCalendar'
 
-const MAX_VISIBLE_EVENTS_PER_DAY = 3
-
-// Monday-first week containing `date`.
-function getWeekStart(date: Date): Date {
-  const offset = (date.getDay() + 6) % 7 // Mon = 0 ... Sun = 6
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - offset)
-}
-
-function getWeekGrid(weekStart: Date): Date[] {
-  return Array.from({ length: 7 }, (_, i) => {
-    const day = new Date(weekStart)
-    day.setDate(day.getDate() + i)
-    return day
-  })
-}
 
 function formatEventTime(event: CalendarEvent): string {
   if (event.allDay) return 'All day'
   return event.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
+
+function getWeekStart(date: Date): Date {
+  const offset = (date.getDay() + 6) % 7 // Mon = 0 ... Sun = 6
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - offset)
 }
 
 export function WeekCalendar() {
@@ -35,7 +25,6 @@ export function WeekCalendar() {
 
   const today = useMemo(() => new Date(), [])
   const weekStart = useMemo(() => getWeekStart(today), [today])
-  const grid = useMemo(() => getWeekGrid(weekStart), [weekStart])
 
   async function connect() {
     setLoading(true)
@@ -62,8 +51,6 @@ export function WeekCalendar() {
     }
     return map
   }, [events])
-
-  const todayKey = toDateKey(today)
 
   // Get upcoming events for next 3 days
   const upcomingEvents = useMemo(() => {
