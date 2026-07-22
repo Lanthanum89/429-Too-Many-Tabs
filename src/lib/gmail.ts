@@ -28,6 +28,7 @@ interface MessageHeader {
 
 interface MessageMetadataResponse {
   labelIds?: string[]
+  internalDate?: string
   payload?: { headers?: MessageHeader[] }
 }
 
@@ -81,7 +82,7 @@ export async function fetchInboxMessages(maxResults = 20): Promise<InboxMessage[
   const list = await gmailFetch<MessageListResponse>(`/messages?${query}`, token)
   const ids = (list.messages ?? []).map((m) => m.id)
 
-  return Promise.all(
+  const withDates = await Promise.all(
     ids.map(async (id) => {
       const params = new URLSearchParams({
         format: 'metadata',
@@ -102,9 +103,25 @@ export async function fetchInboxMessages(maxResults = 20): Promise<InboxMessage[
         from,
         unread: labelIds.includes('UNREAD'),
         starred: labelIds.includes('STARRED'),
+        internalDate: Number(msg.internalDate ?? 0),
       }
     }),
   )
+
+  // Starred messages surface first regardless of age, then everything else
+  // falls back to newest-first — matches how the widget's list is scanned.
+  withDates.sort((a, b) => {
+    if (a.starred !== b.starred) return a.starred ? -1 : 1
+    return b.internalDate - a.internalDate
+  })
+
+  return withDates.map(({ id, subject, from, unread, starred }) => ({
+    id,
+    subject,
+    from,
+    unread,
+    starred,
+  }))
 }
 
 function base64UrlDecode(data: string): string {

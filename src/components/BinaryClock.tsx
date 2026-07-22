@@ -37,7 +37,7 @@ function UnitBlock({ label, value }: { label: string; value: number }) {
         <DigitColumn digit={tens} />
         <DigitColumn digit={ones} />
       </div>
-      <span className="font-display text-[0.6rem] tracking-widest text-dim uppercase">{label}</span>
+      <span className="font-mono text-[0.6rem] tracking-widest text-dim uppercase">{label}</span>
     </div>
   )
 }
@@ -52,7 +52,7 @@ export function BinaryClock() {
 
   return (
     <Card className="flex flex-col items-center gap-3">
-      <h2 className="font-display text-sm tracking-wide text-muted uppercase">Binary</h2>
+      <h2 className="font-display text-lg text-muted">Binary</h2>
       <div className="flex gap-4">
         <UnitBlock label="H" value={now.getHours()} />
         <UnitBlock label="M" value={now.getMinutes()} />
