@@ -108,7 +108,7 @@ export function WeatherWidget() {
               <span className="font-clock text-2xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
             </div>
             <div className="flex flex-1 flex-col text-xs text-muted">
-              <span>{weather.location}</span>
+              {weather.location && <span>{weather.location}</span>}
               <span className="text-[11px] text-dim">{weather.description}</span>
             </div>
           </div>
