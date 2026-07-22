@@ -52,10 +52,13 @@ interface OpenMeteoResponse {
 
 async function getLocationName(lat: number, lon: number, fallbackName?: string): Promise<string> {
   try {
-    const res = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lon}&language=en&limit=1`,
-    )
-    if (!res.ok) return fallbackName ?? 'Current location'
+    const url = `https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lon}&language=en&limit=1`
+    const res = await fetch(url)
+    console.log(`Geocoding API (${lat}, ${lon}): ${res.status}`)
+    if (!res.ok) {
+      console.log(`Geocoding API error: ${res.status}`)
+      return fallbackName ?? 'Current location'
+    }
     const data = (await res.json()) as {
       results?: Array<{
         name?: string
@@ -63,6 +66,7 @@ async function getLocationName(lat: number, lon: number, fallbackName?: string):
         country?: string
       }>
     }
+    console.log('Geocoding results:', data.results)
     const result = data.results?.[0]
     if (result?.name) {
       const parts = [result.name]
@@ -71,8 +75,10 @@ async function getLocationName(lat: number, lon: number, fallbackName?: string):
       }
       return parts.join(', ')
     }
+    console.log('No results from geocoding API')
     return fallbackName ?? 'Current location'
-  } catch {
+  } catch (err) {
+    console.log('Geocoding API error:', err)
     return fallbackName ?? 'Current location'
   }
 }
