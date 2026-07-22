@@ -15,10 +15,17 @@ export interface InboxMessage {
   from: string
   unread: boolean
   starred: boolean
+  internalDate: number
+}
+
+export interface InboxPage {
+  messages: InboxMessage[]
+  nextPageToken?: string
 }
 
 interface MessageListResponse {
   messages?: { id: string }[]
+  nextPageToken?: string
 }
 
 interface MessageHeader {
@@ -73,16 +80,29 @@ async function gmailFetch<T>(path: string, token: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
-// Fetches the most recent inbox messages — read and unread alike, with star
-// status. Does one metadata request per message (fine at a couple dozen)
-// — switch to the `batch` endpoint if this list grows a lot.
-export async function fetchInboxMessages(maxResults = 20): Promise<InboxMessage[]> {
+// Starred messages surface first regardless of age, then everything else
+// falls back to newest-first — matches how the widget's list is scanned.
+export function sortInboxMessages(messages: InboxMessage[]): InboxMessage[] {
+  return [...messages].sort((a, b) => {
+    if (a.starred !== b.starred) return a.starred ? -1 : 1
+    return b.internalDate - a.internalDate
+  })
+}
+
+const PAGE_SIZE = 20
+
+// Fetches one page of inbox messages — read and unread alike, with star
+// status. Does one metadata request per message (fine at a page of ~20)
+// — switch to the `batch` endpoint if this grows a lot. Pass the previous
+// page's `nextPageToken` to load more.
+export async function fetchInboxMessages(pageToken?: string): Promise<InboxPage> {
   const token = await getToken()
-  const query = new URLSearchParams({ q: 'in:inbox', maxResults: String(maxResults) })
+  const query = new URLSearchParams({ q: 'in:inbox', maxResults: String(PAGE_SIZE) })
+  if (pageToken) query.set('pageToken', pageToken)
   const list = await gmailFetch<MessageListResponse>(`/messages?${query}`, token)
   const ids = (list.messages ?? []).map((m) => m.id)
 
-  const withDates = await Promise.all(
+  const messages = await Promise.all(
     ids.map(async (id) => {
       const params = new URLSearchParams({
         format: 'metadata',
@@ -108,20 +128,14 @@ export async function fetchInboxMessages(maxResults = 20): Promise<InboxMessage[
     }),
   )
 
-  // Starred messages surface first regardless of age, then everything else
-  // falls back to newest-first — matches how the widget's list is scanned.
-  withDates.sort((a, b) => {
-    if (a.starred !== b.starred) return a.starred ? -1 : 1
-    return b.internalDate - a.internalDate
-  })
+  return { messages: sortInboxMessages(messages), nextPageToken: list.nextPageToken }
+}
 
-  return withDates.map(({ id, subject, from, unread, starred }) => ({
-    id,
-    subject,
-    from,
-    unread,
-    starred,
-  }))
+// Pulls just the display name out of a `"Name" <email@example.com>` header,
+// falling back to the raw header if it isn't in that shape.
+export function fromDisplayName(from: string): string {
+  const match = from.match(/^"?([^"<]+?)"?\s*<[^>]+>$/)
+  return match ? match[1].trim() : from
 }
 
 function base64UrlDecode(data: string): string {

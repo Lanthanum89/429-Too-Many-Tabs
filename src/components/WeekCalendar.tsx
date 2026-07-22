@@ -23,10 +23,16 @@ function getWeekGrid(weekStart: Date): Date[] {
   })
 }
 
+function formatEventTime(event: CalendarEvent): string {
+  if (event.allDay) return 'All day'
+  return event.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
+
 export function WeekCalendar() {
   const [events, setEvents] = useState<CalendarEvent[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [openDay, setOpenDay] = useState<Date | null>(null)
 
   const today = useMemo(() => new Date(), [])
   const weekStart = useMemo(() => getWeekStart(today), [today])
@@ -81,34 +87,77 @@ export function WeekCalendar() {
             const overflow = dayEvents.length - MAX_VISIBLE_EVENTS_PER_DAY
 
             return (
-              <div
+              <button
                 key={key}
+                onClick={() => setOpenDay(day)}
                 className={`flex min-h-20 flex-col gap-0.5 overflow-hidden rounded-lg border p-1 text-left ${
-                  isToday ? 'border-accent bg-surface-2' : 'border-line'
+                  isToday ? 'border-accent bg-surface-2' : 'border-line hover:border-line-strong'
                 }`}
               >
                 <span className={`text-xs ${isToday ? 'font-semibold text-accent-bright' : 'text-muted'}`}>
                   {day.toLocaleDateString([], { weekday: 'short' })} {day.getDate()}
                 </span>
                 {dayEvents.slice(0, MAX_VISIBLE_EVENTS_PER_DAY).map((event) => (
-                  <a
+                  <span
                     key={event.id}
-                    href={event.htmlLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="truncate rounded bg-accent/20 px-1 text-[0.65rem] text-ink hover:bg-accent/40 hover:text-accent-bright"
+                    className="truncate rounded bg-accent/20 px-1 text-[0.65rem] text-ink"
                     title={event.title}
                   >
                     {event.title}
-                  </a>
+                  </span>
                 ))}
                 {overflow > 0 && <span className="text-[0.65rem] text-dim">+{overflow} more</span>}
-              </div>
+              </button>
             )
           })}
         </div>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
+
+      {openDay && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setOpenDay(null)}
+        >
+          <div
+            className="max-h-[80vh] w-full max-w-sm overflow-y-auto rounded-2xl border border-line bg-surface p-5 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h3 className="font-display text-lg text-ink">
+                {openDay.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
+              </h3>
+              <button
+                onClick={() => setOpenDay(null)}
+                aria-label="Close"
+                className="text-muted hover:text-accent-bright"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+            <ul className="flex flex-col gap-2">
+              {(eventsByDay.get(toDateKey(openDay)) ?? []).length === 0 && (
+                <li className="text-sm text-dim">No events.</li>
+              )}
+              {(eventsByDay.get(toDateKey(openDay)) ?? []).map((event) => (
+                <li key={event.id}>
+                  <a
+                    href={event.htmlLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-surface-2 hover:text-accent-bright"
+                  >
+                    <span className="w-16 shrink-0 text-xs text-dim">{formatEventTime(event)}</span>
+                    <span className="text-ink">{event.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </Card>
   )
 }

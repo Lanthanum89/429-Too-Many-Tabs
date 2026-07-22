@@ -24,8 +24,8 @@ request needed once installed. The clock defaults to 24-hour time (`hour12: fals
 |---|---|
 | Clock | Big serif time display, and the date |
 | Binary clock | Same binary-coded-decimal format as [Binary Bloom](https://github.com/Lanthanum89/binary-clock) — hours/minutes/seconds each split into tens/ones digits, each digit a column of 4 dots (8-4-2-1). Always 24-hour |
-| Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day — click an event to open it in Google Calendar (read-only) |
-| Email | Your inbox — read and unread, with star status. Starred messages sort to the top, then everything else newest-first — click a subject to read it in-app, or open it in Gmail from there |
+| Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day — click a day to open a popup listing all of its events, each still linking out to Google Calendar |
+| Email | Your inbox — read and unread, with star status. Starred messages sort to the top, then everything else newest-first — click a subject to read it in-app, or open it in Gmail from there. "Load more" paginates further back |
 | Spotify | Currently-playing track with album art, progress bar, and playlist/album context — plus skip, pause/resume controls (requires Spotify Premium) — see [Spotify](#spotify) below |
 
 ## Setup
