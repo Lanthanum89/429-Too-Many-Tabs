@@ -69,6 +69,33 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
   )
 }
 
+function WeatherDescription({ weather }: { weather: WeatherSnapshot }) {
+  const WEATHER_DESCRIPTIONS: Record<number, string> = {
+    0: 'Clear',
+    1: 'Clear',
+    2: 'Cloudy',
+    3: 'Overcast',
+    45: 'Fog',
+    48: 'Fog',
+    51: 'Drizzle',
+    53: 'Drizzle',
+    55: 'Drizzle',
+    61: 'Rain',
+    63: 'Rain',
+    65: 'Rain',
+    71: 'Snow',
+    73: 'Snow',
+    75: 'Snow',
+    80: 'Showers',
+    81: 'Showers',
+    82: 'Showers',
+    95: 'Storm',
+    96: 'Storm',
+    99: 'Storm',
+  }
+  return WEATHER_DESCRIPTIONS[weather.hourly[0]?.weatherCode ?? 0] ?? 'Unknown'
+}
+
 export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -98,14 +125,34 @@ export function WeatherWidget() {
   }, [])
 
   return (
-    <Card className="flex flex-col items-center justify-center gap-1 text-center text-accent-bright">
+    <Card className="flex flex-col items-start justify-start gap-2 text-accent-bright">
       <h2 className="font-display text-lg text-muted">Weather</h2>
       {weather ? (
-        <>
-          <WeatherIcon weather={weather} />
-          <span className="font-clock text-3xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
-          <span className="text-xs text-muted">{weather.description}</span>
-        </>
+        <div className="flex w-full flex-col gap-3">
+          <div className="flex items-end gap-2">
+            <div className="flex flex-col items-center gap-1">
+              <WeatherIcon weather={weather} />
+              <span className="font-clock text-2xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
+            </div>
+            <div className="flex flex-1 flex-col text-xs text-muted">
+              <span>{weather.location}</span>
+              <span className="text-[11px] text-dim">{weather.description}</span>
+            </div>
+          </div>
+          {weather.hourly.length > 0 && (
+            <div className="flex w-full gap-2 border-t border-line pt-2">
+              {weather.hourly.map((h, i) => {
+                const hour = new Date(h.time).getHours()
+                return (
+                  <div key={i} className="flex flex-1 flex-col items-center gap-1 text-[11px]">
+                    <span className="text-dim">{hour}:00</span>
+                    <span className="font-clock text-sm font-semibold">{Math.round(h.temperatureC)}°</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       ) : error ? (
         <p className="text-xs text-danger">{error}</p>
       ) : (

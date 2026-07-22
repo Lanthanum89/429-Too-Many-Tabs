@@ -30,7 +30,7 @@ export function EmailWidget() {
     setError(null)
     try {
       const page = await fetchInboxMessages()
-      setMessages(page.messages)
+      setMessages(sortInboxMessages(page.messages))
       setNextPageToken(page.nextPageToken)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load email')
