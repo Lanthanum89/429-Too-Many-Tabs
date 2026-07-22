@@ -56,7 +56,7 @@ async function getLocationName(lat: number, lon: number, fallbackName?: string):
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`,
       { headers: { 'User-Agent': '429-Too-Many-Tabs (personal dashboard)' } },
     )
-    if (!res.ok) return fallbackName ?? 'Current location'
+    if (!res.ok) return fallbackName ?? ''
     const data = (await res.json()) as {
       address?: {
         city?: string
@@ -75,9 +75,9 @@ async function getLocationName(lat: number, lon: number, fallbackName?: string):
         return state && state !== city ? `${city}, ${state}` : city
       }
     }
-    return fallbackName ?? 'Current location'
+    return fallbackName ?? ''
   } catch {
-    return fallbackName ?? 'Current location'
+    return fallbackName ?? ''
   }
 }
 
