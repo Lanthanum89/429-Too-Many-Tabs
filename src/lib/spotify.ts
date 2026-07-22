@@ -2,7 +2,7 @@
 // to build into a static bundle (see README's note on API keys/secrets).
 
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
-const SCOPE = 'user-read-currently-playing playlist-read-private'
+const SCOPE = 'user-read-currently-playing playlist-read-private user-modify-playback-state'
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize'
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token'
 
@@ -230,4 +230,59 @@ export async function fetchCurrentlyPlaying(): Promise<NowPlaying | null> {
     durationMs: data.item?.duration_ms ?? 0,
     contextName,
   }
+}
+
+// Playback control (Web API's /me/player/* transfer endpoints) requires
+// Spotify Premium on the connected account — free-tier accounts get a 403
+// from these specific endpoints even though reading currently-playing above
+// works on any tier.
+export class PlaybackControlError extends Error {
+  reason: 'no_active_device' | 'forbidden' | 'unknown'
+
+  constructor(reason: PlaybackControlError['reason'], message: string) {
+    super(message)
+    this.reason = reason
+  }
+}
+
+async function playbackControlRequest(method: 'POST' | 'PUT', path: string): Promise<void> {
+  const token = await getAccessToken()
+  if (!token) throw new PlaybackControlError('unknown', 'Not connected to Spotify')
+
+  const res = await fetch(`https://api.spotify.com/v1/me/player${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  if (res.ok) return
+
+  if (res.status === 404) {
+    throw new PlaybackControlError(
+      'no_active_device',
+      'No active Spotify device — open Spotify and start playing somewhere first.',
+    )
+  }
+  if (res.status === 403) {
+    throw new PlaybackControlError(
+      'forbidden',
+      'Spotify refused this — playback control requires a Premium account.',
+    )
+  }
+  throw new PlaybackControlError('unknown', `Spotify API error: ${res.status}`)
+}
+
+export function skipToNext(): Promise<void> {
+  return playbackControlRequest('POST', '/next')
+}
+
+export function skipToPrevious(): Promise<void> {
+  return playbackControlRequest('POST', '/previous')
+}
+
+export function pausePlayback(): Promise<void> {
+  return playbackControlRequest('PUT', '/pause')
+}
+
+export function resumePlayback(): Promise<void> {
+  return playbackControlRequest('PUT', '/play')
 }

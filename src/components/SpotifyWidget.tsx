@@ -1,9 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
-import { connectSpotify, fetchCurrentlyPlaying, isConnected, type NowPlaying } from '../lib/spotify'
+import {
+  connectSpotify,
+  fetchCurrentlyPlaying,
+  isConnected,
+  pausePlayback,
+  PlaybackControlError,
+  resumePlayback,
+  skipToNext,
+  skipToPrevious,
+  type NowPlaying,
+} from '../lib/spotify'
 
 const POLL_INTERVAL_MS = 15_000
 const TICK_INTERVAL_MS = 500
+// Give Spotify a moment to actually apply the change before re-polling —
+// polling immediately often still returns the pre-skip track.
+const POST_CONTROL_REFRESH_DELAY_MS = 400
 
 function formatDuration(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000)
@@ -18,15 +31,29 @@ export function SpotifyWidget() {
   const connected = isConnected()
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [controlError, setControlError] = useState<string | null>(null)
+  const [controlPending, setControlPending] = useState(false)
   const [displayedProgressMs, setDisplayedProgressMs] = useState(0)
   const lastSyncRef = useRef(Date.now())
+
+  async function poll() {
+    try {
+      const data = await fetchCurrentlyPlaying()
+      setNowPlaying(data)
+      setDisplayedProgressMs(data?.progressMs ?? 0)
+      lastSyncRef.current = Date.now()
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load Spotify')
+    }
+  }
 
   useEffect(() => {
     if (!connected) return undefined
 
     let cancelled = false
 
-    async function poll() {
+    async function pollIfActive() {
       try {
         const data = await fetchCurrentlyPlaying()
         if (cancelled) return
@@ -39,8 +66,8 @@ export function SpotifyWidget() {
       }
     }
 
-    poll()
-    const id = setInterval(poll, POLL_INTERVAL_MS)
+    pollIfActive()
+    const id = setInterval(pollIfActive, POLL_INTERVAL_MS)
     return () => {
       cancelled = true
       clearInterval(id)
@@ -69,6 +96,41 @@ export function SpotifyWidget() {
     }
   }
 
+  async function runControl(action: () => Promise<void>) {
+    setControlPending(true)
+    setControlError(null)
+    try {
+      await action()
+      // Optimistic UI updates instantly (below); this just resyncs the exact
+      // state once Spotify has actually applied the change.
+      await new Promise((resolve) => setTimeout(resolve, POST_CONTROL_REFRESH_DELAY_MS))
+      await poll()
+    } catch (err) {
+      if (err instanceof PlaybackControlError) {
+        setControlError(err.message)
+      } else {
+        setControlError(err instanceof Error ? err.message : 'Playback control failed')
+      }
+    } finally {
+      setControlPending(false)
+    }
+  }
+
+  function handlePrevious() {
+    void runControl(skipToPrevious)
+  }
+
+  function handleNext() {
+    void runControl(skipToNext)
+  }
+
+  function handlePlayPause() {
+    const isPlaying = nowPlaying?.isPlaying ?? false
+    // Optimistic flip so the button feels instant instead of waiting on the network.
+    setNowPlaying((prev) => (prev ? { ...prev, isPlaying: !isPlaying } : prev))
+    void runControl(isPlaying ? pausePlayback : resumePlayback)
+  }
+
   if (!connected) {
     return (
       <Card className="flex flex-col items-center justify-center gap-3 text-center">
@@ -91,7 +153,7 @@ export function SpotifyWidget() {
   return (
     <Card className="flex flex-col items-center justify-center gap-1 text-center">
       <h2 className="font-display text-sm tracking-wide text-muted uppercase">Spotify</h2>
-      {nowPlaying?.isPlaying ? (
+      {nowPlaying?.trackName ? (
         <>
           {nowPlaying.albumArtUrl && (
             <img
@@ -128,6 +190,45 @@ export function SpotifyWidget() {
               <span>{formatDuration(nowPlaying.durationMs)}</span>
             </div>
           </div>
+          <div className="mt-3 flex items-center gap-4">
+            <button
+              onClick={handlePrevious}
+              disabled={controlPending}
+              aria-label="Previous track"
+              className="text-muted hover:text-accent-bright disabled:opacity-40"
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+              </svg>
+            </button>
+            <button
+              onClick={handlePlayPause}
+              disabled={controlPending}
+              aria-label={nowPlaying.isPlaying ? 'Pause' : 'Play'}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-void hover:bg-accent-bright disabled:opacity-40"
+            >
+              {nowPlaying.isPlaying ? (
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M6 5h4v14H6zm8 0h4v14h-4z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={controlPending}
+              aria-label="Next track"
+              className="text-muted hover:text-accent-bright disabled:opacity-40"
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z" />
+              </svg>
+            </button>
+          </div>
+          {controlError && <p className="mt-1 text-[11px] text-danger">{controlError}</p>}
         </>
       ) : (
         <p className="text-sm text-dim">Nothing playing.</p>
