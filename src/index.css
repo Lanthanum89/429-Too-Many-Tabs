@@ -103,6 +103,7 @@ body {
   width: 100%;
   box-sizing: border-box;
   max-width: 100%;
+  overflow: hidden;
 }
 
 
@@ -184,6 +185,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 .dashboard-spotify {
   grid-area: spotify;
