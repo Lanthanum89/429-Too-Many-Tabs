@@ -95,10 +95,10 @@ export function EmailWidget() {
           {openError && <p className="text-xs text-danger">{openError}</p>}
           {openMessage && (
             <div className="flex min-h-0 flex-1 flex-col gap-2">
-              <p className="text-sm font-medium text-ink">{openMessage.subject}</p>
-              <p className="text-xs text-muted">{openMessage.from}</p>
-              {openMessage.date && <p className="text-[11px] text-dim">{openMessage.date}</p>}
-              <p className="line-clamp-6 whitespace-pre-wrap text-sm text-ink">{openMessage.bodyText}</p>
+              <p className="font-mono text-sm font-medium text-ink">{openMessage.subject}</p>
+              <p className="font-mono text-xs text-muted">{openMessage.from}</p>
+              {openMessage.date && <p className="font-mono text-[11px] text-dim">{openMessage.date}</p>}
+              <p className="font-mono line-clamp-6 whitespace-pre-wrap text-sm text-ink">{openMessage.bodyText}</p>
               <a
                 href={gmailMessageUrl(openMessage.id)}
                 target="_blank"
@@ -141,13 +141,13 @@ export function EmailWidget() {
                     </svg>
                     <span className="min-w-0 flex-1">
                       <span
-                        className={`block truncate text-xs ${message.unread ? 'font-medium text-ink' : 'text-dim'}`}
+                        className={`block truncate font-mono text-xs ${message.unread ? 'font-medium text-ink' : 'text-dim'}`}
                         title={message.from}
                       >
                         {fromDisplayName(message.from)}
                       </span>
                       <span
-                        className={`block truncate text-sm ${message.unread ? 'font-semibold text-ink' : 'text-muted'}`}
+                        className={`block truncate font-mono text-sm ${message.unread ? 'font-semibold text-ink' : 'text-muted'}`}
                         title={message.subject}
                       >
                         {message.subject}
