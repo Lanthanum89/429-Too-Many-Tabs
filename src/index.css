@@ -116,7 +116,7 @@ body {
   .dashboard {
     height: 100vh;
     gap: 1rem;
-    grid-template-columns: 22rem 1fr;
+    grid-template-columns: clamp(18rem, 22vw, 30rem) 1fr;
     grid-template-rows: auto auto auto minmax(4rem, 1fr) auto auto;
     grid-template-areas:
       'header   header'

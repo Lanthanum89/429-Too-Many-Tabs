@@ -61,11 +61,11 @@ export function TodoList() {
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addTodo()}
           placeholder="Add a task"
-          className="flex-1 rounded-lg border border-line bg-surface-2 px-3 py-1.5 text-sm text-ink outline-none placeholder:text-dim focus:border-accent"
+          className="min-w-0 flex-1 rounded-lg border border-line bg-surface-2 px-3 py-1.5 text-sm text-ink outline-none placeholder:text-dim focus:border-accent"
         />
         <button
           onClick={addTodo}
-          className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
+          className="shrink-0 rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
         >
           Add
         </button>

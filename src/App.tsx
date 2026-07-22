@@ -7,7 +7,7 @@ import { SpotifyWidget } from './components/SpotifyWidget'
 
 function App() {
   return (
-    <div className="dashboard mx-auto max-w-6xl p-6">
+    <div className="dashboard p-6">
       <header className="border-b border-line pb-4">
         <h1 className="font-display text-lg font-semibold tracking-wide text-accent-bright uppercase">
           Life Dashboard

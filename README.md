@@ -174,9 +174,14 @@ at different breakpoints without touching the JSX:
    in case their own content doesn't fit (a very full month, a long to-do list) — the
    page itself still won't scroll, only that one panel does.
 
+There's no outer `max-width` — the dashboard fills whatever width it's given, from a
+small tablet in landscape up to an ultrawide monitor. The sidebar in layout 3 scales with
+it too (`clamp(18rem, 22vw, 30rem)`) rather than staying a fixed width regardless of
+screen size.
+
 The big retro clock digits are sized in `vw` for the full-width hero layouts (1 and 2),
-but that breaks down in the fixed ~22rem sidebar of layout 3 — `vw` is relative to the
-whole viewport, not the sidebar's actual width, so it read far too large there. The
+but that breaks down in the sidebar of layout 3 — `vw` is relative to the whole viewport,
+not the sidebar's actual (now-variable) width, so it read far too large there. The
 landscape breakpoint overrides `.clock-display` with a flat size instead of fighting it
 with container queries.
 
