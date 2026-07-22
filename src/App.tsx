@@ -14,14 +14,21 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', options)
 }
 
+function getGreeting(hour: number): string {
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
 function App() {
   const today = new Date()
+  const greeting = getGreeting(today.getHours())
   return (
     <div className="dashboard p-6">
       <header className="border-b border-line pb-6 mb-6">
         <p className="text-xs text-dim mb-2">{formatDate(today)}</p>
         <h1 className="font-display text-4xl font-semibold text-accent-bright">
-          Good morning, <span className="italic">Laura</span>.
+          {greeting}, <span className="italic">Laura</span>.
         </h1>
       </header>
 

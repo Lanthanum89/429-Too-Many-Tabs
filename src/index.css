@@ -87,6 +87,7 @@ body {
     'header'
     'clock'
     'binary'
+    'weather'
     'calendar'
     'email'
     'spotify';
@@ -101,6 +102,9 @@ body {
 }
 .dashboard-binary {
   grid-area: binary;
+}
+.dashboard-weather {
+  grid-area: weather;
 }
 .mini-widgets-row {
   display: flex;
