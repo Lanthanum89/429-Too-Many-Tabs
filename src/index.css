@@ -142,15 +142,12 @@ body {
   .dashboard {
     height: 100vh;
     gap: 1rem;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto minmax(6rem, auto) auto 1fr auto;
+    grid-template-columns: clamp(18rem, 22vw, 30rem) 1fr;
+    grid-template-rows: auto minmax(6rem, auto) 1fr;
     grid-template-areas:
       'header   header'
-      'clock    clock'
-      'binary   weather'
-      'spotify  spotify'
-      'calendar calendar'
-      'email    email';
+      'binary   calendar'
+      'spotify  email';
   }
 
   .dashboard-calendar,
@@ -159,11 +156,31 @@ body {
   }
 
   .clock-display {
-    font-size: 3.25rem;
+    display: none;
   }
 
-  .dashboard-clock .card,
+  .dashboard-clock {
+    display: none;
+  }
+
+  .dashboard-spotify {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-binary {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-binary .mini-widgets-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .dashboard-binary .card,
   .dashboard-spotify .card,
+  .dashboard-calendar .card,
   .dashboard-email .card {
     padding: 1rem;
   }
