@@ -5,15 +5,6 @@ import { WeekCalendar } from './components/WeekCalendar'
 import { EmailWidget } from './components/EmailWidget'
 import { SpotifyWidget } from './components/SpotifyWidget'
 
-function formatDate(date: Date): string {
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  }
-  return date.toLocaleDateString('en-US', options)
-}
-
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
   if (hour < 18) return 'Good afternoon'
@@ -26,7 +17,6 @@ function App() {
   return (
     <div className="dashboard p-4 sm:p-6">
       <header className="border-b border-line pb-6 mb-6">
-        <p className="text-xs text-dim mb-2">{formatDate(today)}</p>
         <h1 className="font-mono text-4xl font-semibold text-accent-bright">
           {greeting}, <span className="italic">Laura</span>.
         </h1>
