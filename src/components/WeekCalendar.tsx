@@ -1,44 +1,52 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Card } from './Card'
 import {
-  fetchMonthEvents,
+  fetchWeekEvents,
   hasValidCalendarToken,
   toDateKey,
   type CalendarEvent,
 } from '../lib/googleCalendar'
 
-const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const MAX_VISIBLE_EVENTS_PER_DAY = 3
 
-// Monday-first grid covering the whole month, padded with the trailing days
-// of the previous/next month so every week is a full row of 7.
-function getMonthGrid(monthDate: Date): Date[] {
-  const year = monthDate.getFullYear()
-  const month = monthDate.getMonth()
-  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7 // Mon = 0 ... Sun = 6
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const totalCells = Math.ceil((firstWeekday + daysInMonth) / 7) * 7
-
-  return Array.from({ length: totalCells }, (_, i) => new Date(year, month, 1 - firstWeekday + i))
+// Monday-first week containing `date`.
+function getWeekStart(date: Date): Date {
+  const offset = (date.getDay() + 6) % 7 // Mon = 0 ... Sun = 6
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - offset)
 }
 
-export function MonthCalendar() {
+function getWeekGrid(weekStart: Date): Date[] {
+  return Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(weekStart)
+    day.setDate(day.getDate() + i)
+    return day
+  })
+}
+
+export function WeekCalendar() {
   const [events, setEvents] = useState<CalendarEvent[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const today = useMemo(() => new Date(), [])
-  const grid = useMemo(() => getMonthGrid(today), [today])
-  const monthLabel = useMemo(
-    () => today.toLocaleDateString([], { month: 'long', year: 'numeric' }),
-    [today],
-  )
+  const weekStart = useMemo(() => getWeekStart(today), [today])
+  const grid = useMemo(() => getWeekGrid(weekStart), [weekStart])
+  const weekLabel = useMemo(() => {
+    const weekEnd = grid[6]
+    const sameMonth = weekStart.getMonth() === weekEnd.getMonth()
+    const startLabel = weekStart.toLocaleDateString([], {
+      day: 'numeric',
+      month: sameMonth ? undefined : 'short',
+    })
+    const endLabel = weekEnd.toLocaleDateString([], { day: 'numeric', month: 'short' })
+    return `${startLabel}–${endLabel}`
+  }, [weekStart, grid])
 
   async function connect() {
     setLoading(true)
     setError(null)
     try {
-      setEvents(await fetchMonthEvents(today))
+      setEvents(await fetchWeekEvents(weekStart))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load calendar')
     } finally {
@@ -61,13 +69,12 @@ export function MonthCalendar() {
   }, [events])
 
   const todayKey = toDateKey(today)
-  const weekCount = grid.length / 7
 
   return (
-    <Card className="flex min-h-0 flex-1 flex-col gap-3">
+    <Card className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between">
         <h2 className="font-display text-sm tracking-wide text-muted uppercase">Calendar</h2>
-        <span className="font-display text-sm text-muted">{monthLabel}</span>
+        <span className="font-display text-sm text-muted">{weekLabel}</span>
       </div>
 
       {events === null ? (
@@ -79,18 +86,9 @@ export function MonthCalendar() {
           {loading ? 'Connecting…' : 'Connect Google Calendar'}
         </button>
       ) : (
-        <div
-          className="grid min-h-0 flex-1 grid-cols-7 gap-1"
-          style={{ gridTemplateRows: `auto repeat(${weekCount}, minmax(0, 1fr))` }}
-        >
-          {WEEKDAY_LABELS.map((label) => (
-            <div key={label} className="pb-1 text-center text-xs text-dim uppercase">
-              {label}
-            </div>
-          ))}
+        <div className="grid grid-cols-7 gap-1">
           {grid.map((day) => {
             const key = toDateKey(day)
-            const inMonth = day.getMonth() === today.getMonth()
             const isToday = key === todayKey
             const dayEvents = eventsByDay.get(key) ?? []
             const overflow = dayEvents.length - MAX_VISIBLE_EVENTS_PER_DAY
@@ -98,12 +96,12 @@ export function MonthCalendar() {
             return (
               <div
                 key={key}
-                className={`flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-lg border p-1 text-left ${
+                className={`flex min-h-20 flex-col gap-0.5 overflow-hidden rounded-lg border p-1 text-left ${
                   isToday ? 'border-accent bg-surface-2' : 'border-line'
-                } ${inMonth ? '' : 'opacity-40'}`}
+                }`}
               >
                 <span className={`text-xs ${isToday ? 'font-semibold text-accent-bright' : 'text-muted'}`}>
-                  {day.getDate()}
+                  {day.toLocaleDateString([], { weekday: 'short' })} {day.getDate()}
                 </span>
                 {dayEvents.slice(0, MAX_VISIBLE_EVENTS_PER_DAY).map((event) => (
                   <span
