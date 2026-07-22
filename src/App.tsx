@@ -5,12 +5,23 @@ import { WeekCalendar } from './components/WeekCalendar'
 import { EmailWidget } from './components/EmailWidget'
 import { SpotifyWidget } from './components/SpotifyWidget'
 
+function formatDate(date: Date): string {
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  }
+  return date.toLocaleDateString('en-US', options)
+}
+
 function App() {
+  const today = new Date()
   return (
     <div className="dashboard p-6">
-      <header className="border-b border-line pb-4">
-        <h1 className="font-display text-2xl font-semibold text-accent-bright">
-          429: Too Many Tabs
+      <header className="border-b border-line pb-6 mb-6">
+        <p className="text-xs text-dim mb-2">{formatDate(today)}</p>
+        <h1 className="font-display text-4xl font-semibold text-accent-bright">
+          Good morning, <span className="italic">Laura</span>.
         </h1>
       </header>
 
