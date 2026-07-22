@@ -27,7 +27,7 @@ function App() {
     <div className="dashboard p-4 sm:p-6">
       <header className="border-b border-line pb-6 mb-6">
         <p className="text-xs text-dim mb-2">{formatDate(today)}</p>
-        <h1 className="font-display text-4xl font-semibold text-accent-bright">
+        <h1 className="font-mono text-4xl font-semibold text-accent-bright">
           {greeting}, <span className="italic">Laura</span>.
         </h1>
       </header>

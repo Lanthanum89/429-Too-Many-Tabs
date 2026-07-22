@@ -52,7 +52,7 @@ export function BinaryClock() {
 
   return (
     <Card className="flex flex-col items-center gap-3">
-      <h2 className="font-display text-lg text-muted">Binary</h2>
+      <h2 className="font-mono text-lg text-muted">Binary</h2>
       <div className="flex gap-4">
         <UnitBlock label="H" value={now.getHours()} />
         <UnitBlock label="M" value={now.getMinutes()} />
