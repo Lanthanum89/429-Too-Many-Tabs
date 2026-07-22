@@ -3,7 +3,9 @@ import { Card } from './Card'
 import {
   fetchInboxMessages,
   fetchMessageBody,
+  fromDisplayName,
   hasValidGmailToken,
+  sortInboxMessages,
   type EmailBody,
   type InboxMessage,
 } from '../lib/gmail'
@@ -14,8 +16,10 @@ function gmailMessageUrl(id: string): string {
 
 export function EmailWidget() {
   const [messages, setMessages] = useState<InboxMessage[] | null>(null)
+  const [nextPageToken, setNextPageToken] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   const [openMessage, setOpenMessage] = useState<EmailBody | null>(null)
   const [openLoading, setOpenLoading] = useState(false)
@@ -25,11 +29,28 @@ export function EmailWidget() {
     setLoading(true)
     setError(null)
     try {
-      setMessages(await fetchInboxMessages(20))
+      const page = await fetchInboxMessages()
+      setMessages(page.messages)
+      setNextPageToken(page.nextPageToken)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load email')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function loadMore() {
+    if (!nextPageToken) return
+    setLoadingMore(true)
+    setError(null)
+    try {
+      const page = await fetchInboxMessages(nextPageToken)
+      setMessages((prev) => sortInboxMessages([...(prev ?? []), ...page.messages]))
+      setNextPageToken(page.nextPageToken)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load more email')
+    } finally {
+      setLoadingMore(false)
     }
   }
 
@@ -101,32 +122,51 @@ export function EmailWidget() {
               {loading ? 'Connecting…' : 'Connect Gmail'}
             </button>
           ) : (
-            <ul className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto">
+            <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto">
               {messages.length === 0 && <li className="text-sm text-dim">Inbox empty.</li>}
               {messages.map((message) => (
-                <li key={message.id}>
+                <li key={message.id} className="border-b border-line last:border-0">
                   <button
                     onClick={() => openInApp(message.id)}
-                    className="flex w-full items-center gap-1.5 text-left text-sm hover:text-accent-bright"
+                    className="flex w-full items-start gap-2 py-1.5 text-left hover:text-accent-bright"
                   >
                     <svg
                       viewBox="0 0 24 24"
                       width="12"
                       height="12"
-                      className={`shrink-0 ${message.starred ? 'fill-accent-bright' : 'fill-none stroke-dim'}`}
+                      className={`mt-1 shrink-0 ${message.starred ? 'fill-accent-bright' : 'fill-none stroke-dim'}`}
                       strokeWidth="1.5"
                     >
                       <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6z" />
                     </svg>
-                    <span
-                      className={`truncate ${message.unread ? 'font-semibold text-ink' : 'text-muted'}`}
-                      title={message.subject}
-                    >
-                      {message.subject}
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={`block truncate text-xs ${message.unread ? 'font-medium text-ink' : 'text-dim'}`}
+                        title={message.from}
+                      >
+                        {fromDisplayName(message.from)}
+                      </span>
+                      <span
+                        className={`block truncate text-sm ${message.unread ? 'font-semibold text-ink' : 'text-muted'}`}
+                        title={message.subject}
+                      >
+                        {message.subject}
+                      </span>
                     </span>
                   </button>
                 </li>
               ))}
+              {nextPageToken && (
+                <li className="pt-2 text-center">
+                  <button
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="text-xs text-accent hover:text-accent-bright disabled:opacity-50"
+                  >
+                    {loadingMore ? 'Loading…' : 'Load more'}
+                  </button>
+                </li>
+              )}
             </ul>
           )}
           {error && <p className="text-xs text-danger">{error}</p>}
