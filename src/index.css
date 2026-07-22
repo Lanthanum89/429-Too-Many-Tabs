@@ -40,3 +40,110 @@ body {
   @apply bg-void text-ink;
   overscroll-behavior: none;
 }
+
+/* Sized in vw against the whole viewport for the default full-width hero
+   clock. In the landscape sidebar layout below, the clock's column is a
+   fixed 22rem regardless of viewport width, so vw massively oversizes it
+   there — that layout overrides this with a flat size instead. */
+.clock-display {
+  font-size: clamp(5rem, 18vw, 11rem);
+  text-shadow: 0 0 28px rgba(170, 150, 216, 0.55);
+}
+
+/* Layout: phones (and anything portrait) just stack and let the page
+   scroll. From `sm` up, email/spotify pair into a row since there's width
+   to spare. From `md` + landscape (a tablet on its side) the whole thing
+   becomes a fixed-height sidebar-plus-calendar grid sized to fit the
+   viewport with no page scroll — individual panels (calendar, to-do) get
+   their own internal scroll as a fallback if their content overflows. */
+.dashboard {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'header'
+    'clock'
+    'binary'
+    'calendar'
+    'todo'
+    'email'
+    'spotify';
+}
+
+.dashboard > header {
+  grid-area: header;
+}
+
+.dashboard-clock {
+  grid-area: clock;
+}
+.dashboard-binary {
+  grid-area: binary;
+}
+.dashboard-calendar {
+  grid-area: calendar;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dashboard-todo {
+  grid-area: todo;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dashboard-email {
+  grid-area: email;
+}
+.dashboard-spotify {
+  grid-area: spotify;
+}
+
+@media (min-width: 640px) {
+  .dashboard {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'header   header'
+      'clock    clock'
+      'binary   binary'
+      'calendar calendar'
+      'todo     todo'
+      'email    spotify';
+  }
+}
+
+@media (min-width: 768px) and (orientation: landscape) {
+  .dashboard {
+    height: 100vh;
+    gap: 1rem;
+    grid-template-columns: 22rem 1fr;
+    grid-template-rows: auto auto auto minmax(4rem, 1fr) auto auto;
+    grid-template-areas:
+      'header   header'
+      'clock    calendar'
+      'binary   calendar'
+      'todo     calendar'
+      'email    calendar'
+      'spotify  calendar';
+  }
+
+  .dashboard-calendar,
+  .dashboard-todo {
+    overflow-y: auto;
+  }
+
+  .clock-display {
+    font-size: 3.25rem;
+  }
+
+  /* The sidebar stacks five cards in ~800px of typical tablet-landscape
+     height — full p-6 padding on all of them leaves almost nothing for
+     the to-do list's flexible row, so tighten it up here specifically. */
+  .dashboard-clock .card,
+  .dashboard-binary .card,
+  .dashboard-todo .card,
+  .dashboard-email .card,
+  .dashboard-spotify .card {
+    padding: 1rem;
+  }
+}

@@ -39,9 +39,9 @@ export function TodoList() {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
+    <Card className="flex min-h-0 flex-1 flex-col gap-3">
       <h2 className="font-display text-sm tracking-wide text-muted uppercase">To-do</h2>
-      <ul className="flex flex-col gap-2 overflow-y-auto">
+      <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
         {todos.length === 0 && <li className="text-sm text-dim">Nothing here.</li>}
         {todos.map((todo) => (
           <li key={todo.id} className="flex items-center gap-2 text-sm">

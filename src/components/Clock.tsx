@@ -21,10 +21,7 @@ export function Clock() {
 
   return (
     <Card className="flex flex-col items-center justify-center border-2 border-line-strong text-center">
-      <span
-        className="font-clock leading-none tracking-wider text-accent-bright"
-        style={{ fontSize: 'clamp(5rem, 18vw, 11rem)', textShadow: '0 0 28px rgba(170, 150, 216, 0.55)' }}
-      >
+      <span className="clock-display font-clock leading-none tracking-wider text-accent-bright">
         {hours}
         <span className="animate-pulse">:</span>
         {minutes}

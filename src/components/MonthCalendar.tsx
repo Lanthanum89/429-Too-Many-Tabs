@@ -61,9 +61,10 @@ export function MonthCalendar() {
   }, [events])
 
   const todayKey = toDateKey(today)
+  const weekCount = grid.length / 7
 
   return (
-    <Card className="flex flex-col gap-3">
+    <Card className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-baseline justify-between">
         <h2 className="font-display text-sm tracking-wide text-muted uppercase">Calendar</h2>
         <span className="font-display text-sm text-muted">{monthLabel}</span>
@@ -78,7 +79,10 @@ export function MonthCalendar() {
           {loading ? 'Connecting…' : 'Connect Google Calendar'}
         </button>
       ) : (
-        <div className="grid grid-cols-7 gap-1">
+        <div
+          className="grid min-h-0 flex-1 grid-cols-7 gap-1"
+          style={{ gridTemplateRows: `auto repeat(${weekCount}, minmax(0, 1fr))` }}
+        >
           {WEEKDAY_LABELS.map((label) => (
             <div key={label} className="pb-1 text-center text-xs text-dim uppercase">
               {label}
@@ -94,7 +98,7 @@ export function MonthCalendar() {
             return (
               <div
                 key={key}
-                className={`flex min-h-20 flex-col gap-0.5 rounded-lg border p-1 text-left ${
+                className={`flex min-h-16 flex-col gap-0.5 overflow-hidden rounded-lg border p-1 text-left ${
                   isToday ? 'border-accent bg-surface-2' : 'border-line'
                 } ${inMonth ? '' : 'opacity-40'}`}
               >

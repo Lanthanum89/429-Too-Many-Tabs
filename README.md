@@ -3,8 +3,10 @@
 A read-only personal dashboard for a phone or tablet propped up on a desk. No backend —
 it's a static PWA meant to be hosted on GitHub Pages.
 
-One glanceable page: clock, month calendar, to-do list, email, and Spotify all shown at
-once — no modes or settings to fiddle with.
+One glanceable page: clock, binary clock, month calendar, to-do list, email, and Spotify
+all shown at once — no modes or settings to fiddle with. On a tablet in landscape it's
+laid out to fit entirely within one screen, no scrolling; portrait (phone or tablet)
+just stacks everything and scrolls normally — see [Layout](#layout) below.
 
 Visual style is dark lilac, matching the [SoundTracks](https://github.com/Lanthanum89/spotify-stats-app)
 app: near-black background, lilac accent (`src/index.css`'s `@theme` block — `void`,
@@ -20,6 +22,7 @@ The clock defaults to 24-hour time (`hour12: false`).
 | Widget | What it shows |
 |---|---|
 | Clock | Big retro-LED-style time display, and the date |
+| Binary clock | Same binary-coded-decimal format as [Binary Bloom](https://github.com/Lanthanum89/binary-clock) — hours/minutes/seconds each split into tens/ones digits, each digit a column of 4 dots (8-4-2-1). Always 24-hour |
 | Calendar | The current month as a grid (Monday-first), with Google Calendar events plotted on their day (read-only) |
 | To-do | A simple localStorage-only to-do list |
 | Email | Unread Gmail subjects (read-only) |
@@ -152,16 +155,41 @@ actually requires it.
 
 `App.tsx` renders every widget, always — there's no mode/layout switching. Each widget is
 self-contained: it manages its own connect/loading/error state and decides its own
-content; the only shared layout logic is the CSS grid in `App.tsx` itself.
+content.
+
+### Layout
+
+The whole page is one CSS grid (`.dashboard` in `src/index.css`), using named
+`grid-template-areas` so the same set of widgets can be arranged completely differently
+at different breakpoints without touching the JSX:
+
+1. **Default (phones, anything portrait):** single column, everything stacked in a
+   sensible reading order, page scrolls normally.
+2. **`sm` and up:** two columns; Email and Spotify pair into a row since there's width to
+   spare, everything else stays full-width.
+3. **`md` and up, `orientation: landscape`** (a tablet on its side): a fixed-height
+   sidebar (Clock, Binary clock, To-do, Email, Spotify stacked) next to a large Calendar
+   that fills the remaining width — the whole `.dashboard` is `height: 100vh` with no
+   page-level scroll. Calendar and To-do get `overflow-y: auto` as an individual fallback
+   in case their own content doesn't fit (a very full month, a long to-do list) — the
+   page itself still won't scroll, only that one panel does.
+
+The big retro clock digits are sized in `vw` for the full-width hero layouts (1 and 2),
+but that breaks down in the fixed ~22rem sidebar of layout 3 — `vw` is relative to the
+whole viewport, not the sidebar's actual width, so it read far too large there. The
+landscape breakpoint overrides `.clock-display` with a flat size instead of fighting it
+with container queries.
 
 ### Adding a widget
 
 1. Build the component under `src/components/`, following the existing widgets' shape
    (a `Card`, a `Connect` button gated on a `hasValid*Token()`/`isConnected()` check if it
    needs auth, its own loading/error state).
-2. Add it to the JSX in `src/App.tsx`, in whichever spot in the grid makes sense.
+2. Add it to the JSX in `src/App.tsx`, wrapped in a `<div className="dashboard-<name>">`.
+3. Give it a `grid-area: <name>` rule in `src/index.css`, and slot that name into each of
+   the three `.dashboard` breakpoints' `grid-template-areas` wherever it makes sense.
 
-That's it — no registry, no per-mode sizing to keep in sync.
+No registry, no per-mode sizing — just the one grid to update.
 
 ## Known gaps / decisions to revisit
 
