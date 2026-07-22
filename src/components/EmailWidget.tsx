@@ -94,11 +94,11 @@ export function EmailWidget() {
           {openLoading && <p className="text-sm text-dim">Loading…</p>}
           {openError && <p className="text-xs text-danger">{openError}</p>}
           {openMessage && (
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+            <div className="flex min-h-0 flex-1 flex-col gap-2">
               <p className="text-sm font-medium text-ink">{openMessage.subject}</p>
               <p className="text-xs text-muted">{openMessage.from}</p>
               {openMessage.date && <p className="text-[11px] text-dim">{openMessage.date}</p>}
-              <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{openMessage.bodyText}</p>
+              <p className="line-clamp-6 whitespace-pre-wrap text-sm text-ink">{openMessage.bodyText}</p>
               <a
                 href={gmailMessageUrl(openMessage.id)}
                 target="_blank"
