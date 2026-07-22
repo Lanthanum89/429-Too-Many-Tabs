@@ -79,7 +79,8 @@ export function WeatherWidget() {
     async function load() {
       try {
         const { lat, lon } = await getCoords()
-        const data = await fetchWeather(lat, lon)
+        const isFallback = lat === FALLBACK_LAT && lon === FALLBACK_LON
+        const data = await fetchWeather(lat, lon, isFallback ? 'London' : undefined)
         if (!cancelled) {
           setWeather(data)
           setError(null)

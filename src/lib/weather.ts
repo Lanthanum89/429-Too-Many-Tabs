@@ -50,12 +50,12 @@ interface OpenMeteoResponse {
   }
 }
 
-async function getLocationName(lat: number, lon: number): Promise<string> {
+async function getLocationName(lat: number, lon: number, fallbackName?: string): Promise<string> {
   try {
     const res = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lon}&language=en&limit=1`,
     )
-    if (!res.ok) return ''
+    if (!res.ok) return fallbackName ?? 'Current location'
     const data = (await res.json()) as {
       results?: Array<{
         name?: string
@@ -71,15 +71,15 @@ async function getLocationName(lat: number, lon: number): Promise<string> {
       }
       return parts.join(', ')
     }
-    return ''
+    return fallbackName ?? 'Current location'
   } catch {
-    return ''
+    return fallbackName ?? 'Current location'
   }
 }
 
 // Open-Meteo needs no API key and allows direct browser CORS requests —
 // fits the fully-static, no-backend architecture the rest of 429 uses.
-export async function fetchWeather(lat: number, lon: number): Promise<WeatherSnapshot> {
+export async function fetchWeather(lat: number, lon: number, fallbackLocationName?: string): Promise<WeatherSnapshot> {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
@@ -88,7 +88,7 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherSna
   })
   const [weatherRes, location] = await Promise.all([
     fetch(`https://api.open-meteo.com/v1/forecast?${params}`),
-    getLocationName(lat, lon),
+    getLocationName(lat, lon, fallbackLocationName),
   ])
 
   if (!weatherRes.ok) {
