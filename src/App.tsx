@@ -29,10 +29,10 @@ function App() {
         <Clock />
       </div>
       <div className="dashboard-binary">
-        <div className="mini-widgets-row">
-          <BinaryClock />
-          <WeatherWidget />
-        </div>
+        <BinaryClock />
+      </div>
+      <div className="dashboard-weather">
+        <WeatherWidget />
       </div>
       <div className="dashboard-calendar">
         <WeekCalendar />
