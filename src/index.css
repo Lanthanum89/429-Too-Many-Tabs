@@ -69,8 +69,10 @@ body {
    fixed 22rem regardless of viewport width, so vw massively oversizes it
    there — that layout overrides this with a flat size instead. */
 .clock-display {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: clamp(3rem, 16vw, 11rem);
   text-shadow: 0 0 28px rgba(170, 150, 216, 0.55);
+  letter-spacing: 0.05em;
 }
 
 @media (max-width: 480px) {
@@ -100,13 +102,22 @@ body {
   padding: 1rem;
   width: 100%;
   box-sizing: border-box;
+  max-width: 100%;
+}
+
+@media (max-width: 360px) {
+  .dashboard {
+    max-width: 95vw;
+    margin: 0 auto;
+  }
 }
 
 @media (max-width: 480px) {
   .dashboard {
     gap: 0.5rem;
     padding: 0.5rem;
-    max-width: none;
+    max-width: 100%;
+    margin: 0 auto;
   }
 
   .dashboard > header {
