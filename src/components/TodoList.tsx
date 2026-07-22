@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
-import type { WidgetSize } from '../theme/modes'
 
 interface Todo {
   id: string
@@ -20,7 +19,7 @@ function loadTodos(): Todo[] {
   }
 }
 
-export function TodoList({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
+export function TodoList() {
   const [todos, setTodos] = useState<Todo[]>(loadTodos)
   const [draft, setDraft] = useState('')
 
@@ -39,45 +38,38 @@ export function TodoList({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
     setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
   }
 
-  // At 'sm' there's no room for the input box, so only undone items matter.
-  const visible = size === 'sm' ? todos.filter((t) => !t.done) : todos
-  const maxItems = size === 'lg' ? undefined : size === 'md' ? 6 : 4
-  const items = maxItems === undefined ? visible : visible.slice(0, maxItems)
-
   return (
-    <Card className="flex flex-col gap-2">
-      <h2 className="font-display text-sm font-medium tracking-wide text-tan uppercase">To-do</h2>
-      <ul className="flex flex-col gap-1 overflow-y-auto">
-        {items.length === 0 && <li className="text-sm text-dim">Nothing here.</li>}
-        {items.map((todo) => (
+    <Card className="flex flex-col gap-3">
+      <h2 className="font-display text-sm tracking-wide text-muted uppercase">To-do</h2>
+      <ul className="flex flex-col gap-2 overflow-y-auto">
+        {todos.length === 0 && <li className="text-sm text-dim">Nothing here.</li>}
+        {todos.map((todo) => (
           <li key={todo.id} className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={todo.done}
               onChange={() => toggleTodo(todo.id)}
-              className="h-4 w-4 rounded border-line bg-walnut-hover accent-mustard"
+              className="h-4 w-4 rounded border-line bg-surface-2 accent-accent"
             />
-            <span className={todo.done ? 'text-dim line-through' : 'text-cream'}>{todo.text}</span>
+            <span className={todo.done ? 'text-dim line-through' : 'text-ink'}>{todo.text}</span>
           </li>
         ))}
       </ul>
-      {size !== 'sm' && (
-        <div className="mt-1 flex gap-2">
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addTodo()}
-            placeholder="Add a task"
-            className="flex-1 rounded-lg border border-line bg-walnut-hover px-2 py-1 text-sm text-cream outline-none placeholder:text-dim focus:border-mustard"
-          />
-          <button
-            onClick={addTodo}
-            className="rounded-lg bg-olive px-3 py-1 text-sm text-cream hover:bg-mustard hover:text-walnut"
-          >
-            Add
-          </button>
-        </div>
-      )}
+      <div className="mt-1 flex gap-2">
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && addTodo()}
+          placeholder="Add a task"
+          className="flex-1 rounded-lg border border-line bg-surface-2 px-3 py-1.5 text-sm text-ink outline-none placeholder:text-dim focus:border-accent"
+        />
+        <button
+          onClick={addTodo}
+          className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
+        >
+          Add
+        </button>
+      </div>
     </Card>
   )
 }

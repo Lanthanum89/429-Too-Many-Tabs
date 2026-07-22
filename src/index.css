@@ -1,28 +1,33 @@
 @import 'tailwindcss';
 
-@import '@fontsource/jost/500.css';
-@import '@fontsource/jost/600.css';
-@import '@fontsource/jost/700.css';
-@import '@fontsource/work-sans/400.css';
-@import '@fontsource/work-sans/500.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+@import '@fontsource/jetbrains-mono/700.css';
+@import '@fontsource/vt323/400.css';
 
-/* Mid-century modern: warm walnut/cream base, mustard/terracotta/olive accents,
-   Jost (geometric, Futura-like) for display, Work Sans for body/UI text. */
+/* Dark lilac, matching the SoundTracks app: near-black base, lilac accent,
+   Inter for body copy, JetBrains Mono for technical/UI chrome, VT323 (a
+   pixel/LED-style display font) for the clock's digits only. */
 @theme {
-  --color-walnut: #241c15;
-  --color-walnut-light: #2f251c;
-  --color-walnut-hover: #3c2f22;
-  --color-line: #4a3c2c;
-  --color-cream: #f2e9d8;
-  --color-tan: #b8a58c;
-  --color-dim: #8a7862;
-  --color-mustard: #cc9a3a;
-  --color-mustard-bright: #e0b355;
-  --color-terracotta: #c1652f;
-  --color-olive: #75824f;
+  --color-void: #0b0a0f;
+  --color-surface: #131119;
+  --color-surface-2: #18151f;
+  --color-line: #292431;
+  --color-line-strong: #41384f;
+  --color-ink: #f0edf5;
+  --color-muted: #9790a3;
+  --color-dim: #676171;
+  --color-accent: #aa96d8;
+  --color-accent-bright: #cbbaf0;
+  --color-danger: #e18088;
 
-  --font-sans: 'Work Sans', system-ui, sans-serif;
-  --font-display: 'Jost', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'JetBrains Mono', ui-monospace, monospace;
+  --font-clock: 'VT323', ui-monospace, monospace;
 }
 
 html,
@@ -32,6 +37,6 @@ body,
 }
 
 body {
-  @apply bg-walnut text-cream;
+  @apply bg-void text-ink;
   overscroll-behavior: none;
 }

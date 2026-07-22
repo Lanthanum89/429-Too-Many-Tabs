@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
-import type { WidgetSize } from '../theme/modes'
 import { connectSpotify, fetchCurrentlyPlaying, isConnected, type NowPlaying } from '../lib/spotify'
 
 const POLL_INTERVAL_MS = 15_000
 
-export function SpotifyWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> }) {
+export function SpotifyWidget() {
   // Only ever changes via a full page reload (the OAuth redirect round-trip),
   // so a plain read is enough — no state needed to react to it mid-session.
   const connected = isConnected()
@@ -46,42 +45,38 @@ export function SpotifyWidget({ size }: { size: Exclude<WidgetSize, 'hidden'> })
 
   if (!connected) {
     return (
-      <Card className="flex flex-col items-center justify-center gap-2 text-center">
-        <h2 className="font-display text-sm font-medium tracking-wide text-tan uppercase">
-          Spotify
-        </h2>
+      <Card className="flex flex-col items-center justify-center gap-3 text-center">
+        <h2 className="font-display text-sm tracking-wide text-muted uppercase">Spotify</h2>
         <button
           onClick={connect}
-          className="rounded-lg bg-olive px-3 py-1 text-sm text-cream hover:bg-mustard hover:text-walnut"
+          className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
         >
           Connect Spotify
         </button>
-        {error && <p className="text-xs text-terracotta">{error}</p>}
+        {error && <p className="text-xs text-danger">{error}</p>}
       </Card>
     )
   }
 
   return (
     <Card className="flex flex-col items-center justify-center gap-1 text-center">
-      <h2 className="font-display text-sm font-medium tracking-wide text-tan uppercase">
-        Spotify
-      </h2>
+      <h2 className="font-display text-sm tracking-wide text-muted uppercase">Spotify</h2>
       {nowPlaying?.isPlaying ? (
         <>
-          {size === 'lg' && nowPlaying.albumArtUrl && (
+          {nowPlaying.albumArtUrl && (
             <img
               src={nowPlaying.albumArtUrl}
               alt=""
-              className="mt-1 h-24 w-24 rounded-lg object-cover"
+              className="mt-1 h-28 w-28 rounded-lg object-cover"
             />
           )}
-          <p className="text-sm font-medium text-cream">{nowPlaying.trackName}</p>
-          <p className="text-xs text-tan">{nowPlaying.artistName}</p>
+          <p className="mt-1 text-sm font-medium text-ink">{nowPlaying.trackName}</p>
+          <p className="text-xs text-muted">{nowPlaying.artistName}</p>
         </>
       ) : (
         <p className="text-sm text-dim">Nothing playing.</p>
       )}
-      {error && <p className="text-xs text-terracotta">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </Card>
   )
 }

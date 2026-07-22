@@ -1,7 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
-import { ModeProvider } from './theme/ModeContext.tsx'
 import { handleRedirect } from './lib/spotify.ts'
 import './index.css'
 
@@ -12,9 +11,7 @@ handleRedirect()
   .finally(() => {
     createRoot(document.getElementById('root')!).render(
       <StrictMode>
-        <ModeProvider>
-          <App />
-        </ModeProvider>
+        <App />
       </StrictMode>,
     )
   })

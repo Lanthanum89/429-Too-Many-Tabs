@@ -3,25 +3,25 @@
 A read-only personal dashboard for a phone or tablet propped up on a desk. No backend —
 it's a static PWA meant to be hosted on GitHub Pages.
 
-The core idea is **modes, not themes**: instead of picking a colour scheme, you pick a
-functional layout — *Working*, *Chilling*, *Gaming* — and the dashboard changes which
-widgets show and how big they are.
+One glanceable page: clock, month calendar, to-do list, email, and Spotify all shown at
+once — no modes or settings to fiddle with.
 
-Visual style is mid-century modern: warm walnut/cream/mustard palette (`src/index.css`'s
-`@theme` block — `walnut`, `cream`, `mustard`, `terracotta`, `olive`), Jost (a
-Futura-inspired geometric sans) for headings and the clock, Work Sans for body text.
-Both fonts are self-hosted via `@fontsource` rather than a CDN link, so they're bundled
-into the build and precached by the service worker like everything else — no external
-font request needed once installed. The clock defaults to 24-hour time
-(`hour12: false`), matched by Calendar's event times for consistency.
+Visual style is dark lilac, matching the [SoundTracks](https://github.com/Lanthanum89/spotify-stats-app)
+app: near-black background, lilac accent (`src/index.css`'s `@theme` block — `void`,
+`surface`, `line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`). Inter for
+body text, JetBrains Mono for headings/labels, and VT323 — a pixel/LED-style display font
+— for the clock's digits, giving it a retro digital-alarm-clock look. All three are
+self-hosted via `@fontsource` rather than a CDN link, so they're bundled into the build
+and precached by the service worker — no external font request needed once installed.
+The clock defaults to 24-hour time (`hour12: false`).
 
 ## Widgets
 
 | Widget | What it shows |
 |---|---|
-| Clock | Time, and (space permitting) the date |
+| Clock | Big retro-LED-style time display, and the date |
+| Calendar | The current month as a grid (Monday-first), with Google Calendar events plotted on their day (read-only) |
 | To-do | A simple localStorage-only to-do list |
-| Calendar | Upcoming Google Calendar events (read-only) |
 | Email | Unread Gmail subjects (read-only) |
 | Spotify | Currently-playing track (read-only) — see [Spotify](#spotify) below |
 
@@ -150,38 +150,18 @@ actually requires it.
 
 ## Architecture
 
-`src/theme/modes.ts` is the single source of truth for layout. Each mode is:
-
-```ts
-{ id, label, blurb, widgets: Record<WidgetId, 'hidden' | 'sm' | 'md' | 'lg'> }
-```
-
-`ModeContext` holds the currently active mode (persisted to `localStorage`) and exposes
-`mode`, `modes`, and `setModeId`. `App.tsx` reads the active mode and, for every widget
-that isn't `'hidden'`, renders it with a `size` prop.
-
-Each widget decides its own content and layout from `size` — there's no shared sizing
-logic beyond the grid column span in `App.tsx`. For example:
-
-- `Clock` drops the date line at `sm`, and scales its font size with `size`.
-- `TodoList` filters to undone-only and drops the add-task input at `sm`, and caps how
-  many items it shows at `sm`/`md`.
-- `CalendarWidget`/`EmailWidget` request fewer results at smaller sizes.
-
-### Adding or editing a mode
-
-Add (or edit) an entry in the `modes` array in `src/theme/modes.ts`. That's the whole
-change — the mode switcher in `App.tsx` and the widgets themselves pick it up
-automatically.
+`App.tsx` renders every widget, always — there's no mode/layout switching. Each widget is
+self-contained: it manages its own connect/loading/error state and decides its own
+content; the only shared layout logic is the CSS grid in `App.tsx` itself.
 
 ### Adding a widget
 
-1. Add its id to `WidgetId` and `WIDGET_IDS` in `src/theme/modes.ts`.
-2. Give it a size in every existing mode's `widgets` map (TypeScript will tell you if
-   you miss one).
-3. Build the component under `src/components/`, accepting a `size: Exclude<WidgetSize,
-   'hidden'>` prop and rendering itself accordingly.
-4. Add it to `WIDGET_ORDER` and the render switch in `src/App.tsx`.
+1. Build the component under `src/components/`, following the existing widgets' shape
+   (a `Card`, a `Connect` button gated on a `hasValid*Token()`/`isConnected()` check if it
+   needs auth, its own loading/error state).
+2. Add it to the JSX in `src/App.tsx`, in whichever spot in the grid makes sense.
+
+That's it — no registry, no per-mode sizing to keep in sync.
 
 ## Known gaps / decisions to revisit
 
@@ -195,10 +175,12 @@ automatically.
 - **Gmail widget fetches message metadata one request per message** (no batching).
   Fine at 5-10 unread; switch to the Gmail API's `batch` endpoint
   (`src/lib/gmail.ts`) if that list grows.
+- **Month calendar fetches up to 250 events per month** in one request — plenty for a
+  personal calendar, but not paginated if a month ever has more than that.
 - **No tests.**
 - **PWA icons (`public/icon-192.png`/`icon-512.png`) are a generated placeholder**
-  (three stacked bars, nodding to the sm/md/lg widget sizing) — good enough to satisfy
-  installability, swap for a real design whenever you make one.
+  (three stacked bars in the accent colour) — good enough to satisfy installability,
+  swap for a real design whenever you make one.
 - **The Android APK still uses Capacitor's default launcher icon**, not the PWA one
   above. Swap the files under `android/app/src/main/res/mipmap-*` too if you want them
   to match.
