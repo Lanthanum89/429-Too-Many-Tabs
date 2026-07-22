@@ -45,6 +45,25 @@ body {
   overscroll-behavior: none;
 }
 
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(170, 150, 216, 0.4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(170, 150, 216, 0.6);
+}
+
 /* Sized in vw against the whole viewport for the default full-width hero
    clock. In the landscape sidebar layout below, the clock's column is a
    fixed 22rem regardless of viewport width, so vw massively oversizes it
@@ -123,17 +142,17 @@ body {
   .dashboard {
     height: 100vh;
     gap: 1rem;
-    grid-template-columns: clamp(18rem, 22vw, 30rem) 1fr;
-    grid-template-rows: auto auto minmax(6rem, auto) 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto minmax(6rem, auto) auto 1fr auto;
     grid-template-areas:
       'header   header'
-      'clock    calendar'
-      'binary   email'
-      'spotify  spotify';
+      'clock    clock'
+      'binary   weather'
+      'spotify  spotify'
+      'calendar calendar'
+      'email    email';
   }
 
-  /* Calendar is a compact current-week strip (see WeekCalendar), so it only
-     needs the top of the right-hand column — Email fills the rest of it. */
   .dashboard-calendar,
   .dashboard-email {
     overflow-y: auto;
@@ -143,32 +162,9 @@ body {
     font-size: 3.25rem;
   }
 
-  /* The sidebar stacks cards in ~800px of typical tablet-landscape height —
-     full p-6 padding on all of them leaves little room, so tighten it up
-     specifically here. */
   .dashboard-clock .card,
-  .dashboard-binary .card,
-  .dashboard-email .card,
-  .dashboard-spotify .card {
+  .dashboard-spotify .card,
+  .dashboard-email .card {
     padding: 1rem;
-  }
-
-  /* Binary shares the flexible row with Email (see grid-template-areas
-     above), so its cell is taller than its content needs — stretch and
-     center the card itself instead of leaving a dead gap below it. */
-  .dashboard-binary {
-    display: flex;
-    flex-direction: column;
-  }
-  .dashboard-binary .mini-widgets-row {
-    flex: 1;
-    min-height: 0;
-  }
-  .dashboard-binary .card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
 }
