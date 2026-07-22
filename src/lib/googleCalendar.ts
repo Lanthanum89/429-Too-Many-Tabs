@@ -45,12 +45,8 @@ export function toDateKey(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-// Fetches every event in the calendar month containing `monthDate`, for
-// plotting on a month-grid view.
-export async function fetchMonthEvents(monthDate: Date): Promise<CalendarEvent[]> {
+async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<CalendarEvent[]> {
   const token = await getToken()
-  const rangeStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
-  const rangeEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1)
 
   const params = new URLSearchParams({
     timeMin: rangeStart.toISOString(),
@@ -81,4 +77,12 @@ export async function fetchMonthEvents(monthDate: Date): Promise<CalendarEvent[]
       dateKey: allDay && item.start?.date ? item.start.date : toDateKey(start),
     }
   })
+}
+
+// Fetches every event in the Monday-first week starting on `weekStart`.
+export async function fetchWeekEvents(weekStart: Date): Promise<CalendarEvent[]> {
+  const rangeStart = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate())
+  const rangeEnd = new Date(rangeStart)
+  rangeEnd.setDate(rangeEnd.getDate() + 7)
+  return fetchEventsInRange(rangeStart, rangeEnd)
 }

@@ -3,7 +3,7 @@
 A read-only personal dashboard for a phone or tablet propped up on a desk. No backend —
 it's a static PWA meant to be hosted on GitHub Pages.
 
-One glanceable page: clock, binary clock, month calendar, to-do list, email, and Spotify
+One glanceable page: clock, binary clock, weekly calendar strip, to-do list, email, and Spotify
 all shown at once — no modes or settings to fiddle with. On a tablet in landscape it's
 laid out to fit entirely within one screen, no scrolling; portrait (phone or tablet)
 just stacks everything and scrolls normally — see [Layout](#layout) below.
@@ -23,7 +23,7 @@ The clock defaults to 24-hour time (`hour12: false`).
 |---|---|
 | Clock | Big retro-LED-style time display, and the date |
 | Binary clock | Same binary-coded-decimal format as [Binary Bloom](https://github.com/Lanthanum89/binary-clock) — hours/minutes/seconds each split into tens/ones digits, each digit a column of 4 dots (8-4-2-1). Always 24-hour |
-| Calendar | The current month as a grid (Monday-first), with Google Calendar events plotted on their day (read-only) |
+| Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day (read-only) |
 | To-do | A simple localStorage-only to-do list |
 | Email | Unread Gmail subjects (read-only) |
 | Spotify | Currently-playing track (read-only) — see [Spotify](#spotify) below |
@@ -168,11 +168,11 @@ at different breakpoints without touching the JSX:
 2. **`sm` and up:** two columns; Email and Spotify pair into a row since there's width to
    spare, everything else stays full-width.
 3. **`md` and up, `orientation: landscape`** (a tablet on its side): a fixed-height
-   sidebar (Clock, Binary clock, To-do, Email, Spotify stacked) next to a large Calendar
+   sidebar (Clock, Binary clock, To-do, Email, Spotify stacked) next to a Calendar column
    that fills the remaining width — the whole `.dashboard` is `height: 100vh` with no
-   page-level scroll. Calendar and To-do get `overflow-y: auto` as an individual fallback
-   in case their own content doesn't fit (a very full month, a long to-do list) — the
-   page itself still won't scroll, only that one panel does.
+   page-level scroll. To-do gets `overflow-y: auto` as an individual fallback in case its
+   own content doesn't fit (a long to-do list) — the page itself still won't scroll, only
+   that one panel does.
 
 There's no outer `max-width` — the dashboard fills whatever width it's given, from a
 small tablet in landscape up to an ultrawide monitor. The sidebar in layout 3 scales with
@@ -198,6 +198,11 @@ No registry, no per-mode sizing — just the one grid to update.
 
 ## Known gaps / decisions to revisit
 
+- **The landscape-breakpoint Calendar column is still sized for the old month grid.**
+  Now that Calendar shows a compact current-week strip instead, it leaves empty space
+  below it in that column at the `md`+landscape breakpoint (layout 3 above). Works fine,
+  just not tightly laid out — a follow-up would reflow that breakpoint's grid so Calendar
+  takes only the height it needs and something else (or a taller To-do) uses the rest.
 - **Google auth is implicit-flow only.** Tokens are cached in `localStorage` (see
   `lib/googleAuth.ts`) so a reload within the token's own ~1hr lifetime restores the
   widget automatically instead of forcing a reconnect — but there's still no refresh
@@ -208,8 +213,8 @@ No registry, no per-mode sizing — just the one grid to update.
 - **Gmail widget fetches message metadata one request per message** (no batching).
   Fine at 5-10 unread; switch to the Gmail API's `batch` endpoint
   (`src/lib/gmail.ts`) if that list grows.
-- **Month calendar fetches up to 250 events per month** in one request — plenty for a
-  personal calendar, but not paginated if a month ever has more than that.
+- **Week calendar fetches up to 250 events per week** in one request — plenty for a
+  personal calendar, but not paginated if a week ever has more than that.
 - **No tests.**
 - **PWA icons (`public/icon-192.png`/`icon-512.png`) are a generated placeholder**
   (three stacked bars in the accent colour) — good enough to satisfy installability,
