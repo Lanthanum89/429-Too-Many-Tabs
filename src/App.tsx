@@ -1,6 +1,5 @@
 import { Clock } from './components/Clock'
 import { BinaryClock } from './components/BinaryClock'
-import { TodoList } from './components/TodoList'
 import { WeekCalendar } from './components/WeekCalendar'
 import { EmailWidget } from './components/EmailWidget'
 import { SpotifyWidget } from './components/SpotifyWidget'
@@ -22,9 +21,6 @@ function App() {
       </div>
       <div className="dashboard-calendar">
         <WeekCalendar />
-      </div>
-      <div className="dashboard-todo">
-        <TodoList />
       </div>
       <div className="dashboard-email">
         <EmailWidget />

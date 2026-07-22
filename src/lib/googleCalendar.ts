@@ -17,12 +17,14 @@ export interface CalendarEvent {
   // YYYY-MM-DD in the event's own calendar day — used to place it on a
   // month grid without timezone-shift surprises from parsing all-day dates.
   dateKey: string
+  htmlLink: string
 }
 
 interface CalendarApiEvent {
   id: string
   summary?: string
   start?: { dateTime?: string; date?: string }
+  htmlLink?: string
 }
 
 let cachedToken: GoogleToken | null = loadCachedToken(STORAGE_KEY)
@@ -75,6 +77,7 @@ async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<Cal
       start,
       allDay,
       dateKey: allDay && item.start?.date ? item.start.date : toDateKey(start),
+      htmlLink: item.htmlLink ?? 'https://calendar.google.com/calendar/r',
     }
   })
 }

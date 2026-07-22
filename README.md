@@ -3,8 +3,8 @@
 A read-only personal dashboard for a phone or tablet propped up on a desk. No backend —
 it's a static PWA meant to be hosted on GitHub Pages.
 
-One glanceable page: clock, binary clock, weekly calendar strip, to-do list, email, and Spotify
-all shown at once — no modes or settings to fiddle with. On a tablet in landscape it's
+One glanceable page: clock, binary clock, weekly calendar strip, email, and Spotify all
+shown at once — no modes or settings to fiddle with. On a tablet in landscape it's
 laid out to fit entirely within one screen, no scrolling; portrait (phone or tablet)
 just stacks everything and scrolls normally — see [Layout](#layout) below.
 
@@ -23,9 +23,8 @@ The clock defaults to 24-hour time (`hour12: false`).
 |---|---|
 | Clock | Big retro-LED-style time display, and the date |
 | Binary clock | Same binary-coded-decimal format as [Binary Bloom](https://github.com/Lanthanum89/binary-clock) — hours/minutes/seconds each split into tens/ones digits, each digit a column of 4 dots (8-4-2-1). Always 24-hour |
-| Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day (read-only) |
-| To-do | A simple localStorage-only to-do list |
-| Email | Unread Gmail subjects (read-only) — click one to open it in Gmail |
+| Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day — click an event to open it in Google Calendar (read-only) |
+| Email | Your inbox — read and unread, with star status — click a subject to read it in-app, or open it in Gmail from there (read-only) |
 | Spotify | Currently-playing track (read-only) — see [Spotify](#spotify) below |
 
 ## Setup
@@ -168,12 +167,12 @@ at different breakpoints without touching the JSX:
 2. **`sm` and up:** two columns; Email and Spotify pair into a row since there's width to
    spare, everything else stays full-width.
 3. **`md` and up, `orientation: landscape`** (a tablet on its side): a fixed-height
-   sidebar (Clock, Binary clock, To-do, Spotify — To-do gets the sidebar's flexible row,
-   so it grows to fill whatever space the others don't need) next to a right-hand column
-   with the compact Calendar strip on top and Email filling the rest of that column below
-   it — the whole `.dashboard` is `height: 100vh` with no page-level scroll. Calendar,
-   To-do, and Email each get `overflow-y: auto` as an individual fallback in case their
-   own content doesn't fit — the page itself still won't scroll, only that one panel does.
+   sidebar (Clock, Binary clock, Spotify) next to a right-hand column with the compact
+   Calendar strip on top and Email filling the rest of that column below it (Email's row
+   is the flexible one, so it grows to fill whatever space Clock/Binary/Spotify don't
+   need) — the whole `.dashboard` is `height: 100vh` with no page-level scroll. Calendar
+   and Email each get `overflow-y: auto` as an individual fallback in case their own
+   content doesn't fit — the page itself still won't scroll, only that one panel does.
 
 There's no outer `max-width` — the dashboard fills whatever width it's given, from a
 small tablet in landscape up to an ultrawide monitor. The sidebar in layout 3 scales with

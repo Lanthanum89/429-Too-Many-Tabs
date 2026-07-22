@@ -31,16 +31,6 @@ export function WeekCalendar() {
   const today = useMemo(() => new Date(), [])
   const weekStart = useMemo(() => getWeekStart(today), [today])
   const grid = useMemo(() => getWeekGrid(weekStart), [weekStart])
-  const weekLabel = useMemo(() => {
-    const weekEnd = grid[6]
-    const sameMonth = weekStart.getMonth() === weekEnd.getMonth()
-    const startLabel = weekStart.toLocaleDateString([], {
-      day: 'numeric',
-      month: sameMonth ? undefined : 'short',
-    })
-    const endLabel = weekEnd.toLocaleDateString([], { day: 'numeric', month: 'short' })
-    return `${startLabel}–${endLabel}`
-  }, [weekStart, grid])
 
   async function connect() {
     setLoading(true)
@@ -72,10 +62,7 @@ export function WeekCalendar() {
 
   return (
     <Card className="flex flex-col gap-3">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-sm tracking-wide text-muted uppercase">Calendar</h2>
-        <span className="font-display text-sm text-muted">{weekLabel}</span>
-      </div>
+      <h2 className="font-display text-sm tracking-wide text-muted uppercase">Calendar</h2>
 
       {events === null ? (
         <button
@@ -104,13 +91,16 @@ export function WeekCalendar() {
                   {day.toLocaleDateString([], { weekday: 'short' })} {day.getDate()}
                 </span>
                 {dayEvents.slice(0, MAX_VISIBLE_EVENTS_PER_DAY).map((event) => (
-                  <span
+                  <a
                     key={event.id}
-                    className="truncate rounded bg-accent/20 px-1 text-[0.65rem] text-ink"
+                    href={event.htmlLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="truncate rounded bg-accent/20 px-1 text-[0.65rem] text-ink hover:bg-accent/40 hover:text-accent-bright"
                     title={event.title}
                   >
                     {event.title}
-                  </span>
+                  </a>
                 ))}
                 {overflow > 0 && <span className="text-[0.65rem] text-dim">+{overflow} more</span>}
               </div>
