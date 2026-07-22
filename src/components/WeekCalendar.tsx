@@ -96,7 +96,7 @@ export function WeekCalendar() {
                 href={event.htmlLink}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm font-mono hover:bg-surface-2 hover:text-accent-bright"
+                className="flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-surface-2 hover:text-accent-bright"
               >
                 <span className="w-14 shrink-0 text-xs text-dim">
                   {event.dayLabel} {event.allDay ? '' : formatEventTime(event)}
