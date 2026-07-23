@@ -312,12 +312,6 @@ button:hover:not(:disabled) {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.dashboard > header .flex {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .dashboard > header h1 {
   color: var(--color-accent-neon);
   font-weight: 700;
