@@ -137,7 +137,7 @@ export function SpotifyWidget() {
         <h2 className="font-mono text-lg font-bold text-accent-neon">Spotify</h2>
         <button
           onClick={connect}
-          className="border-2 border-accent-neon bg-transparent px-4 py-1.5 text-sm font-semibold text-accent-neon hover:bg-accent-neon hover:text-void transition-all"
+          className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
         >
           Connect Spotify
         </button>
@@ -205,7 +205,7 @@ export function SpotifyWidget() {
               onClick={handlePlayPause}
               disabled={controlPending}
               aria-label={nowPlaying.isPlaying ? 'Pause' : 'Play'}
-              className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-accent-neon bg-accent-neon text-void hover:bg-void hover:text-accent-neon disabled:opacity-40 transition-all"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-void hover:bg-accent-neon disabled:opacity-40"
             >
               {nowPlaying.isPlaying ? (
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">

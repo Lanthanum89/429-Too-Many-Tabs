@@ -33,7 +33,7 @@ function App() {
     <div className="dashboard p-4 sm:p-6">
       <header>
         <div className="flex items-center justify-between">
-          <h1 className="font-mono text-4xl font-bold text-accent-neon">
+          <h1 className="font-mono text-sm font-bold text-accent-neon">
             {greeting}, <span className="italic">Laura</span>.
           </h1>
           <button

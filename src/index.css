@@ -10,18 +10,18 @@
    Geometric aesthetic with JetBrains Mono for titles/tech elements,
    Outfit for body text, responsive dashboard layout. */
 @theme {
-  --color-void: #f5f1f8;
-  --color-surface: #faf7fc;
-  --color-surface-2: #f0edf5;
-  --color-line: #e8dff5;
-  --color-line-strong: #2a2a2a;
-  --color-ink: #1a1a1a;
-  --color-muted: #5a5a5a;
-  --color-dim: #8a8a8a;
-  --color-accent: #ff006e;
-  --color-accent-bright: #d4006b;
+  --color-void: #0b0a0f;
+  --color-surface: #131119;
+  --color-surface-2: #18151f;
+  --color-line: #292431;
+  --color-line-strong: #41384f;
+  --color-ink: #f0edf5;
+  --color-muted: #9790a3;
+  --color-dim: #676171;
+  --color-accent: #aa96d8;
+  --color-accent-bright: #cbbaf0;
   --color-accent-neon: #ff006e;
-  --color-danger: #ff006e;
+  --color-danger: #e18088;
 
   --font-sans: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -39,23 +39,16 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode overrides */
+/* Dark mode overrides - even darker lilac */
 :root[data-theme="dark"] {
-  --color-void: #0b0a0f;
-  --color-surface: #131119;
-  --color-surface-2: #18151f;
-  --color-line: #292431;
-  --color-line-strong: #8a8a8a;
+  --color-void: #050403;
+  --color-surface: #0d0c11;
+  --color-surface-2: #11101a;
+  --color-line: #1a1923;
+  --color-line-strong: #332a3f;
   --color-ink: #f0edf5;
   --color-muted: #9790a3;
   --color-dim: #676171;
-}
-
-.card {
-  border: 3px solid var(--color-line-strong) !important;
-  box-shadow: 6px 6px 0px rgba(255, 0, 110, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0) !important;
-  border-radius: 0 !important;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .theme-toggle {
@@ -81,6 +74,12 @@ body {
   transform: scale(0.95);
 }
 
+.card {
+  border-color: var(--color-line-strong) !important;
+  border-left: 4px solid var(--color-accent-neon) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
@@ -101,56 +100,16 @@ body {
 }
 
 .card h2 {
-  font-size: 1.5rem !important;
-  text-shadow: none !important;
-  color: var(--color-accent-neon) !important;
-  font-weight: 900 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  font-size: 1.25rem !important;
+  text-shadow: 0 0 16px rgba(255, 0, 110, 0.5) !important;
 }
 
-/* Generic button reset */
 button {
-  transition: all 0.15s ease;
-  font-weight: 700 !important;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  transition: all 0.2s ease;
 }
 
-/* 3D action buttons only (not email/calendar list items) */
-button.bg-transparent,
-button.rounded-lg {
-  border: 3px solid var(--color-line-strong) !important;
-  background: white !important;
-  color: var(--color-line-strong) !important;
-  box-shadow: 5px 5px 0px rgba(255, 0, 110, 0.25) !important;
-  position: relative;
-  transform: translate(0, 0);
-  border-radius: 0 !important;
-}
-
-button.bg-transparent:hover:not(:disabled),
-button.rounded-lg:hover:not(:disabled) {
-  background: var(--color-accent-neon) !important;
-  color: white !important;
-  box-shadow: 7px 7px 0px rgba(0, 0, 0, 0.15) !important;
-  transform: translate(-2px, -2px);
-}
-
-button.bg-transparent:active:not(:disabled),
-button.rounded-lg:active:not(:disabled) {
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1) !important;
-  transform: translate(3px, 3px);
-}
-
-/* List item buttons stay minimal */
-.flex.w-full.items-start button {
-  border: none !important;
-  box-shadow: none !important;
-  transform: none !important;
-  font-weight: normal !important;
-  letter-spacing: normal !important;
-  text-transform: none !important;
+button:hover:not(:disabled) {
+  text-shadow: 0 0 12px rgba(255, 0, 110, 0.6);
 }
 
 /* Sized in vw against the whole viewport for the default full-width hero
@@ -160,10 +119,8 @@ button.rounded-lg:active:not(:disabled) {
 .clock-display {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: clamp(3rem, 16vw, 11rem);
-  text-shadow: none;
+  text-shadow: 0 0 40px rgba(255, 0, 110, 0.8), 0 0 20px rgba(255, 0, 110, 0.6);
   letter-spacing: 0.05em;
-  color: var(--color-accent-neon);
-  font-weight: 900;
 }
 
 @media (max-width: 480px) {
@@ -246,10 +203,12 @@ button.rounded-lg:active:not(:disabled) {
 
 .dashboard > header {
   grid-area: header;
-  border-bottom: 4px solid var(--color-line-strong);
-  padding-bottom: 1rem;
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.1) 0%, rgba(255, 0, 110, 0.05) 100%);
+  border-bottom: 2px solid var(--color-accent-neon);
+  padding: 1.5rem 1rem 1rem 1rem;
   margin-bottom: 0.5rem;
-  transition: border-color 0.3s ease;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .dashboard > header .flex {
@@ -260,12 +219,12 @@ button.rounded-lg:active:not(:disabled) {
 
 .dashboard > header h1 {
   color: var(--color-accent-neon);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  font-size: 2rem;
-  text-transform: uppercase;
-  transition: color 0.3s ease;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: 0.875rem;
+  text-shadow: 0 0 20px rgba(255, 0, 110, 0.6);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .dashboard-clock {
