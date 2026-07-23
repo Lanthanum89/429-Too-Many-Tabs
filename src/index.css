@@ -36,6 +36,42 @@ body,
 body {
   @apply bg-void text-ink;
   overscroll-behavior: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode overrides */
+:root[data-theme="dark"] {
+  --color-void: #0b0a0f;
+  --color-surface: #131119;
+  --color-surface-2: #18151f;
+  --color-line: #292431;
+  --color-line-strong: #41384f;
+  --color-ink: #f0edf5;
+  --color-muted: #9790a3;
+  --color-dim: #676171;
+}
+
+.theme-toggle {
+  background: none;
+  border: 2px solid var(--color-line-strong);
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: transform 0.2s ease, border-color 0.3s ease, color 0.3s ease;
+  border-radius: 0;
+  color: var(--color-line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  border-color: var(--color-accent-neon);
+  color: var(--color-accent-neon);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
 }
 
 .card {
@@ -172,14 +208,23 @@ button:hover:not(:disabled) {
   padding: 1.5rem 1rem 1rem 1rem;
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.dashboard > header .flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dashboard > header h1 {
   color: var(--color-accent-neon);
   font-weight: 700;
   letter-spacing: -0.01em;
-  font-size: 1.75rem;
+  font-size: 0.875rem;
   text-shadow: 0 0 20px rgba(255, 0, 110, 0.6);
+  margin: 0;
+  transition: color 0.3s ease;
 }
 
 .dashboard-clock {
