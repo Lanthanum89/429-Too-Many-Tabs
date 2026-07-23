@@ -67,24 +67,41 @@ body {
   text-shadow: 0 0 16px rgba(255, 0, 110, 0.5) !important;
 }
 
+/* Generic button reset */
 button {
-  transition: all 0.15s ease;
-  border: 3px solid var(--color-accent-neon) !important;
-  font-weight: 700 !important;
+  transition: all 0.2s ease;
+}
+
+/* 3D action buttons only (not email/calendar list items) */
+button.bg-transparent,
+button.rounded-lg {
+  border: 2px solid var(--color-accent-neon) !important;
+  font-weight: 600 !important;
   letter-spacing: 0.05em;
-  box-shadow: 4px 4px 0px rgba(255, 0, 110, 0.3), 0px 0px 0px 1px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 4px 4px 0px rgba(255, 0, 110, 0.3) !important;
   position: relative;
   transform: translate(0, 0);
 }
 
-button:hover:not(:disabled) {
-  box-shadow: 6px 6px 0px rgba(255, 0, 110, 0.4), 0px 0px 0px 1px rgba(0, 0, 0, 0.1) !important;
+button.bg-transparent:hover:not(:disabled),
+button.rounded-lg:hover:not(:disabled) {
+  box-shadow: 6px 6px 0px rgba(255, 0, 110, 0.4) !important;
   transform: translate(-2px, -2px);
 }
 
-button:active:not(:disabled) {
-  box-shadow: 2px 2px 0px rgba(255, 0, 110, 0.3), 0px 0px 0px 1px rgba(0, 0, 0, 0.1) !important;
+button.bg-transparent:active:not(:disabled),
+button.rounded-lg:active:not(:disabled) {
+  box-shadow: 2px 2px 0px rgba(255, 0, 110, 0.3) !important;
   transform: translate(2px, 2px);
+}
+
+/* List item buttons stay minimal */
+.flex.w-full.items-start button {
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  font-weight: normal !important;
+  letter-spacing: normal !important;
 }
 
 /* Sized in vw against the whole viewport for the default full-width hero
