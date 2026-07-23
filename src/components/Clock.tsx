@@ -32,8 +32,11 @@ export function Clock() {
 
   const timeStr = formatTime(now)
   const prevTimeStr = formatTime(prev)
-  const [h1, h2, m1, m2, s1, s2] = timeStr.split('')
-  const [ph1, ph2, pm1, pm2, ps1, ps2] = prevTimeStr.split('')
+  // Remove colons and get individual digits
+  const digits = timeStr.replace(/:/g, '')
+  const prevDigits = prevTimeStr.replace(/:/g, '')
+  const [h1, h2, m1, m2, s1, s2] = digits.split('')
+  const [ph1, ph2, pm1, pm2, ps1, ps2] = prevDigits.split('')
 
   return (
     <Card className="flex flex-col items-center justify-center text-center">
