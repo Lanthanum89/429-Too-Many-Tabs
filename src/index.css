@@ -10,9 +10,9 @@
    Geometric aesthetic with JetBrains Mono for titles/tech elements,
    Outfit for body text, responsive dashboard layout. */
 @theme {
-  --color-void: #fafaf8;
-  --color-surface: #ffffff;
-  --color-surface-2: #f5f1f8;
+  --color-void: #f5f1f8;
+  --color-surface: #faf7fc;
+  --color-surface-2: #f0edf5;
   --color-line: #e8dff5;
   --color-line-strong: #2a2a2a;
   --color-ink: #1a1a1a;
@@ -59,16 +59,22 @@ body {
 }
 
 .theme-toggle {
-  font-size: 1.5rem;
   background: none;
-  border: none;
+  border: 2px solid var(--color-line-strong);
   cursor: pointer;
   padding: 0.5rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.3s ease, color 0.3s ease;
+  border-radius: 0;
+  color: var(--color-line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .theme-toggle:hover {
   transform: scale(1.1);
+  border-color: var(--color-accent-neon);
+  color: var(--color-accent-neon);
 }
 
 .theme-toggle:active {
