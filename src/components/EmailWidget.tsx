@@ -125,7 +125,7 @@ export function EmailWidget() {
             <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto">
               {messages.length === 0 && <li className="text-sm text-dim">Inbox empty.</li>}
               {messages.map((message) => (
-                <li key={message.id} className="border-b border-line last:border-0">
+                <li key={message.id}>
                   <button
                     onClick={() => openInApp(message.id)}
                     className="flex w-full items-start gap-2 py-1.5 text-left hover:text-accent-bright"

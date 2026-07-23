@@ -10,18 +10,18 @@
    Geometric aesthetic with JetBrains Mono for titles/tech elements,
    Outfit for body text, responsive dashboard layout. */
 @theme {
-  --color-void: #f9f6fc;
-  --color-surface: #ffffff;
-  --color-surface-2: #f5f1f7;
-  --color-line: #e8dff5;
-  --color-line-strong: #d4c5e0;
-  --color-ink: #2a2620;
-  --color-muted: #6b5f7a;
-  --color-dim: #9b8fa6;
+  --color-void: #0b0a0f;
+  --color-surface: #131119;
+  --color-surface-2: #18151f;
+  --color-line: #292431;
+  --color-line-strong: #41384f;
+  --color-ink: #f0edf5;
+  --color-muted: #9790a3;
+  --color-dim: #676171;
   --color-accent: #aa96d8;
-  --color-accent-bright: #8b6ba0;
+  --color-accent-bright: #cbbaf0;
   --color-accent-neon: #ff006e;
-  --color-danger: #c41e3a;
+  --color-danger: #e18088;
 
   --font-sans: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -40,8 +40,7 @@ body {
 
 .card {
   border-color: var(--color-line-strong) !important;
-  border-left: 5px solid var(--color-accent-neon) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 0 0px 1px rgba(255, 0, 110, 0.1) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Scrollbar styling */
@@ -65,8 +64,7 @@ body {
 
 .card h2 {
   font-size: 1.25rem !important;
-  text-shadow: none !important;
-  color: var(--color-accent-neon) !important;
+  text-shadow: 0 0 16px rgba(255, 0, 110, 0.5) !important;
 }
 
 button {
@@ -96,9 +94,8 @@ button:active:not(:disabled) {
 .clock-display {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: clamp(3rem, 16vw, 11rem);
-  text-shadow: none;
+  text-shadow: 0 0 40px rgba(255, 0, 110, 0.8), 0 0 20px rgba(255, 0, 110, 0.6);
   letter-spacing: 0.05em;
-  color: var(--color-accent-neon);
 }
 
 @media (max-width: 480px) {
@@ -181,19 +178,15 @@ button:active:not(:disabled) {
 
 .dashboard > header {
   grid-area: header;
-  background: linear-gradient(135deg, rgba(255, 0, 110, 0.08) 0%, rgba(255, 0, 110, 0.04) 100%);
-  border-bottom: 3px solid var(--color-accent-neon);
-  padding: 1.5rem 1rem 1rem 1rem;
+  border-bottom: 2px solid var(--color-accent-neon);
+  padding-bottom: 1rem;
   margin-bottom: 0.5rem;
-  border-radius: 0.5rem;
 }
 
 .dashboard > header h1 {
   color: var(--color-accent-neon);
   font-weight: 700;
   letter-spacing: -0.01em;
-  font-size: 1.75rem;
-  text-shadow: none;
 }
 
 .dashboard-clock {
