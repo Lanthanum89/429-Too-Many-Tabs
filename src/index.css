@@ -20,7 +20,7 @@
   --color-dim: #676171;
   --color-accent: #aa96d8;
   --color-accent-bright: #cbbaf0;
-  --color-accent-neon: #e0a8ff;
+  --color-accent-neon: #ff006e;
   --color-danger: #e18088;
 
   --font-sans: 'Outfit', system-ui, sans-serif;
@@ -40,7 +40,8 @@ body {
 
 .card {
   border-color: var(--color-line-strong) !important;
-  box-shadow: 0 0 20px rgba(224, 168, 255, 0.08), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-left: 4px solid var(--color-accent-neon) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Scrollbar styling */
@@ -62,6 +63,19 @@ body {
   background: rgba(170, 150, 216, 0.6);
 }
 
+.card h2 {
+  font-size: 1.25rem !important;
+  text-shadow: 0 0 16px rgba(255, 0, 110, 0.5) !important;
+}
+
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  text-shadow: 0 0 12px rgba(255, 0, 110, 0.6);
+}
+
 /* Sized in vw against the whole viewport for the default full-width hero
    clock. In the landscape sidebar layout below, the clock's column is a
    fixed 22rem regardless of viewport width, so vw massively oversizes it
@@ -69,7 +83,7 @@ body {
 .clock-display {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: clamp(3rem, 16vw, 11rem);
-  text-shadow: 0 0 28px rgba(170, 150, 216, 0.55);
+  text-shadow: 0 0 40px rgba(255, 0, 110, 0.8), 0 0 20px rgba(255, 0, 110, 0.6);
   letter-spacing: 0.05em;
 }
 
@@ -153,15 +167,19 @@ body {
 
 .dashboard > header {
   grid-area: header;
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.1) 0%, rgba(255, 0, 110, 0.05) 100%);
   border-bottom: 2px solid var(--color-accent-neon);
-  padding-bottom: 1rem;
+  padding: 1.5rem 1rem 1rem 1rem;
   margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .dashboard > header h1 {
   color: var(--color-accent-neon);
   font-weight: 700;
   letter-spacing: -0.01em;
+  font-size: 1.75rem;
+  text-shadow: 0 0 20px rgba(255, 0, 110, 0.6);
 }
 
 .dashboard-clock {
