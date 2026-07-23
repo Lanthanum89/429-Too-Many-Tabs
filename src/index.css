@@ -39,13 +39,13 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode overrides */
+/* Dark mode overrides - even darker lilac */
 :root[data-theme="dark"] {
-  --color-void: #0b0a0f;
-  --color-surface: #131119;
-  --color-surface-2: #18151f;
-  --color-line: #292431;
-  --color-line-strong: #41384f;
+  --color-void: #050403;
+  --color-surface: #0d0c11;
+  --color-surface-2: #11101a;
+  --color-line: #1a1923;
+  --color-line-strong: #332a3f;
   --color-ink: #f0edf5;
   --color-muted: #9790a3;
   --color-dim: #676171;
