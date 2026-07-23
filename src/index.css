@@ -20,6 +20,7 @@
   --color-dim: #676171;
   --color-accent: #aa96d8;
   --color-accent-bright: #cbbaf0;
+  --color-accent-neon: #e0a8ff;
   --color-danger: #e18088;
 
   --font-sans: 'Outfit', system-ui, sans-serif;
@@ -35,6 +36,11 @@ body,
 body {
   @apply bg-void text-ink;
   overscroll-behavior: none;
+}
+
+.card {
+  border-color: var(--color-line-strong) !important;
+  box-shadow: 0 0 20px rgba(224, 168, 255, 0.08), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Scrollbar styling */
@@ -147,6 +153,15 @@ body {
 
 .dashboard > header {
   grid-area: header;
+  border-bottom: 2px solid var(--color-accent-neon);
+  padding-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard > header h1 {
+  color: var(--color-accent-neon);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .dashboard-clock {
