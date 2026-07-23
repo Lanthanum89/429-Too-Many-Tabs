@@ -10,18 +10,18 @@
    Geometric aesthetic with JetBrains Mono for titles/tech elements,
    Outfit for body text, responsive dashboard layout. */
 @theme {
-  --color-void: #0b0a0f;
-  --color-surface: #131119;
-  --color-surface-2: #18151f;
-  --color-line: #292431;
-  --color-line-strong: #41384f;
-  --color-ink: #f0edf5;
-  --color-muted: #9790a3;
-  --color-dim: #676171;
-  --color-accent: #aa96d8;
-  --color-accent-bright: #cbbaf0;
-  --color-accent-neon: #ff006e;
-  --color-danger: #e18088;
+  --color-void: #d4c4f0;
+  --color-surface: #e0d8f5;
+  --color-surface-2: #d9cff0;
+  --color-line: #cfc4eb;
+  --color-line-strong: #4a4055;
+  --color-ink: #2a1a3a;
+  --color-muted: #6a5a7a;
+  --color-dim: #8a7a9a;
+  --color-accent: #9a7fc0;
+  --color-accent-bright: #aa90d0;
+  --color-accent-neon: #9a7fc0;
+  --color-danger: #a58ac0;
 
   --font-sans: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -39,16 +39,20 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode overrides - even darker lilac */
+/* Dark mode overrides - dark background with purple accents */
 :root[data-theme="dark"] {
-  --color-void: #050403;
-  --color-surface: #0d0c11;
-  --color-surface-2: #11101a;
-  --color-line: #1a1923;
-  --color-line-strong: #332a3f;
+  --color-void: #0b0a0f;
+  --color-surface: #131119;
+  --color-surface-2: #18151f;
+  --color-line: #292431;
+  --color-line-strong: #41384f;
   --color-ink: #f0edf5;
   --color-muted: #9790a3;
   --color-dim: #676171;
+  --color-accent: #d4b8f0;
+  --color-accent-bright: #e0c8f5;
+  --color-accent-neon: #d4b8f0;
+  --color-danger: #d4b8f0;
 }
 
 .theme-toggle {
