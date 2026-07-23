@@ -201,69 +201,63 @@ button:hover:not(:disabled) {
   }
 }
 
-/* Layout: phones (and anything portrait) just stack and let the page
-   scroll. From `sm` up, email/spotify pair into a row since there's width
-   to spare. From `md` + landscape (a tablet on its side) the whole thing
-   becomes a fixed-height sidebar-plus-calendar grid sized to fit the
-   viewport with no page scroll — individual panels (calendar, email) get
-   their own internal scroll as a fallback if their content overflows. */
-.dashboard {
-  display: grid;
+/* Sidebar layout: sidebar on left (always hidden on mobile), main content on right */
+.dashboard-with-sidebar {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.dashboard-sidebar {
+  width: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-line);
+  flex-shrink: 0;
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dashboard-main header {
+  flex-shrink: 0;
+}
+
+.dashboard-widgets {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    'header'
-    'clock'
-    'spotify'
-    'binary'
-    'weather'
-    'calendar'
-    'email';
   padding: 1rem;
-  width: 100%;
   box-sizing: border-box;
-  max-width: 100%;
-  margin: 0 auto;
-  overflow-x: hidden;
-}
-
-@media (max-width: 768px) {
-  .dashboard {
-    max-width: 100vw;
-    padding: 0.75rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .dashboard {
-    max-width: 100%;
-    padding: 0.75rem;
-  }
 }
 
 @media (max-width: 480px) {
-  .dashboard {
-    gap: 0.375rem;
-    padding: 0.5rem;
-    max-width: 100%;
-    margin: 0 auto;
-  }
-
-  .dashboard > header {
+  .dashboard-main header {
     padding: 1rem 0.5rem 0.5rem 0.5rem;
     margin-bottom: 0.375rem;
     border-radius: 0.25rem;
   }
 
-  .dashboard > header h1 {
+  .dashboard-main header h1 {
     font-size: 0.875rem;
     margin: 0;
     line-height: 1.2;
   }
 
-  .dashboard > header p {
+  .dashboard-main header p {
     font-size: 0.625rem;
     margin: 0 0 0.25rem 0;
+  }
+
+  .dashboard-widgets {
+    gap: 0.375rem;
+    padding: 0.5rem;
   }
 
   .card {
@@ -302,8 +296,7 @@ button:hover:not(:disabled) {
   }
 }
 
-.dashboard > header {
-  grid-area: header;
+.dashboard-main > header {
   background: transparent;
   border-bottom: 2px solid var(--color-accent-neon);
   padding: 1.5rem 1rem 1rem 1rem;
@@ -312,7 +305,7 @@ button:hover:not(:disabled) {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.dashboard > header h1 {
+.dashboard-main > header h1 {
   color: var(--color-accent-neon);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -320,118 +313,4 @@ button:hover:not(:disabled) {
   text-shadow: none;
   margin: 0;
   transition: color 0.3s ease;
-}
-
-.dashboard-clock {
-  grid-area: clock;
-}
-.dashboard-binary {
-  grid-area: binary;
-}
-.dashboard-weather {
-  grid-area: weather;
-}
-.mini-widgets-row {
-  display: flex;
-  gap: 1rem;
-}
-.mini-widgets-row > * {
-  flex: 1;
-  min-width: 0;
-}
-.dashboard-calendar {
-  grid-area: calendar;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.dashboard-email {
-  grid-area: email;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  min-width: 0;
-}
-.dashboard-spotify {
-  grid-area: spotify;
-}
-
-@media (min-width: 640px) {
-  .dashboard {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'header    header'
-      'clock     clock'
-      'spotify   spotify'
-      'binary    weather'
-      'calendar  calendar'
-      'email     email';
-    padding: 1rem;
-  }
-
-  .mini-widgets-row {
-    display: contents;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1024px) {
-  .dashboard {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'header    header'
-      'clock     clock'
-      'spotify   spotify'
-      'binary    weather'
-      'calendar  calendar'
-      'email     email';
-    padding: 1.5rem;
-    gap: 1rem;
-  }
-}
-
-@media (min-width: 768px) and (orientation: landscape) {
-  .dashboard {
-    height: 100vh;
-    gap: 1rem;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto auto auto 1fr;
-    grid-template-areas:
-      'header     header     header'
-      'clock      clock      clock'
-      'binary     weather    spotify'
-      'calendar   calendar   calendar'
-      'email      email      email';
-  }
-
-  .dashboard-clock {
-    grid-area: clock;
-  }
-
-  .clock-display {
-    font-size: 2.5rem;
-  }
-
-  .dashboard-calendar,
-  .dashboard-email {
-    overflow-y: auto;
-  }
-
-  .dashboard-binary {
-    grid-area: binary;
-  }
-
-  .dashboard-weather {
-    grid-area: weather;
-  }
-
-  .dashboard-spotify {
-    grid-area: spotify;
-  }
-
-  .dashboard-binary .card,
-  .dashboard-spotify .card,
-  .dashboard-calendar .card,
-  .dashboard-email .card {
-    padding: 1rem;
-  }
 }
