@@ -19,7 +19,7 @@ function DigitColumn({ digit }: { digit: number }) {
           key={i}
           className={`h-3 w-3 rounded-full border-2 ${
             on
-              ? 'border-accent-bright bg-accent-bright shadow-[0_0_8px_rgba(203,186,240,0.8)]'
+              ? 'border-accent-neon bg-accent-neon shadow-[0_0_12px_rgba(255,0,110,0.9)]'
               : 'border-muted bg-void'
           }`}
         />
