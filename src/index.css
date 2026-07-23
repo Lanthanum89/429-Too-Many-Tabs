@@ -120,11 +120,74 @@ button:hover:not(:disabled) {
    clock. In the landscape sidebar layout below, the clock's column is a
    fixed 22rem regardless of viewport width, so vw massively oversizes it
    there — that layout overrides this with a flat size instead. */
-.clock-display {
+.flip-clock-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  perspective: 1000px;
+}
+
+.flip-segment {
+  display: flex;
+  gap: 0;
+}
+
+.flip-separator {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(3rem, 16vw, 11rem);
-  text-shadow: none;
-  letter-spacing: 0.05em;
+  font-size: clamp(2rem, 14vw, 9rem);
+  font-weight: 900;
+  color: var(--color-accent-neon);
+  line-height: 1;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 49%, 100% { opacity: 1; }
+  50%, 99% { opacity: 0.3; }
+}
+
+.flip-digit {
+  width: clamp(1.5rem, 5vw, 5rem);
+  height: clamp(2.5rem, 8vw, 8rem);
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.flip-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.flip-card.flipping {
+  transform: rotateX(180deg);
+}
+
+.flip-front,
+.flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(2rem, 14vw, 9rem);
+  font-weight: 900;
+  color: var(--color-accent-neon);
+  backface-visibility: hidden;
+  line-height: 1;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 0.25rem;
+  background: var(--color-surface);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.flip-back {
+  transform: rotateX(180deg);
 }
 
 @media (max-width: 480px) {
@@ -200,6 +263,25 @@ button:hover:not(:disabled) {
 
   .card {
     padding: 0.75rem !important;
+  }
+
+  .flip-clock-container {
+    gap: 0.25rem;
+  }
+
+  .flip-digit {
+    width: 1.5rem;
+    height: 2.5rem;
+  }
+
+  .flip-front,
+  .flip-back {
+    font-size: 2rem;
+    border-width: 1px;
+  }
+
+  .flip-separator {
+    font-size: 2rem;
   }
 
   /* Compact binary clock on mobile */
