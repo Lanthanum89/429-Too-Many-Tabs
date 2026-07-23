@@ -394,12 +394,12 @@ button:hover:not(:disabled) {
     height: 100vh;
     gap: 1rem;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto auto minmax(6rem, auto) 1fr;
+    grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas:
       'header     header     header'
-      'clock      clock      calendar'
-      'spotify    binary     calendar'
-      'weather    weather    calendar'
+      'clock      clock      clock'
+      'binary     weather    spotify'
+      'calendar   calendar   calendar'
       'email      email      email';
   }
 
