@@ -225,21 +225,64 @@ button:hover:not(:disabled) {
 
 .dashboard-main header {
   flex-shrink: 0;
+  padding: 1.5rem 1rem 1rem 1rem;
 }
 
-.dashboard-widgets {
+.dashboard-grid-container {
   flex: 1;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.dashboard-grid-container.edit-mode {
+  background-color: rgba(212, 184, 240, 0.05);
+}
+
+.dashboard-grid {
+  background: transparent !important;
+}
+
+.grid-item {
+  background: transparent;
+}
+
+.grid-item.draggable {
+  cursor: move;
+  border: 1px dashed var(--color-line-strong) !important;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
   box-sizing: border-box;
+  position: relative;
+}
+
+.grid-item.draggable::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 48%, var(--color-accent-neon) 48%, var(--color-accent-neon) 52%, transparent 52%);
+  opacity: 0.1;
+  pointer-events: none;
+  border-radius: 0.5rem;
+  z-index: 1;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: se-resize;
+  background: linear-gradient(135deg, transparent 50%, var(--color-accent-neon) 50%);
+  z-index: 10;
 }
 
 @media (max-width: 480px) {
   .dashboard-main header {
-    padding: 1rem 0.5rem 0.5rem 0.5rem;
+    padding: 1rem 0.5rem 0.5rem 0.5rem !important;
     margin-bottom: 0.375rem;
     border-radius: 0.25rem;
   }
@@ -253,11 +296,6 @@ button:hover:not(:disabled) {
   .dashboard-main header p {
     font-size: 0.625rem;
     margin: 0 0 0.25rem 0;
-  }
-
-  .dashboard-widgets {
-    gap: 0.375rem;
-    padding: 0.5rem;
   }
 
   .card {
@@ -299,8 +337,6 @@ button:hover:not(:disabled) {
 .dashboard-main > header {
   background: transparent;
   border-bottom: 2px solid var(--color-accent-neon);
-  padding: 1.5rem 1rem 1rem 1rem;
-  margin-bottom: 0.5rem;
   border-radius: 0.5rem;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
