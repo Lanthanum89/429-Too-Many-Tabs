@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+function padZero(num: number): string {
+  return String(num).padStart(2, '0')
 }
 
 function FlipDigit({ value, prevValue }: { value: string; prevValue: string }) {
@@ -30,13 +30,20 @@ export function Clock() {
     return () => clearInterval(id)
   }, [now])
 
-  const timeStr = formatTime(now)
-  const prevTimeStr = formatTime(prev)
-  // Remove colons and get individual digits
-  const digits = timeStr.replace(/:/g, '')
-  const prevDigits = prevTimeStr.replace(/:/g, '')
-  const [h1, h2, m1, m2, s1, s2] = digits.split('')
-  const [ph1, ph2, pm1, pm2, ps1, ps2] = prevDigits.split('')
+  // Extract digits directly from date object
+  const h = padZero(now.getHours())
+  const m = padZero(now.getMinutes())
+  const s = padZero(now.getSeconds())
+  const ph = padZero(prev.getHours())
+  const pm = padZero(prev.getMinutes())
+  const ps = padZero(prev.getSeconds())
+
+  const [h1, h2] = h.split('')
+  const [m1, m2] = m.split('')
+  const [s1, s2] = s.split('')
+  const [ph1, ph2] = ph.split('')
+  const [pm1, pm2] = pm.split('')
+  const [ps1, ps2] = ps.split('')
 
   return (
     <Card className="flex flex-col items-center justify-center text-center">
