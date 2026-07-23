@@ -42,11 +42,20 @@ function App() {
     const saved = localStorage.getItem('dashboardLayout')
     return saved ? JSON.parse(saved) : DEFAULT_LAYOUT
   })
+  const [containerWidth, setContainerWidth] = useState(window.innerWidth - 50)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    const handleResize = () => {
+      setContainerWidth(window.innerWidth - 50)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light')
@@ -161,7 +170,7 @@ function App() {
             className="dashboard-grid"
             layout={layout}
             onLayoutChange={handleLayoutChange}
-            width={1200}
+            width={containerWidth}
             compactType="vertical"
             preventCollision={false}
             containerPadding={[16, 16]}
@@ -170,7 +179,7 @@ function App() {
             rowHeight={50}
             isDraggable={isEditMode}
             isResizable={isEditMode}
-            {...({ static: !isEditMode } as any)}
+            {...({ useCSSTransforms: true } as any)}
           >
             {layout.map((item: any) => {
               const Component = WIDGET_COMPONENTS[item.i]
