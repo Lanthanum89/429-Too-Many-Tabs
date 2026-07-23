@@ -42,12 +42,12 @@ export function Clock() {
           <FlipDigit value={h1} prevValue={ph1} />
           <FlipDigit value={h2} prevValue={ph2} />
         </div>
-        <div className="flip-separator" />
+        <div className="flip-separator">:</div>
         <div className="flip-segment">
           <FlipDigit value={m1} prevValue={pm1} />
           <FlipDigit value={m2} prevValue={pm2} />
         </div>
-        <div className="flip-separator" />
+        <div className="flip-separator">:</div>
         <div className="flip-segment">
           <FlipDigit value={s1} prevValue={ps1} />
           <FlipDigit value={s2} prevValue={ps2} />
