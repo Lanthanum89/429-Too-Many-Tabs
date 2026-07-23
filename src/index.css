@@ -135,10 +135,18 @@ button:hover:not(:disabled) {
 
 .flip-separator {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(2rem, 14vw, 9rem);
+  font-size: clamp(2.5rem, 16vw, 10rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   line-height: 1;
+  padding: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  min-height: clamp(3.5rem, 10vw, 10rem);
+}
+
+.flip-separator::before {
+  content: ':';
   animation: blink 1s infinite;
 }
 
@@ -148,8 +156,8 @@ button:hover:not(:disabled) {
 }
 
 .flip-digit {
-  width: clamp(1.5rem, 5vw, 5rem);
-  height: clamp(2.5rem, 8vw, 8rem);
+  width: clamp(2rem, 6vw, 6.5rem);
+  height: clamp(3.5rem, 10vw, 10rem);
   position: relative;
   transform-style: preserve-3d;
 }
@@ -175,13 +183,13 @@ button:hover:not(:disabled) {
   align-items: center;
   justify-content: center;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(2rem, 14vw, 9rem);
+  font-size: clamp(2.5rem, 16vw, 10rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   backface-visibility: hidden;
   line-height: 1;
   border: 2px solid var(--color-line-strong);
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   background: var(--color-surface);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -266,22 +274,24 @@ button:hover:not(:disabled) {
   }
 
   .flip-clock-container {
-    gap: 0.25rem;
+    gap: 0.15rem;
   }
 
   .flip-digit {
-    width: 1.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 3.5rem;
   }
 
   .flip-front,
   .flip-back {
-    font-size: 2rem;
+    font-size: 2.5rem;
     border-width: 1px;
+    border-radius: 0.25rem;
   }
 
   .flip-separator {
-    font-size: 2rem;
+    font-size: 2.5rem;
+    min-height: 3.5rem;
   }
 
   /* Compact binary clock on mobile */

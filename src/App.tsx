@@ -29,13 +29,19 @@ function App() {
 
   const today = new Date()
   const greeting = getGreeting(today.getHours())
+  const dateStr = today.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })
   return (
     <div className="dashboard p-4 sm:p-6">
       <header>
         <div className="flex items-center justify-between">
-          <h1 className="font-mono text-sm font-bold text-accent-neon">
-            {greeting}, <span className="italic">Laura</span>.
-          </h1>
+          <div className="flex flex-col">
+            <h1 className="font-mono text-sm font-bold text-accent-neon">
+              {greeting}, <span className="italic">Laura</span>.
+            </h1>
+            <p className="font-mono text-xs tracking-wider text-dim opacity-50">
+              {dateStr.toUpperCase()}
+            </p>
+          </div>
           <button
             onClick={toggleTheme}
             className="theme-toggle"
