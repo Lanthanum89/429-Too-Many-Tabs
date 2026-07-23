@@ -16,8 +16,8 @@ function App() {
   const greeting = getGreeting(today.getHours())
   return (
     <div className="dashboard p-4 sm:p-6">
-      <header className="border-b border-line pb-6 mb-6">
-        <h1 className="font-mono text-4xl font-semibold text-accent-bright">
+      <header>
+        <h1 className="font-mono text-4xl font-bold text-accent-neon">
           {greeting}, <span className="italic">Laura</span>.
         </h1>
       </header>

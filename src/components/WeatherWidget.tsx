@@ -100,7 +100,7 @@ export function WeatherWidget() {
 
   return (
     <Card className="flex flex-col items-start justify-start gap-2 text-accent-bright">
-      <h2 className="font-mono text-lg text-muted">Weather</h2>
+      <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
       {weather ? (
         <div className="flex w-full flex-col gap-3">
           <div className="flex items-end gap-2">

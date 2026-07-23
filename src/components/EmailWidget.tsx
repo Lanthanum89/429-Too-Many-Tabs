@@ -83,13 +83,13 @@ export function EmailWidget() {
             <button
               onClick={closeMessage}
               aria-label="Back to inbox"
-              className="text-muted hover:text-accent-bright"
+              className="text-muted hover:text-accent-neon"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
-            <h2 className="font-mono text-lg text-muted">Email</h2>
+            <h2 className="font-mono text-lg font-bold text-accent-neon">Email</h2>
           </div>
           {openLoading && <p className="text-sm text-dim">Loading…</p>}
           {openError && <p className="text-xs text-danger">{openError}</p>}
@@ -112,7 +112,7 @@ export function EmailWidget() {
         </>
       ) : (
         <>
-          <h2 className="font-mono text-lg text-muted">Email</h2>
+          <h2 className="font-mono text-lg font-bold text-accent-neon">Email</h2>
           {messages === null ? (
             <button
               onClick={connect}

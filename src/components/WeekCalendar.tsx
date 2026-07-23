@@ -77,7 +77,7 @@ export function WeekCalendar() {
 
   return (
     <Card className="flex flex-col gap-3">
-      <h2 className="font-mono text-lg text-muted">Calendar</h2>
+      <h2 className="font-mono text-lg font-bold text-accent-neon">Calendar</h2>
 
       {events === null ? (
         <button
