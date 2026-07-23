@@ -204,7 +204,7 @@ button:hover:not(:disabled) {
 .dashboard-with-sidebar {
   display: flex;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
   overflow: hidden;
 }
 
@@ -220,17 +220,21 @@ button:hover:not(:disabled) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
 }
 
 .dashboard-main header {
   flex-shrink: 0;
   padding: 1.5rem 1rem 1rem 1rem;
+  overflow: visible;
 }
 
 .dashboard-grid-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   transition: background-color 0.2s ease;
+  min-height: 0;
 }
 
 .dashboard-grid-container.edit-mode {
