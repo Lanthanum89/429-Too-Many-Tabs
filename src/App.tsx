@@ -33,12 +33,12 @@ function App() {
   return (
     <div className="dashboard p-4 sm:p-6">
       <header>
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <h1 className="font-mono text-sm font-bold text-accent-neon">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-0">
+            <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
               {greeting}, <span className="italic">Laura</span>.
             </h1>
-            <p className="font-mono text-xs tracking-wider text-dim opacity-50">
+            <p className="font-mono text-xs tracking-wider text-dim opacity-50 leading-tight">
               {dateStr.toUpperCase()}
             </p>
           </div>
