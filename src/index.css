@@ -243,9 +243,11 @@ button:hover:not(:disabled) {
 
 .grid-item {
   background: transparent;
+  pointer-events: none;
 }
 
 .grid-item.draggable {
+  pointer-events: auto;
   cursor: move;
   border: 1px dashed var(--color-line-strong) !important;
   border-radius: 0.5rem;

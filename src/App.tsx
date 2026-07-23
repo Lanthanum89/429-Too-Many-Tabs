@@ -177,9 +177,10 @@ function App() {
             margin={[16, 16]}
             cols={12}
             rowHeight={50}
-            isDraggable={isEditMode}
-            isResizable={isEditMode}
-            {...({ useCSSTransforms: true } as any)}
+            {...({
+              static: !isEditMode,
+              useCSSTransforms: true,
+            } as any)}
           >
             {layout.map((item: any) => {
               const Component = WIDGET_COMPONENTS[item.i]
