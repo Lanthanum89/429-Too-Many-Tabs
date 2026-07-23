@@ -81,7 +81,7 @@ body {
 .card {
   border-color: var(--color-line-strong) !important;
   border-left: 4px solid var(--color-accent-neon) !important;
-  box-shadow: 0 0 20px rgba(255, 0, 110, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: none !important;
 }
 
 /* Scrollbar styling */
@@ -105,7 +105,7 @@ body {
 
 .card h2 {
   font-size: 1.25rem !important;
-  text-shadow: 0 0 16px rgba(255, 0, 110, 0.5) !important;
+  text-shadow: none !important;
 }
 
 button {
@@ -113,7 +113,7 @@ button {
 }
 
 button:hover:not(:disabled) {
-  text-shadow: 0 0 12px rgba(255, 0, 110, 0.6);
+  text-shadow: none;
 }
 
 /* Sized in vw against the whole viewport for the default full-width hero
@@ -123,7 +123,7 @@ button:hover:not(:disabled) {
 .clock-display {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: clamp(3rem, 16vw, 11rem);
-  text-shadow: 0 0 40px rgba(255, 0, 110, 0.8), 0 0 20px rgba(255, 0, 110, 0.6);
+  text-shadow: none;
   letter-spacing: 0.05em;
 }
 
@@ -207,7 +207,7 @@ button:hover:not(:disabled) {
 
 .dashboard > header {
   grid-area: header;
-  background: linear-gradient(135deg, rgba(255, 0, 110, 0.1) 0%, rgba(255, 0, 110, 0.05) 100%);
+  background: transparent;
   border-bottom: 2px solid var(--color-accent-neon);
   padding: 1.5rem 1rem 1rem 1rem;
   margin-bottom: 0.5rem;
