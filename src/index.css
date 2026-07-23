@@ -36,12 +36,43 @@ body,
 body {
   @apply bg-void text-ink;
   overscroll-behavior: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode overrides */
+:root[data-theme="dark"] {
+  --color-void: #0b0a0f;
+  --color-surface: #131119;
+  --color-surface-2: #18151f;
+  --color-line: #292431;
+  --color-line-strong: #8a8a8a;
+  --color-ink: #f0edf5;
+  --color-muted: #9790a3;
+  --color-dim: #676171;
 }
 
 .card {
   border: 3px solid var(--color-line-strong) !important;
   box-shadow: 6px 6px 0px rgba(255, 0, 110, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0) !important;
   border-radius: 0 !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.theme-toggle {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
 }
 
 /* Scrollbar styling */
@@ -212,6 +243,13 @@ button.rounded-lg:active:not(:disabled) {
   border-bottom: 4px solid var(--color-line-strong);
   padding-bottom: 1rem;
   margin-bottom: 0.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.dashboard > header .flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dashboard > header h1 {
@@ -220,6 +258,8 @@ button.rounded-lg:active:not(:disabled) {
   letter-spacing: -0.02em;
   font-size: 2rem;
   text-transform: uppercase;
+  transition: color 0.3s ease;
+  margin: 0;
 }
 
 .dashboard-clock {

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Clock } from './components/Clock'
 import { BinaryClock } from './components/BinaryClock'
 import { WeatherWidget } from './components/WeatherWidget'
@@ -12,14 +13,38 @@ function getGreeting(hour: number): string {
 }
 
 function App() {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme') as 'light' | 'dark' | null
+    return saved || 'light'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light')
+  }
+
   const today = new Date()
   const greeting = getGreeting(today.getHours())
   return (
     <div className="dashboard p-4 sm:p-6">
       <header>
-        <h1 className="font-mono text-4xl font-bold text-accent-neon">
-          {greeting}, <span className="italic">Laura</span>.
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="font-mono text-4xl font-bold text-accent-neon">
+            {greeting}, <span className="italic">Laura</span>.
+          </h1>
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle"
+            aria-label="Toggle dark mode"
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+        </div>
       </header>
 
       <div className="dashboard-clock">
