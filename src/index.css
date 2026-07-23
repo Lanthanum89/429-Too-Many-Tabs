@@ -86,11 +86,11 @@ body {
   grid-template-areas:
     'header'
     'clock'
+    'spotify'
     'binary'
     'weather'
     'calendar'
-    'email'
-    'spotify';
+    'email';
   padding: 1rem;
   width: 100%;
   box-sizing: border-box;
@@ -189,9 +189,10 @@ body {
     grid-template-areas:
       'header    header'
       'clock     clock'
+      'spotify   spotify'
       'binary    weather'
       'calendar  calendar'
-      'email     spotify';
+      'email     email';
   }
 
   .mini-widgets-row {
@@ -204,12 +205,13 @@ body {
     height: 100vh;
     gap: 1rem;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto minmax(6rem, auto) 1fr;
+    grid-template-rows: auto auto auto minmax(6rem, auto) 1fr;
     grid-template-areas:
-      'header    header    header'
-      'clock     clock     calendar'
-      'binary    weather   calendar'
-      'spotify   spotify   email';
+      'header     header     header'
+      'clock      clock      calendar'
+      'spotify    binary     calendar'
+      'weather    weather    calendar'
+      'email      email      email';
   }
 
   .dashboard-clock {
