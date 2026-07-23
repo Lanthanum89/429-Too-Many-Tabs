@@ -70,6 +70,22 @@ body {
 
 button {
   transition: all 0.2s ease;
+  border: 2px solid transparent !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em;
+}
+
+/* Primary action buttons */
+button:not(:has(svg)):not([class*='text-']) {
+  border-color: var(--color-accent-neon) !important;
+  background: transparent !important;
+  color: var(--color-accent-neon) !important;
+}
+
+button:not(:has(svg)):not([class*='text-']):hover:not(:disabled) {
+  background: var(--color-accent-neon) !important;
+  color: var(--color-void) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.6) !important;
 }
 
 button:hover:not(:disabled) {

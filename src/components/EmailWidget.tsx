@@ -117,7 +117,7 @@ export function EmailWidget() {
             <button
               onClick={connect}
               disabled={loading}
-              className="self-start rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright disabled:opacity-50"
+              className="self-start border-2 border-accent-neon bg-transparent px-4 py-1.5 text-sm font-semibold text-accent-neon hover:bg-accent-neon hover:text-void disabled:opacity-50 transition-all"
             >
               {loading ? 'Connecting…' : 'Connect Gmail'}
             </button>
