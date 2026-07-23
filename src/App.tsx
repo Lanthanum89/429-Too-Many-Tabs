@@ -33,8 +33,8 @@ function App() {
   return (
     <div className="dashboard p-4 sm:p-6">
       <header>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-0">
+        <div className="flex items-start justify-between gap-4 w-full">
+          <div className="flex flex-col gap-0 text-left">
             <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
               {greeting}, <span className="italic">Laura</span>.
             </h1>
