@@ -5,10 +5,6 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })
-}
-
 function FlipDigit({ value, prevValue }: { value: string; prevValue: string }) {
   const isChanging = value !== prevValue
 
