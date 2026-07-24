@@ -335,6 +335,15 @@ button:hover:not(:disabled) {
 .dashboard-clock {
   grid-area: clock;
   container-type: inline-size;
+  /* Without this, the wrapper stretches to the grid row's height (as a
+     grid item) but .dashboard-clock .card's flex:1 does nothing - flex:1
+     only takes effect when its parent is itself a flex container. The
+     card was then just shrinking to its own content height inside a
+     taller, invisible wrapper: exactly why Clock kept reading shorter
+     than Calendar/Buses despite sharing the same row. */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .dashboard-binary {
   grid-area: binary;
@@ -432,8 +441,12 @@ button:hover:not(:disabled) {
     grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
     /* minmax(6rem, ...) on the last row is a hard floor for Weather — on a
        short window the other rows can no longer squeeze it down to a
-       sliver (or nothing) before the container scrolls instead. */
-    grid-template-rows: auto auto auto minmax(6rem, 1fr);
+       sliver (or nothing) before the container scrolls instead. Row 2's
+       own minmax caps that row directly (rather than one cell in it, see
+       .dashboard-clock below) so Clock/Calendar/Buses all stretch to the
+       exact same height instead of each resolving its own auto height and
+       hoping they happen to match. */
+    grid-template-rows: auto minmax(8rem, 18rem) auto minmax(6rem, 1fr);
     grid-template-areas:
       'header    header   header    header'
       'clock     clock    calendar  commits'
@@ -449,24 +462,12 @@ button:hover:not(:disabled) {
     overflow-x: hidden;
   }
 
-  .dashboard-clock {
-    min-height: 8rem;
-    /* Caps row2's auto height directly — the flip clock's own cqh-based
-       sizing then just resolves smaller to fit this box instead of
-       needing looser internal clamp caps to get the same effect. Frees
-       up the vertical room Weather's guaranteed floor draws from. Raised
-       from 16rem to 18rem so real (non-empty) Calendar/Buses content
-       doesn't leave Clock visibly shorter than them in the same row. */
-    max-height: 18rem;
-    overflow: hidden;
-  }
-
-  /* Without this, Card's flex:1 (set below, shared with the other cards)
-     lets it grow past .dashboard-clock's max-height with nothing to stop
-     it — the flip clock's own cqh-based digit sizing then references
-     that uncapped, ever-growing height instead of the intended box size,
-     which is what produced badly distorted (very narrow, very tall)
-     digits. Clipping here keeps the box height the cap actually says. */
+  /* Height itself now comes from row 2's own minmax (see
+     grid-template-rows above) via the default align-items:stretch, same
+     as Calendar/Buses - no separate cap here means the three can no
+     longer land at slightly different auto-resolved heights. overflow
+     stays as a safety net in case content ever wants more than the row
+     track allows. */
   .dashboard-clock .card {
     overflow: hidden;
   }
