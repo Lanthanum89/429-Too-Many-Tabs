@@ -243,7 +243,9 @@ button:hover:not(:disabled) {
     'binary'
     'weather'
     'calendar'
-    'email';
+    'commits'
+    'email'
+    'guardian';
   padding: 1rem;
   width: 100%;
   box-sizing: border-box;
@@ -363,12 +365,28 @@ button:hover:not(:disabled) {
   flex-direction: column;
   min-height: 0;
 }
+.dashboard-commits {
+  grid-area: commits;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.dashboard-guardian {
+  grid-area: guardian;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
 
 .dashboard-clock .card,
 .dashboard-spotify .card,
 .dashboard-calendar .card,
 .dashboard-email .card,
-.dashboard-weather .card {
+.dashboard-weather .card,
+.dashboard-commits .card,
+.dashboard-guardian .card {
   flex: 1;
 }
 
@@ -380,8 +398,8 @@ button:hover:not(:disabled) {
       'clock     clock'
       'spotify   spotify'
       'binary    weather'
-      'calendar  calendar'
-      'email     email';
+      'calendar  commits'
+      'email     guardian';
     padding: 1rem;
   }
 }
@@ -394,8 +412,8 @@ button:hover:not(:disabled) {
       'clock     clock'
       'spotify   spotify'
       'binary    weather'
-      'calendar  calendar'
-      'email     email';
+      'calendar  commits'
+      'email     guardian';
     padding: 1.5rem;
     gap: 1rem;
   }
@@ -406,19 +424,21 @@ button:hover:not(:disabled) {
     height: 100vh;
     box-sizing: border-box;
     gap: 1rem;
-    /* col3 (calendar/email) gets noticeably more share than col1/col2
-       (clock, spotify+binary) so the text-heavy calendar/email lists get
-       real width to work with. */
-    grid-template-columns: 0.6fr 0.6fr 2.4fr;
+    /* col3+col4 (calendar/commits, email/guardian) split what used to be
+       one wide 2.4fr column into two — calendar sits beside the commit
+       graph, email beside Guardian headlines, both pairs at the height
+       their original single-column counterpart had (calendar/commits
+       share clock's row; email/guardian share the two rows below it). */
+    grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
     /* minmax(6rem, ...) on the last row is a hard floor for Weather — on a
        short window the other rows can no longer squeeze it down to a
        sliver (or nothing) before the container scrolls instead. */
     grid-template-rows: auto auto auto minmax(6rem, 1fr);
     grid-template-areas:
-      'header    header   header'
-      'clock     clock    calendar'
-      'spotify   binary   email'
-      'weather   weather  email';
+      'header    header   header    header'
+      'clock     clock    calendar  commits'
+      'spotify   binary   email     guardian'
+      'weather   weather  email     guardian';
     /* Spotify/binary are capped to a vh-based max size below, but on an
        unusually short window even the capped rows plus header/clock can
        still exceed 100vh — auto (not hidden) so that edge case scrolls
@@ -456,7 +476,9 @@ button:hover:not(:disabled) {
      Email's top — that was the "large gap" this row previously had. */
 
   .dashboard-calendar,
-  .dashboard-email {
+  .dashboard-email,
+  .dashboard-commits,
+  .dashboard-guardian {
     overflow-y: auto;
   }
 
