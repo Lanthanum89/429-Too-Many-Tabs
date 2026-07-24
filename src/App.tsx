@@ -17,12 +17,12 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
 }
 
 const DEFAULT_LAYOUT = [
-  { x: 0, y: 0, w: 12, h: 4, i: 'clock' },
-  { x: 0, y: 4, w: 12, h: 3, i: 'spotify' },
-  { x: 0, y: 7, w: 6, h: 4, i: 'binary' },
-  { x: 6, y: 7, w: 6, h: 4, i: 'weather' },
-  { x: 0, y: 11, w: 6, h: 5, i: 'calendar' },
-  { x: 6, y: 11, w: 6, h: 5, i: 'email' },
+  { x: 0, y: 0, w: 12, h: 2, i: 'clock' },
+  { x: 0, y: 2, w: 12, h: 2, i: 'spotify' },
+  { x: 0, y: 4, w: 6, h: 2, i: 'binary' },
+  { x: 6, y: 4, w: 6, h: 2, i: 'weather' },
+  { x: 0, y: 6, w: 6, h: 3, i: 'calendar' },
+  { x: 6, y: 6, w: 6, h: 3, i: 'email' },
 ]
 
 function getGreeting(hour: number): string {
@@ -176,8 +176,7 @@ function App() {
             containerPadding={[16, 16]}
             margin={[16, 16]}
             cols={12}
-            rowHeight={50}
-            resizeHandle=".resize-handle"
+            rowHeight={30}
             {...({
               static: !isEditMode,
               useCSSTransforms: true,
