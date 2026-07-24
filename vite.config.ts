@@ -28,6 +28,16 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
+        // autoUpdate alone still leaves a new service worker "waiting" until
+        // every open tab/instance of the old one closes — on a PWA someone
+        // just leaves open (or reopens without a full quit), that can mean
+        // running a stale worker, and therefore a stale cached JS/CSS
+        // bundle, far longer than expected. skipWaiting + clientsClaim make
+        // a newly installed worker activate and take control immediately.
+        workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
+        },
         manifest: {
           name: '429: Too Many Tabs',
           short_name: '429',
