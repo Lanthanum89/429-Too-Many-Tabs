@@ -6,6 +6,10 @@ function splitList(raw: string | undefined): string[] {
 }
 
 const PROXY_URL = import.meta.env.VITE_READING_BUSES_PROXY_URL
+// /busstops (unlike /siri-sm) sends CORS headers, so it can still be called
+// directly - used as a no-backend fallback to at least show stop info while
+// the proxy (needed for live departure times) isn't deployed yet.
+const API_KEY = import.meta.env.VITE_READING_BUSES_API_KEY
 const HOME_STOP_CODES = splitList(import.meta.env.VITE_HOME_STOP_CODES)
 const WORK_STOP_CODES = splitList(import.meta.env.VITE_WORK_STOP_CODES)
 const HOME_STOP_LABELS = splitList(import.meta.env.VITE_HOME_STOP_LABELS)
@@ -17,10 +21,20 @@ export interface Departure {
   time: string // ISO
   monitored: boolean
   stopName: string
+  locationCode: string
+}
+
+export interface StopInfo {
+  locationCode: string
+  description: string
 }
 
 export function hasReadingBusesProxy(): boolean {
   return Boolean(PROXY_URL)
+}
+
+export function hasReadingBusesKey(): boolean {
+  return Boolean(API_KEY)
 }
 
 export function hasHomeStops(): boolean {
@@ -47,6 +61,53 @@ export function getWorkStopLabels(): string[] {
   return WORK_STOP_LABELS
 }
 
+interface RawStop {
+  location_code: string
+  description: string
+}
+
+// The /busstops response has been observed as a bare JSON array, but the
+// exact wrapper (if any) hasn't been confirmed across all accounts - check
+// a couple of common wrapper keys defensively before giving up.
+function extractStops(payload: unknown): RawStop[] {
+  if (Array.isArray(payload)) return payload as RawStop[]
+  if (payload && typeof payload === 'object') {
+    const obj = payload as Record<string, unknown>
+    for (const key of ['stops', 'data', 'busstops', 'results']) {
+      if (Array.isArray(obj[key])) return obj[key] as RawStop[]
+    }
+  }
+  throw new Error('Unexpected /busstops response shape')
+}
+
+// Shows configured stops without needing any live API call at all when every
+// code already has a label - only falls back to /busstops (which needs the
+// API key) to resolve a name for codes left unlabelled.
+export async function fetchStopInfo(codes: string[], labels: string[]): Promise<StopInfo[]> {
+  const needsLookup = codes.some((_, i) => !labels[i])
+  if (!needsLookup) {
+    return codes.map((code, i) => ({ locationCode: code, description: labels[i] }))
+  }
+  if (!API_KEY) {
+    return codes.map((code, i) => ({ locationCode: code, description: labels[i] ?? code }))
+  }
+
+  const params = new URLSearchParams({ api_token: API_KEY })
+  const res = await fetch(`https://reading-opendata.r2p.com/api/v1/busstops?${params}`)
+  if (!res.ok) throw new Error(`Reading Buses API error: ${res.status}`)
+
+  const raw = extractStops(await res.json())
+  const byCode = new Map<string, string>()
+  for (const stop of raw) {
+    if (!byCode.has(stop.location_code)) byCode.set(stop.location_code, stop.description)
+  }
+
+  return codes.map((code, i) => ({
+    locationCode: code,
+    description: labels[i] ?? byCode.get(code) ?? code,
+  }))
+}
+
 async function fetchStopPredictionsRaw(locationCode: string): Promise<string> {
   if (!PROXY_URL) throw new Error('Reading Buses proxy URL not configured')
 
@@ -64,7 +125,7 @@ function text(el: Element | null, tag: string): string | null {
 // the requested stop, whether it originates there (only departure times) or
 // just passes through (arrival then departure). The soonest of
 // expected/aimed arrival/departure is close enough to "when it's due here".
-function parseSiriSm(xml: string, label: string | undefined): Departure[] {
+function parseSiriSm(xml: string, locationCode: string, label: string | undefined): Departure[] {
   const doc = new DOMParser().parseFromString(xml, 'application/xml')
   if (doc.getElementsByTagName('parsererror').length > 0) {
     throw new Error('Failed to parse bus predictions response')
@@ -91,6 +152,7 @@ function parseSiriSm(xml: string, label: string | undefined): Departure[] {
       time,
       monitored: text(journey, 'Monitored') === 'true',
       stopName,
+      locationCode,
     })
   }
 
@@ -99,7 +161,7 @@ function parseSiriSm(xml: string, label: string | undefined): Departure[] {
 
 export async function fetchDeparturesForCodes(codes: string[], labels: string[]): Promise<Departure[]> {
   const perStop = await Promise.all(
-    codes.map((code, i) => fetchStopPredictionsRaw(code).then((xml) => parseSiriSm(xml, labels[i]))),
+    codes.map((code, i) => fetchStopPredictionsRaw(code).then((xml) => parseSiriSm(xml, code, labels[i]))),
   )
   return perStop.flat().sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
 }
