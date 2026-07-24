@@ -87,7 +87,10 @@ body {
 
 .card {
   border-color: var(--color-line-strong) !important;
-  box-shadow: none !important;
+  /* Offset down-right so the light source reads as coming from the
+     top-left, matching the gradient above which lightens toward that
+     same corner. */
+  box-shadow: 5px 6px 14px rgba(0, 0, 0, 0.18) !important;
   background: linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%) !important;
 }
 
