@@ -446,7 +446,7 @@ button:hover:not(:disabled) {
        .dashboard-clock below) so Clock/Calendar/Buses all stretch to the
        exact same height instead of each resolving its own auto height and
        hoping they happen to match. */
-    grid-template-rows: auto minmax(8rem, 18rem) auto minmax(6rem, 1fr);
+    grid-template-rows: auto minmax(8rem, 14rem) auto minmax(6rem, 1fr);
     grid-template-areas:
       'header    header   header    header'
       'clock     clock    calendar  commits'
