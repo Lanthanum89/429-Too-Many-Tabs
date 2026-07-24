@@ -94,6 +94,12 @@ export async function fetchStopPredictionsRaw(locationCode: string): Promise<str
   return res.text()
 }
 
+export async function findStopByCode(locationCode: string): Promise<string | null> {
+  const raw = extractStops(await fetchBusStopsRaw())
+  const match = raw.find((stop) => stop.location_code === locationCode)
+  return match?.description ?? null
+}
+
 export async function fetchNearbyStops(origin: GeoPoint, limit = 5): Promise<BusStop[]> {
   const raw = extractStops(await fetchBusStopsRaw())
   const byLocation = new Map<string, BusStop>()

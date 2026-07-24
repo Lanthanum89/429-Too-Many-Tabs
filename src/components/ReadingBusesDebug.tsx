@@ -3,6 +3,7 @@ import { Card } from './Card'
 import {
   fetchNearbyStops,
   fetchStopPredictionsRaw,
+  findStopByCode,
   getHomeLocation,
   getWorkLocation,
   hasHomeLocation,
@@ -22,6 +23,10 @@ export function ReadingBusesDebug() {
   const [error, setError] = useState<string | null>(null)
   const [predictionsRaw, setPredictionsRaw] = useState<string | null>(null)
   const [predictionsError, setPredictionsError] = useState<string | null>(null)
+  const [lookupCode, setLookupCode] = useState('')
+  const [lookupResult, setLookupResult] = useState<string | null>(null)
+  const [lookupError, setLookupError] = useState<string | null>(null)
+  const [lookupPending, setLookupPending] = useState(false)
 
   const hasOrigin = origin === 'home' ? hasHomeLocation() : hasWorkLocation()
 
@@ -43,6 +48,21 @@ export function ReadingBusesDebug() {
       .then(setPredictionsRaw)
       .catch((err) => setPredictionsError(err instanceof Error ? err.message : 'Failed to load'))
   }, [stops])
+
+  async function runLookup() {
+    if (!lookupCode.trim()) return
+    setLookupPending(true)
+    setLookupResult(null)
+    setLookupError(null)
+    try {
+      const description = await findStopByCode(lookupCode.trim())
+      setLookupResult(description ?? 'No stop found with that code.')
+    } catch (err) {
+      setLookupError(err instanceof Error ? err.message : 'Failed to look up')
+    } finally {
+      setLookupPending(false)
+    }
+  }
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
@@ -91,6 +111,29 @@ export function ReadingBusesDebug() {
           <p className="text-[11px] text-dim">Raw predictions for {stops?.[0].description}:</p>
           <pre className="whitespace-pre-wrap break-all text-[10px] text-ink">{predictionsRaw.slice(0, 4000)}</pre>
         </>
+      )}
+      {hasReadingBusesKey() && (
+        <div className="mt-2 flex flex-col gap-1 border-t border-line-strong pt-2">
+          <p className="text-[11px] text-dim">Look up a stop code:</p>
+          <div className="flex gap-1">
+            <input
+              value={lookupCode}
+              onChange={(e) => setLookupCode(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && runLookup()}
+              placeholder="e.g. 030054700001"
+              className="min-w-0 flex-1 rounded border border-line-strong bg-void px-2 py-1 text-xs text-ink"
+            />
+            <button
+              onClick={runLookup}
+              disabled={lookupPending}
+              className="rounded bg-accent-neon px-2 py-1 text-xs text-void disabled:opacity-50"
+            >
+              {lookupPending ? '…' : 'Go'}
+            </button>
+          </div>
+          {lookupResult && <p className="text-xs text-ink">{lookupResult}</p>}
+          {lookupError && <p className="text-xs text-danger">{lookupError}</p>}
+        </div>
       )}
     </Card>
   )
