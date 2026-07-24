@@ -39,6 +39,8 @@ jobs:
           VITE_READING_BUSES_API_KEY: ${{ secrets.VITE_READING_BUSES_API_KEY }}
           VITE_HOME_LAT: ${{ secrets.VITE_HOME_LAT }}
           VITE_HOME_LON: ${{ secrets.VITE_HOME_LON }}
+          VITE_WORK_LAT: ${{ secrets.VITE_WORK_LAT }}
+          VITE_WORK_LON: ${{ secrets.VITE_WORK_LON }}
         run: npm run build:capacitor
 
       - name: Sync Capacitor

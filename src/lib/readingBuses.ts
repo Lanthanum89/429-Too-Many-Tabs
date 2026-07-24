@@ -1,6 +1,13 @@
 const API_KEY = import.meta.env.VITE_READING_BUSES_API_KEY
 const HOME_LAT = Number(import.meta.env.VITE_HOME_LAT)
 const HOME_LON = Number(import.meta.env.VITE_HOME_LON)
+const WORK_LAT = Number(import.meta.env.VITE_WORK_LAT)
+const WORK_LON = Number(import.meta.env.VITE_WORK_LON)
+
+export interface GeoPoint {
+  lat: number
+  lon: number
+}
 
 export interface BusStop {
   locationCode: string
@@ -23,6 +30,18 @@ export function hasReadingBusesKey(): boolean {
 
 export function hasHomeLocation(): boolean {
   return Number.isFinite(HOME_LAT) && Number.isFinite(HOME_LON)
+}
+
+export function hasWorkLocation(): boolean {
+  return Number.isFinite(WORK_LAT) && Number.isFinite(WORK_LON)
+}
+
+export function getHomeLocation(): GeoPoint {
+  return { lat: HOME_LAT, lon: HOME_LON }
+}
+
+export function getWorkLocation(): GeoPoint {
+  return { lat: WORK_LAT, lon: WORK_LON }
 }
 
 // The /busstops response has been observed as a bare JSON array, but the
@@ -59,9 +78,7 @@ export async function fetchBusStopsRaw(): Promise<unknown> {
   return res.json()
 }
 
-export async function fetchNearbyStops(limit = 5): Promise<BusStop[]> {
-  if (!hasHomeLocation()) throw new Error('Home location not configured')
-
+export async function fetchNearbyStops(origin: GeoPoint, limit = 5): Promise<BusStop[]> {
   const raw = extractStops(await fetchBusStopsRaw())
   const byLocation = new Map<string, BusStop>()
 
@@ -75,7 +92,7 @@ export async function fetchNearbyStops(limit = 5): Promise<BusStop[]> {
       description: stop.description,
       latitude,
       longitude,
-      distanceMeters: haversineMeters(HOME_LAT, HOME_LON, latitude, longitude),
+      distanceMeters: haversineMeters(origin.lat, origin.lon, latitude, longitude),
     })
   }
 
