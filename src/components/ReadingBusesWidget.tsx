@@ -7,7 +7,7 @@ import {
   getWorkStopCodes,
   getWorkStopLabels,
   hasHomeStops,
-  hasReadingBusesKey,
+  hasReadingBusesProxy,
   hasWorkStops,
   type Departure,
 } from '../lib/readingBuses'
@@ -29,7 +29,7 @@ export function ReadingBusesWidget() {
   const hasOrigin = origin === 'home' ? hasHomeStops() : hasWorkStops()
 
   useEffect(() => {
-    if (!hasReadingBusesKey() || !hasOrigin) return undefined
+    if (!hasReadingBusesProxy() || !hasOrigin) return undefined
 
     let cancelled = false
 
@@ -82,11 +82,11 @@ export function ReadingBusesWidget() {
           </div>
         )}
       </div>
-      {!hasReadingBusesKey() && <p className="text-xs text-dim">Set VITE_READING_BUSES_API_KEY.</p>}
-      {hasReadingBusesKey() && !hasOrigin && (
+      {!hasReadingBusesProxy() && <p className="text-xs text-dim">Set VITE_READING_BUSES_PROXY_URL.</p>}
+      {hasReadingBusesProxy() && !hasOrigin && (
         <p className="text-xs text-dim">Set VITE_{origin.toUpperCase()}_STOP_CODES.</p>
       )}
-      {hasReadingBusesKey() && hasOrigin && departures === null && !error && (
+      {hasReadingBusesProxy() && hasOrigin && departures === null && !error && (
         <p className="text-sm text-dim">Loading…</p>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}

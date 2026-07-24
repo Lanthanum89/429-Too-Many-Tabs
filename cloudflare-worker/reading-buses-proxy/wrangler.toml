@@ -1,0 +1,11 @@
+name = "reading-buses-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Set with: wrangler secret put READING_BUSES_API_TOKEN
+# (the actual r2p.com api_token - never committed here)
+
+[vars]
+# Comma-separated list of origins the proxy will respond to (deployed site
+# plus local dev). Update if the dashboard's deployed URL ever changes.
+ALLOWED_ORIGINS = "https://lanthanum89.github.io,http://localhost:5173"

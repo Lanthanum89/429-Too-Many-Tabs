@@ -5,7 +5,7 @@ function splitList(raw: string | undefined): string[] {
     .filter(Boolean)
 }
 
-const API_KEY = import.meta.env.VITE_READING_BUSES_API_KEY
+const PROXY_URL = import.meta.env.VITE_READING_BUSES_PROXY_URL
 const HOME_STOP_CODES = splitList(import.meta.env.VITE_HOME_STOP_CODES)
 const WORK_STOP_CODES = splitList(import.meta.env.VITE_WORK_STOP_CODES)
 const HOME_STOP_LABELS = splitList(import.meta.env.VITE_HOME_STOP_LABELS)
@@ -19,8 +19,8 @@ export interface Departure {
   stopName: string
 }
 
-export function hasReadingBusesKey(): boolean {
-  return Boolean(API_KEY)
+export function hasReadingBusesProxy(): boolean {
+  return Boolean(PROXY_URL)
 }
 
 export function hasHomeStops(): boolean {
@@ -48,10 +48,10 @@ export function getWorkStopLabels(): string[] {
 }
 
 async function fetchStopPredictionsRaw(locationCode: string): Promise<string> {
-  if (!API_KEY) throw new Error('Reading Buses API key not configured')
+  if (!PROXY_URL) throw new Error('Reading Buses proxy URL not configured')
 
-  const params = new URLSearchParams({ api_token: API_KEY, location: locationCode })
-  const res = await fetch(`https://reading-opendata.r2p.com/api/v1/siri-sm?${params}`)
+  const params = new URLSearchParams({ location: locationCode })
+  const res = await fetch(`${PROXY_URL}/siri-sm?${params}`)
   if (!res.ok) throw new Error(`Reading Buses API error: ${res.status}`)
   return res.text()
 }

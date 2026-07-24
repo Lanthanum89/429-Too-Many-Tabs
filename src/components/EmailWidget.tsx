@@ -30,6 +30,7 @@ export function EmailWidget() {
   const [nextPageToken, setNextPageToken] = useState<string | undefined>(undefined)
   const [unreadCount, setUnreadCount] = useState<number | null>(null)
   const [unreadOnly, setUnreadOnly] = useState(false)
+  const [starredOnly, setStarredOnly] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -78,7 +79,10 @@ export function EmailWidget() {
     if (hasValidGmailToken()) connect()
   }, [])
 
-  const visibleMessages = unreadOnly ? (messages ?? []).filter((message) => message.unread) : (messages ?? [])
+  const starredCount = (messages ?? []).filter((message) => message.starred).length
+  const visibleMessages = (messages ?? []).filter(
+    (message) => (!unreadOnly || message.unread) && (!starredOnly || message.starred),
+  )
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
@@ -101,6 +105,25 @@ export function EmailWidget() {
             }`}
           >
             {unreadCount} unread
+          </button>
+        )}
+        {messages !== null && (
+          <button
+            onClick={() => starredCount > 0 && setStarredOnly((v) => !v)}
+            aria-pressed={starredOnly}
+            disabled={starredCount === 0}
+            title={
+              starredCount === 0 ? 'No starred messages' : starredOnly ? 'Show all messages' : 'Show only starred'
+            }
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+              starredCount === 0
+                ? 'bg-line text-dim'
+                : starredOnly
+                  ? 'bg-accent-bright text-void'
+                  : 'bg-accent-neon text-void hover:bg-accent-bright'
+            }`}
+          >
+            {starredCount} starred
           </button>
         )}
       </div>
