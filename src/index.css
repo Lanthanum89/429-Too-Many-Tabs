@@ -387,7 +387,14 @@ button:hover:not(:disabled) {
       'clock     clock    calendar'
       'spotify   binary   email'
       'weather   weather  email';
-    overflow: hidden;
+    /* Spotify/binary are capped to a vh-based max size below, but on an
+       unusually short window even the capped rows plus header/clock can
+       still exceed 100vh — auto (not hidden) so that edge case scrolls
+       instead of silently clipping whatever row runs off the bottom
+       (this is what chopped Weather off entirely on a wide, short laptop
+       screen: the squares' width-driven height pushed it past the fold). */
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .dashboard-clock {
@@ -408,7 +415,10 @@ button:hover:not(:disabled) {
 
   /* Square-ish tiles: sized by their own column width via aspect-ratio,
      not stretched to fill whatever the row ends up being (weather/binary
-     rows can differ in height across columns otherwise). */
+     rows can differ in height across columns otherwise). Capped to 34vh
+     so on a wide-but-short window (a laptop, not a phone/tablet) the
+     square doesn't grow tall enough on pure column width alone to push
+     Weather (and Email) past the viewport — it shrinks to fit instead. */
   .dashboard-spotify,
   .dashboard-binary {
     align-self: start;
@@ -417,6 +427,7 @@ button:hover:not(:disabled) {
   .dashboard-spotify .card,
   .dashboard-binary .card {
     aspect-ratio: 1 / 1;
+    width: min(100%, 34vh);
     flex: none;
   }
 
