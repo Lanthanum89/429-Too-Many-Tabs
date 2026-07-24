@@ -6,7 +6,7 @@ import { WeekCalendar } from './components/WeekCalendar'
 import { EmailWidget } from './components/EmailWidget'
 import { SpotifyWidget } from './components/SpotifyWidget'
 import { GuardianWidget } from './components/GuardianWidget'
-import { ReadingBusesDebug } from './components/ReadingBusesDebug'
+import { ReadingBusesWidget } from './components/ReadingBusesWidget'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -78,7 +78,7 @@ function App() {
         <WeekCalendar />
       </div>
       <div className="dashboard-commits">
-        <ReadingBusesDebug />
+        <ReadingBusesWidget />
       </div>
       <div className="dashboard-spotify">
         <SpotifyWidget />
