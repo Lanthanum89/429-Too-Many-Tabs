@@ -32,6 +32,10 @@ jobs:
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_SPOTIFY_CLIENT_ID: ${{ secrets.VITE_SPOTIFY_CLIENT_ID }}
+          VITE_GUARDIAN_API_KEY: ${{ secrets.VITE_GUARDIAN_API_KEY }}
+          # Not sensitive (just a public GitHub username) — hardcoded here
+          # rather than making Laura manage it as a repo secret too.
+          VITE_GITHUB_USERNAME: Lanthanum89
         run: npm run build
 
       - uses: actions/configure-pages@v5
