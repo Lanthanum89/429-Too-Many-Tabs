@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import GridLayout from 'react-grid-layout'
+import GridLayout, { type Layout } from 'react-grid-layout'
 import { Clock } from './components/Clock'
 import { BinaryClock } from './components/BinaryClock'
 import { WeatherWidget } from './components/WeatherWidget'
@@ -38,7 +38,7 @@ function App() {
   })
 
   const [isEditMode, setIsEditMode] = useState(false)
-  const [layout, setLayout] = useState(() => {
+  const [layout, setLayout] = useState<Layout[]>(() => {
     const saved = localStorage.getItem('dashboardLayout')
     return saved ? JSON.parse(saved) : DEFAULT_LAYOUT
   })
@@ -61,8 +61,8 @@ function App() {
     setTheme(theme === 'light' ? 'dark' : 'light')
   }
 
-  const handleLayoutChange = (newLayout: unknown) => {
-    setLayout(newLayout as typeof layout)
+  const handleLayoutChange = (newLayout: Layout[]) => {
+    setLayout(newLayout)
   }
 
   const saveLayout = () => {
@@ -177,18 +177,15 @@ function App() {
             margin={[16, 16]}
             cols={12}
             rowHeight={30}
-            {...({
-              static: !isEditMode,
-              useCSSTransforms: true,
-              isDraggable: isEditMode,
-              isResizable: isEditMode,
-            } as any)}
+            resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']}
+            isDraggable={isEditMode}
+            isResizable={isEditMode}
+            useCSSTransforms
           >
-            {layout.map((item: any) => {
+            {layout.map((item) => {
               const Component = WIDGET_COMPONENTS[item.i]
               return (
                 <div key={item.i} className={`grid-item ${isEditMode ? 'draggable' : ''}`}>
-                  {isEditMode && <div className="resize-handle" />}
                   <Component />
                 </div>
               )

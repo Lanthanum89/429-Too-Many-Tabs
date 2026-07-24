@@ -15,6 +15,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     base,
+    // react-draggable/react-resizable (used by the dashboard's drag-and-resize
+    // edit mode) read process.env.NODE_ENV directly for their internal debug
+    // logging; Vite doesn't polyfill `process` like Webpack/CRA did, so
+    // without this define the reference throws ReferenceError at the top of
+    // every drag/resize event handler and silently aborts the whole gesture.
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+    },
     plugins: [
       react(),
       tailwindcss(),

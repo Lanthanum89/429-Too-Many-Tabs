@@ -249,6 +249,16 @@ button:hover:not(:disabled) {
   background: transparent;
   pointer-events: none;
   position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.grid-item > .card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 .grid-item.draggable {
@@ -285,40 +295,118 @@ button:hover:not(:disabled) {
   z-index: 1;
 }
 
-.resize-handle {
+/* react-grid-layout's built-in resize handles — one span per direction,
+   auto-generated when resizeHandles includes that axis. Styled here since
+   the library ships unstyled handles. Only shown in edit mode: .grid-item
+   without .draggable has pointer-events:none so handles are inert too. */
+/* Handles are siblings of .grid-item within .react-grid-item, not
+   descendants, since react-grid-layout appends them after children. Hide
+   entirely outside edit mode so they can't be grabbed while "locked". */
+.dashboard-grid-container:not(.edit-mode) .react-resizable-handle {
+  display: none;
+}
+
+.react-resizable-handle {
   position: absolute;
-  bottom: -8px;
-  right: -8px;
-  width: 40px;
-  height: 40px;
-  cursor: se-resize;
-  background: var(--color-accent-neon);
-  border: 2px solid var(--color-line-strong);
-  border-radius: 4px;
   z-index: 200;
   touch-action: none;
-  opacity: 0.4;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: var(--color-void);
-  font-weight: bold;
+  opacity: 0.3;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  background: var(--color-accent-neon);
   user-select: none;
+  box-sizing: border-box;
 }
 
-.resize-handle::before {
-  content: '⤡';
+.react-grid-item:hover .react-resizable-handle {
+  opacity: 0.6;
 }
 
-.resize-handle:hover {
-  opacity: 1;
-  transform: scale(1.1);
+.react-resizable-handle:hover {
+  opacity: 1 !important;
+  background: var(--color-accent-bright) !important;
 }
 
-.grid-item.draggable:hover .resize-handle {
-  opacity: 0.8;
+/* Corner handles - 20x20 */
+.react-resizable-handle-nw,
+.react-resizable-handle-ne,
+.react-resizable-handle-sw,
+.react-resizable-handle-se {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid var(--color-line-strong);
+}
+
+.react-resizable-handle-nw {
+  top: -10px;
+  left: -10px;
+  cursor: nw-resize;
+}
+
+.react-resizable-handle-ne {
+  top: -10px;
+  right: -10px;
+  cursor: ne-resize;
+}
+
+.react-resizable-handle-sw {
+  bottom: -10px;
+  left: -10px;
+  cursor: sw-resize;
+}
+
+.react-resizable-handle-se {
+  bottom: -10px;
+  right: -10px;
+  cursor: se-resize;
+}
+
+/* Edge handles - thin bars */
+.react-resizable-handle-n,
+.react-resizable-handle-s,
+.react-resizable-handle-e,
+.react-resizable-handle-w {
+  border-radius: 2px;
+}
+
+.react-resizable-handle-n {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 10px;
+  cursor: n-resize;
+  min-width: 40px;
+}
+
+.react-resizable-handle-s {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 10px;
+  cursor: s-resize;
+  min-width: 40px;
+}
+
+.react-resizable-handle-e {
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 60%;
+  cursor: e-resize;
+  min-height: 40px;
+}
+
+.react-resizable-handle-w {
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 60%;
+  cursor: w-resize;
+  min-height: 40px;
 }
 
 @media (max-width: 480px) {
