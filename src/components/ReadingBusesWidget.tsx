@@ -36,14 +36,19 @@ export function ReadingBusesWidget() {
 
   const hasOrigin = origin === 'home' ? hasHomeStops() : hasWorkStops()
   const liveMode = hasReadingBusesProxy()
+  const codes = origin === 'home' ? getHomeStopCodes() : getWorkStopCodes()
+  const labels = origin === 'home' ? getHomeStopLabels() : getWorkStopLabels()
+  // Every code has its own label, so no live API call is needed at all to
+  // show stop names - the key is only required to resolve a name for a code
+  // left unlabelled.
+  const needsKey = codes.some((_, i) => !labels[i])
+  const canShowStopInfo = !needsKey || hasReadingBusesKey()
+  const ready = liveMode || canShowStopInfo
 
   useEffect(() => {
-    if (!hasOrigin) return undefined
-    if (!liveMode && !hasReadingBusesKey()) return undefined
+    if (!hasOrigin || !ready) return undefined
 
     let cancelled = false
-    const codes = origin === 'home' ? getHomeStopCodes() : getWorkStopCodes()
-    const labels = origin === 'home' ? getHomeStopLabels() : getWorkStopLabels()
 
     async function load() {
       try {
@@ -74,7 +79,7 @@ export function ReadingBusesWidget() {
       cancelled = true
       if (id) clearInterval(id)
     }
-  }, [origin, hasOrigin, liveMode])
+  }, [origin, hasOrigin, liveMode, ready])
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
@@ -101,13 +106,11 @@ export function ReadingBusesWidget() {
           </div>
         )}
       </div>
-      {!liveMode && !hasReadingBusesKey() && (
-        <p className="text-xs text-dim">Set VITE_READING_BUSES_API_KEY or VITE_READING_BUSES_PROXY_URL.</p>
+      {!hasOrigin && <p className="text-xs text-dim">Set VITE_{origin.toUpperCase()}_STOP_CODES.</p>}
+      {hasOrigin && !ready && (
+        <p className="text-xs text-dim">Set VITE_READING_BUSES_API_KEY (or label every stop).</p>
       )}
-      {(liveMode || hasReadingBusesKey()) && !hasOrigin && (
-        <p className="text-xs text-dim">Set VITE_{origin.toUpperCase()}_STOP_CODES.</p>
-      )}
-      {(liveMode || hasReadingBusesKey()) && hasOrigin && departures === null && stopInfo === null && !error && (
+      {hasOrigin && ready && departures === null && stopInfo === null && !error && (
         <p className="text-sm text-dim">Loading…</p>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
