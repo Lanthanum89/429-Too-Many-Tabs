@@ -39,24 +39,6 @@ interface MessageMetadataResponse {
   payload?: { headers?: MessageHeader[] }
 }
 
-interface MessagePart {
-  mimeType?: string
-  body?: { data?: string }
-  parts?: MessagePart[]
-}
-
-interface MessageFullResponse {
-  payload?: MessagePart & { headers?: MessageHeader[] }
-}
-
-export interface EmailBody {
-  id: string
-  subject: string
-  from: string
-  date: string
-  bodyText: string
-}
-
 let cachedToken: GoogleToken | null = loadCachedToken(STORAGE_KEY)
 
 async function getToken(): Promise<string> {
@@ -90,27 +72,30 @@ export function sortInboxMessages(messages: InboxMessage[]): InboxMessage[] {
 }
 
 const PAGE_SIZE = 20
+// Starred messages are meant to always ALL be visible regardless of where
+// they fall in the regular inbox pagination — a generous cap rather than
+// true unbounded pagination, since a personal inbox realistically never
+// has more starred messages than this in practice.
+const ALL_STARRED_CAP = 200
 
-// Fetches one page of inbox messages — read and unread alike, with star
-// status. Does one metadata request per message (fine at a page of ~20)
-// — switch to the `batch` endpoint if this grows a lot. Pass the previous
-// page's `nextPageToken` to load more.
-export async function fetchInboxMessages(pageToken?: string): Promise<InboxPage> {
+async function fetchMessagesForQuery(
+  query: string,
+  maxResults: number,
+  pageToken?: string,
+): Promise<InboxPage> {
   const token = await getToken()
-  const query = new URLSearchParams({ q: 'in:inbox', maxResults: String(PAGE_SIZE) })
-  if (pageToken) query.set('pageToken', pageToken)
-  const list = await gmailFetch<MessageListResponse>(`/messages?${query}`, token)
+  const params = new URLSearchParams({ q: query, maxResults: String(maxResults) })
+  if (pageToken) params.set('pageToken', pageToken)
+  const list = await gmailFetch<MessageListResponse>(`/messages?${params}`, token)
   const ids = (list.messages ?? []).map((m) => m.id)
 
   const messages = await Promise.all(
     ids.map(async (id) => {
-      const params = new URLSearchParams({
-        format: 'metadata',
-      })
-      params.append('metadataHeaders', 'Subject')
-      params.append('metadataHeaders', 'From')
+      const metaParams = new URLSearchParams({ format: 'metadata' })
+      metaParams.append('metadataHeaders', 'Subject')
+      metaParams.append('metadataHeaders', 'From')
       const msg = await gmailFetch<MessageMetadataResponse>(
-        `/messages/${id}?${params}`,
+        `/messages/${id}?${metaParams}`,
         token,
       )
       const headers = msg.payload?.headers ?? []
@@ -131,6 +116,35 @@ export async function fetchInboxMessages(pageToken?: string): Promise<InboxPage>
   return { messages: sortInboxMessages(messages), nextPageToken: list.nextPageToken }
 }
 
+// Fetches one page of inbox messages — read and unread alike, with star
+// status. Does one metadata request per message (fine at a page of ~20)
+// — switch to the `batch` endpoint if this grows a lot. Pass the previous
+// page's `nextPageToken` to load more.
+export async function fetchInboxMessages(pageToken?: string): Promise<InboxPage> {
+  return fetchMessagesForQuery('in:inbox', PAGE_SIZE, pageToken)
+}
+
+// All starred inbox messages in one shot (server-side filtered, so this
+// isn't limited by wherever they'd otherwise fall in fetchInboxMessages'
+// regular pagination window) — merge into the displayed list so a starred
+// message is never hidden behind "Load more".
+export async function fetchAllStarredMessages(): Promise<InboxMessage[]> {
+  const { messages } = await fetchMessagesForQuery('in:inbox is:starred', ALL_STARRED_CAP)
+  return messages
+}
+
+interface LabelResponse {
+  messagesUnread?: number
+}
+
+// The inbox label's own unread counter — the true total, not just a count
+// over whatever page(s) happen to be loaded client-side.
+export async function fetchInboxUnreadCount(): Promise<number> {
+  const token = await getToken()
+  const label = await gmailFetch<LabelResponse>('/labels/INBOX', token)
+  return label.messagesUnread ?? 0
+}
+
 // Pulls just the display name out of a `"Name" <email@example.com>` header,
 // falling back to the raw header if it isn't in that shape.
 export function fromDisplayName(from: string): string {
@@ -138,56 +152,3 @@ export function fromDisplayName(from: string): string {
   return match ? match[1].trim() : from
 }
 
-function base64UrlDecode(data: string): string {
-  const normalized = data.replace(/-/g, '+').replace(/_/g, '/')
-  const binary = atob(normalized)
-  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
-  return new TextDecoder('utf-8').decode(bytes)
-}
-
-// Depth-first search for the first part matching `mimeType` — messages are
-// often multipart (e.g. text/plain + text/html alternatives, or with
-// attachments nested further down).
-function findPart(part: MessagePart, mimeType: string): MessagePart | null {
-  if (part.mimeType === mimeType && part.body?.data) return part
-  for (const child of part.parts ?? []) {
-    const found = findPart(child, mimeType)
-    if (found) return found
-  }
-  return null
-}
-
-// Renders HTML to plain text via the browser's own parser rather than
-// displaying raw HTML from an external sender — avoids needing a sanitizer
-// just to show a read-only message preview safely.
-function htmlToPlainText(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  return doc.body.textContent?.trim() ?? ''
-}
-
-// Fetches a message's full body for the in-app reading view. Prefers the
-// text/plain part; falls back to stripping tags from text/html if that's all
-// the message has.
-export async function fetchMessageBody(id: string): Promise<EmailBody> {
-  const token = await getToken()
-  const msg = await gmailFetch<MessageFullResponse>(`/messages/${id}?format=full`, token)
-  const headers = msg.payload?.headers ?? []
-  const subject = headers.find((h) => h.name === 'Subject')?.value ?? '(no subject)'
-  const from = headers.find((h) => h.name === 'From')?.value ?? ''
-  const date = headers.find((h) => h.name === 'Date')?.value ?? ''
-
-  let bodyText = ''
-  if (msg.payload) {
-    const plainPart = findPart(msg.payload, 'text/plain')
-    if (plainPart?.body?.data) {
-      bodyText = base64UrlDecode(plainPart.body.data)
-    } else {
-      const htmlPart = findPart(msg.payload, 'text/html')
-      if (htmlPart?.body?.data) {
-        bodyText = htmlToPlainText(base64UrlDecode(htmlPart.body.data))
-      }
-    }
-  }
-
-  return { id, subject, from, date, bodyText: bodyText.trim() || '(no body content)' }
-}
