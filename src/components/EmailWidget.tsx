@@ -38,18 +38,24 @@ export function EmailWidget() {
     setLoading(true)
     setError(null)
     try {
-      const [starred, page, unread] = await Promise.all([
-        fetchAllStarredMessages(),
-        fetchInboxMessages(),
-        fetchInboxUnreadCount(),
-      ])
+      const [starred, page] = await Promise.all([fetchAllStarredMessages(), fetchInboxMessages()])
       setMessages(mergeMessages(starred, page.messages))
       setNextPageToken(page.nextPageToken)
-      setUnreadCount(unread)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load email')
-    } finally {
       setLoading(false)
+      return
+    }
+    setLoading(false)
+
+    // Kept separate from the fetch above on purpose: this is a nice-to-have
+    // badge, not core to the widget working, so a failure here (rate limit,
+    // a transient API hiccup) shouldn't take the whole message list down
+    // with it — it just leaves the badge off.
+    try {
+      setUnreadCount(await fetchInboxUnreadCount())
+    } catch {
+      setUnreadCount(null)
     }
   }
 
@@ -78,15 +84,20 @@ export function EmailWidget() {
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-center gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Email</h2>
-        {!!unreadCount && (
+        {unreadCount !== null && (
           <button
-            onClick={() => setUnreadOnly((v) => !v)}
+            onClick={() => unreadCount > 0 && setUnreadOnly((v) => !v)}
             aria-pressed={unreadOnly}
-            title={unreadOnly ? 'Show all messages' : 'Show only unread'}
+            disabled={unreadCount === 0}
+            title={
+              unreadCount === 0 ? 'No unread messages' : unreadOnly ? 'Show all messages' : 'Show only unread'
+            }
             className={`rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
-              unreadOnly
-                ? 'bg-accent-bright text-void'
-                : 'bg-accent-neon text-void hover:bg-accent-bright'
+              unreadCount === 0
+                ? 'bg-line text-dim'
+                : unreadOnly
+                  ? 'bg-accent-bright text-void'
+                  : 'bg-accent-neon text-void hover:bg-accent-bright'
             }`}
           >
             {unreadCount} unread
