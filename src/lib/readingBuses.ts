@@ -82,6 +82,18 @@ export async function fetchBusStopsRaw(): Promise<unknown> {
   return res.json()
 }
 
+// Response format not yet confirmed (SIRI-SM is typically XML rather than
+// JSON) - return raw text so either can be inspected before writing a
+// real parser.
+export async function fetchStopPredictionsRaw(locationCode: string): Promise<string> {
+  if (!API_KEY) throw new Error('Reading Buses API key not configured')
+
+  const params = new URLSearchParams({ api_token: API_KEY, location: locationCode })
+  const res = await fetch(`https://reading-opendata.r2p.com/api/v1/siri-sm?${params}`)
+  if (!res.ok) throw new Error(`Reading Buses API error: ${res.status}`)
+  return res.text()
+}
+
 export async function fetchNearbyStops(origin: GeoPoint, limit = 5): Promise<BusStop[]> {
   const raw = extractStops(await fetchBusStopsRaw())
   const byLocation = new Map<string, BusStop>()
