@@ -3,7 +3,9 @@ import { Card } from './Card'
 import {
   fetchDeparturesForCodes,
   getHomeStopCodes,
+  getHomeStopLabels,
   getWorkStopCodes,
+  getWorkStopLabels,
   hasHomeStops,
   hasReadingBusesKey,
   hasWorkStops,
@@ -34,7 +36,8 @@ export function ReadingBusesWidget() {
     async function load() {
       try {
         const codes = origin === 'home' ? getHomeStopCodes() : getWorkStopCodes()
-        const data = await fetchDeparturesForCodes(codes)
+        const labels = origin === 'home' ? getHomeStopLabels() : getWorkStopLabels()
+        const data = await fetchDeparturesForCodes(codes, labels)
         if (!cancelled) {
           setDepartures(data)
           setError(null)

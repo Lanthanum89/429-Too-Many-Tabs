@@ -39,6 +39,8 @@ jobs:
           VITE_READING_BUSES_API_KEY: ${{ secrets.VITE_READING_BUSES_API_KEY }}
           VITE_HOME_STOP_CODES: ${{ secrets.VITE_HOME_STOP_CODES }}
           VITE_WORK_STOP_CODES: ${{ secrets.VITE_WORK_STOP_CODES }}
+          VITE_HOME_STOP_LABELS: ${{ secrets.VITE_HOME_STOP_LABELS }}
+          VITE_WORK_STOP_LABELS: ${{ secrets.VITE_WORK_STOP_LABELS }}
         run: npm run build:capacitor
 
       - name: Sync Capacitor

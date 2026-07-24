@@ -1,12 +1,15 @@
+function splitList(raw: string | undefined): string[] {
+  return (raw ?? '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean)
+}
+
 const API_KEY = import.meta.env.VITE_READING_BUSES_API_KEY
-const HOME_STOP_CODES = (import.meta.env.VITE_HOME_STOP_CODES ?? '')
-  .split(',')
-  .map((code: string) => code.trim())
-  .filter(Boolean)
-const WORK_STOP_CODES = (import.meta.env.VITE_WORK_STOP_CODES ?? '')
-  .split(',')
-  .map((code: string) => code.trim())
-  .filter(Boolean)
+const HOME_STOP_CODES = splitList(import.meta.env.VITE_HOME_STOP_CODES)
+const WORK_STOP_CODES = splitList(import.meta.env.VITE_WORK_STOP_CODES)
+const HOME_STOP_LABELS = splitList(import.meta.env.VITE_HOME_STOP_LABELS)
+const WORK_STOP_LABELS = splitList(import.meta.env.VITE_WORK_STOP_LABELS)
 
 export interface Departure {
   line: string
@@ -36,6 +39,14 @@ export function getWorkStopCodes(): string[] {
   return WORK_STOP_CODES
 }
 
+export function getHomeStopLabels(): string[] {
+  return HOME_STOP_LABELS
+}
+
+export function getWorkStopLabels(): string[] {
+  return WORK_STOP_LABELS
+}
+
 async function fetchStopPredictionsRaw(locationCode: string): Promise<string> {
   if (!API_KEY) throw new Error('Reading Buses API key not configured')
 
@@ -53,13 +64,13 @@ function text(el: Element | null, tag: string): string | null {
 // the requested stop, whether it originates there (only departure times) or
 // just passes through (arrival then departure). The soonest of
 // expected/aimed arrival/departure is close enough to "when it's due here".
-function parseSiriSm(xml: string): Departure[] {
+function parseSiriSm(xml: string, label: string | undefined): Departure[] {
   const doc = new DOMParser().parseFromString(xml, 'application/xml')
   if (doc.getElementsByTagName('parsererror').length > 0) {
     throw new Error('Failed to parse bus predictions response')
   }
 
-  const stopName = doc.getElementsByTagName('MonitoringName')[0]?.textContent ?? ''
+  const stopName = label ?? doc.getElementsByTagName('MonitoringName')[0]?.textContent ?? ''
 
   const departures: Departure[] = []
   for (const visit of Array.from(doc.getElementsByTagName('MonitoredStopVisit'))) {
@@ -86,7 +97,9 @@ function parseSiriSm(xml: string): Departure[] {
   return departures.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
 }
 
-export async function fetchDeparturesForCodes(codes: string[]): Promise<Departure[]> {
-  const perStop = await Promise.all(codes.map((code) => fetchStopPredictionsRaw(code).then(parseSiriSm)))
+export async function fetchDeparturesForCodes(codes: string[], labels: string[]): Promise<Departure[]> {
+  const perStop = await Promise.all(
+    codes.map((code, i) => fetchStopPredictionsRaw(code).then((xml) => parseSiriSm(xml, labels[i]))),
+  )
   return perStop.flat().sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
 }
