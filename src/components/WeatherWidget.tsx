@@ -110,8 +110,10 @@ export function WeatherWidget() {
             </div>
             <div className="flex flex-col text-base text-muted">
               {weather.location && <span>{weather.location}</span>}
-              <span className="text-sm text-dim">{weather.description}</span>
-              <span className="text-sm text-dim">Feels like {Math.round(weather.feelsLikeC)}°</span>
+              <div className="mt-2 flex flex-col text-sm text-dim">
+                <span>{weather.description}</span>
+                <span>Feels like {Math.round(weather.feelsLikeC)}°</span>
+              </div>
             </div>
           </div>
           {(weather.hourly.length > 0 || weather.tomorrow) && (
