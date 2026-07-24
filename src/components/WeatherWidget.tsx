@@ -108,10 +108,10 @@ export function WeatherWidget() {
               <WeatherIcon weather={weather} />
               <span className="font-clock text-2xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
             </div>
-            <div className="flex flex-1 flex-col text-xs text-muted">
+            <div className="flex flex-1 flex-col text-sm text-muted">
               {weather.location && <span>{weather.location}</span>}
-              <span className="text-[11px] text-dim">{weather.description}</span>
-              <span className="text-[11px] text-dim">Feels like {Math.round(weather.feelsLikeC)}°</span>
+              <span className="text-xs text-dim">{weather.description}</span>
+              <span className="text-xs text-dim">Feels like {Math.round(weather.feelsLikeC)}°</span>
             </div>
           </div>
           {weather.hourly.length > 0 && (
@@ -119,9 +119,9 @@ export function WeatherWidget() {
               {weather.hourly.map((h, i) => {
                 const hour = new Date(h.time).getHours()
                 return (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-1 text-[11px]">
+                  <div key={i} className="flex flex-1 flex-col items-center gap-1 text-xs">
                     <span className="text-dim">{hour}:00</span>
-                    <span className="font-clock text-sm font-semibold">{Math.round(h.temperatureC)}°</span>
+                    <span className="font-clock text-base font-semibold">{Math.round(h.temperatureC)}°</span>
                     <span className="text-dim">{Math.round(h.precipitationChance)}% rain</span>
                   </div>
                 )
