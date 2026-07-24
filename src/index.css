@@ -278,11 +278,25 @@ button:hover:not(:disabled) {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   cursor: se-resize;
-  background: linear-gradient(135deg, transparent 50%, var(--color-accent-neon) 50%);
-  z-index: 10;
+  background: linear-gradient(135deg, transparent 45%, var(--color-accent-neon) 45%, var(--color-accent-neon) 55%, transparent 55%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px 20px;
+  z-index: 100;
+  touch-action: none;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.resize-handle:hover {
+  opacity: 1;
+}
+
+.grid-item.draggable .resize-handle {
+  opacity: 0.8;
 }
 
 @media (max-width: 480px) {

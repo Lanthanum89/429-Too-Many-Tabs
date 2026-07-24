@@ -177,9 +177,12 @@ function App() {
             margin={[16, 16]}
             cols={12}
             rowHeight={50}
+            resizeHandle=".resize-handle"
             {...({
               static: !isEditMode,
               useCSSTransforms: true,
+              isDraggable: isEditMode,
+              isResizable: isEditMode,
             } as any)}
           >
             {layout.map((item: any) => {
