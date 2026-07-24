@@ -381,7 +381,10 @@ button:hover:not(:disabled) {
        spotify+binary) — narrows the clock/spotify/binary column group a
        touch and gives the calendar/email column more room to the right. */
     grid-template-columns: 0.9fr 0.9fr 1.5fr;
-    grid-template-rows: auto auto auto 1fr;
+    /* minmax(6rem, ...) on the last row is a hard floor for Weather — on a
+       short window the other rows can no longer squeeze it down to a
+       sliver (or nothing) before the container scrolls instead. */
+    grid-template-rows: auto auto auto minmax(6rem, 1fr);
     grid-template-areas:
       'header    header   header'
       'clock     clock    calendar'
@@ -399,13 +402,18 @@ button:hover:not(:disabled) {
 
   .dashboard-clock {
     min-height: 8rem;
+    /* Caps row2's auto height directly — the flip clock's own cqh-based
+       sizing then just resolves smaller to fit this box instead of
+       needing looser internal clamp caps to get the same effect. Frees
+       up the vertical room Weather's guaranteed floor draws from. */
+    max-height: 15rem;
   }
 
   /* Calendar is now a single short row instead of spanning down next to
      binary — email moves up to sit right below it instead of leaving a
      tall gap. */
   .dashboard-calendar {
-    max-height: 12rem;
+    max-height: 14rem;
   }
 
   .dashboard-calendar,
@@ -427,7 +435,7 @@ button:hover:not(:disabled) {
   .dashboard-spotify .card,
   .dashboard-binary .card {
     aspect-ratio: 1 / 1;
-    width: min(100%, 34vh);
+    width: min(100%, 26vh);
     flex: none;
   }
 
