@@ -16,14 +16,45 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
   email: EmailWidget,
 }
 
-const DEFAULT_LAYOUT = [
-  { x: 0, y: 0, w: 12, h: 2, i: 'clock' },
-  { x: 0, y: 2, w: 12, h: 2, i: 'spotify' },
-  { x: 0, y: 4, w: 6, h: 2, i: 'binary' },
-  { x: 6, y: 4, w: 6, h: 2, i: 'weather' },
-  { x: 0, y: 6, w: 6, h: 3, i: 'calendar' },
-  { x: 6, y: 6, w: 6, h: 3, i: 'email' },
-]
+// Per-widget floors so edit-mode resizing (or a stale saved layout from
+// before these existed) can never shrink a card below the point its own
+// content starts clipping — Spotify's album art + controls and the
+// calendar/email lists need more room than the clock's self-scaling digits.
+const WIDGET_MIN_SIZES: Record<string, { minW: number; minH: number }> = {
+  clock: { minW: 4, minH: 4 },
+  spotify: { minW: 4, minH: 10 },
+  binary: { minW: 3, minH: 4 },
+  weather: { minW: 3, minH: 4 },
+  calendar: { minW: 3, minH: 4 },
+  email: { minW: 3, minH: 4 },
+}
+
+const DEFAULT_LAYOUT: Layout[] = [
+  { x: 0, y: 0, w: 12, h: 6, i: 'clock' },
+  { x: 0, y: 6, w: 12, h: 10, i: 'spotify' },
+  { x: 0, y: 16, w: 6, h: 4, i: 'binary' },
+  { x: 6, y: 16, w: 6, h: 4, i: 'weather' },
+  { x: 0, y: 20, w: 6, h: 5, i: 'calendar' },
+  { x: 6, y: 20, w: 6, h: 5, i: 'email' },
+].map((item) => ({ ...item, ...WIDGET_MIN_SIZES[item.i] }))
+
+// Applied whenever layout state is set from an external source (initial
+// load from localStorage, or a manual reset) — bumps any item narrower or
+// shorter than its floor back up to it, and (re)stamps the minW/minH
+// constraint itself, so a layout saved before WIDGET_MIN_SIZES existed
+// still gets clamped instead of staying stuck at a clipping size forever.
+function withMinSizes(items: Layout[]): Layout[] {
+  return items.map((item) => {
+    const min = WIDGET_MIN_SIZES[item.i]
+    if (!min) return item
+    return {
+      ...item,
+      ...min,
+      w: Math.max(item.w, min.minW),
+      h: Math.max(item.h, min.minH),
+    }
+  })
+}
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -40,7 +71,7 @@ function App() {
   const [isEditMode, setIsEditMode] = useState(false)
   const [layout, setLayout] = useState<Layout[]>(() => {
     const saved = localStorage.getItem('dashboardLayout')
-    return saved ? JSON.parse(saved) : DEFAULT_LAYOUT
+    return withMinSizes(saved ? JSON.parse(saved) : DEFAULT_LAYOUT)
   })
   const [containerWidth, setContainerWidth] = useState(window.innerWidth - 50)
 
@@ -71,7 +102,7 @@ function App() {
   }
 
   const resetLayout = () => {
-    setLayout(DEFAULT_LAYOUT)
+    setLayout(withMinSizes(DEFAULT_LAYOUT))
   }
 
   const today = new Date()

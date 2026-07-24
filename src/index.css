@@ -115,16 +115,23 @@ button:hover:not(:disabled) {
   text-shadow: none;
 }
 
-/* Sized in vw against the whole viewport for the default full-width hero
-   clock. In the landscape sidebar layout below, the clock's column is a
-   fixed 22rem regardless of viewport width, so vw massively oversizes it
-   there — that layout overrides this with a flat size instead. */
+/* Scaled in container-query units against the widget's own grid cell
+   (.grid-item has container-type:size, container-name:widget — see
+   above), not the viewport — so the clock always fits its box exactly,
+   whether that's the full-width hero default or a manually resized
+   sliver in edit mode, without ever overflowing it. cqw covers width
+   getting tight (narrow box), cqh covers height getting tight (short
+   box); whichever constraint is smaller wins via the min() greedy pick
+   built into each clamp. */
 .flip-clock-container {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   perspective: 1000px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .flip-segment {
@@ -134,7 +141,7 @@ button:hover:not(:disabled) {
 
 .flip-separator {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(2.5rem, 16vw, 10rem);
+  font-size: clamp(1rem, min(8cqw, 20cqh), 10rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   line-height: 1;
@@ -142,7 +149,7 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(3.5rem, 10vw, 10rem);
+  min-height: clamp(1.5rem, 20cqh, 10rem);
   animation: blink 1s infinite;
 }
 
@@ -152,8 +159,8 @@ button:hover:not(:disabled) {
 }
 
 .flip-digit {
-  width: clamp(2rem, 6vw, 6.5rem);
-  height: clamp(3.5rem, 10vw, 10rem);
+  width: clamp(0.9rem, min(3cqw, 8cqh), 6.5rem);
+  height: clamp(1.5rem, 20cqh, 10rem);
   position: relative;
   transform-style: preserve-3d;
 }
@@ -179,7 +186,7 @@ button:hover:not(:disabled) {
   align-items: center;
   justify-content: center;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(2.5rem, 16vw, 10rem);
+  font-size: clamp(1rem, min(8cqw, 20cqh), 10rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   backface-visibility: hidden;
@@ -247,11 +254,12 @@ button:hover:not(:disabled) {
 
 .grid-item {
   background: transparent;
-  pointer-events: none;
   position: relative;
   height: 100%;
   width: 100%;
   display: flex;
+  container-type: size;
+  container-name: widget;
 }
 
 .grid-item > .card {
@@ -262,7 +270,6 @@ button:hover:not(:disabled) {
 }
 
 .grid-item.draggable {
-  pointer-events: auto;
   cursor: grab;
   border: 1px dashed var(--color-line-strong) !important;
   border-radius: 0.5rem;
