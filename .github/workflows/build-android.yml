@@ -36,7 +36,9 @@ jobs:
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_SPOTIFY_CLIENT_ID: ${{ secrets.VITE_SPOTIFY_CLIENT_ID }}
           VITE_GUARDIAN_API_KEY: ${{ secrets.VITE_GUARDIAN_API_KEY }}
-          VITE_GITHUB_USERNAME: Lanthanum89
+          VITE_READING_BUSES_API_KEY: ${{ secrets.VITE_READING_BUSES_API_KEY }}
+          VITE_HOME_LAT: ${{ secrets.VITE_HOME_LAT }}
+          VITE_HOME_LON: ${{ secrets.VITE_HOME_LON }}
         run: npm run build:capacitor
 
       - name: Sync Capacitor

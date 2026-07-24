@@ -35,7 +35,7 @@ export function GuardianWidget() {
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
-      <h2 className="font-mono text-lg font-bold text-accent-neon">Guardian</h2>
+      <h2 className="font-mono text-lg font-bold text-accent-neon">Guardian Headlines</h2>
       {!hasGuardianKey() ? (
         <p className="text-xs text-dim">Set VITE_GUARDIAN_API_KEY to show headlines.</p>
       ) : headlines === null ? (
