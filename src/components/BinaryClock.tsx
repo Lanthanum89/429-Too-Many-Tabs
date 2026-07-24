@@ -13,11 +13,11 @@ function digitBits(digit: number): boolean[] {
 
 function DigitColumn({ digit }: { digit: number }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2.5">
       {digitBits(digit).map((on, i) => (
         <span
           key={i}
-          className={`h-3 w-3 rounded-full border-2 ${
+          className={`h-5 w-5 rounded-full border-2 ${
             on
               ? 'border-accent-neon bg-accent-neon'
               : 'border-line-strong bg-void'
@@ -32,12 +32,12 @@ function UnitBlock({ label, value }: { label: string; value: number }) {
   const tens = Math.floor(value / 10)
   const ones = value % 10
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex gap-2">
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex gap-3">
         <DigitColumn digit={tens} />
         <DigitColumn digit={ones} />
       </div>
-      <span className="font-mono text-[0.6rem] tracking-widest text-dim uppercase">{label}</span>
+      <span className="font-mono text-xs tracking-widest text-dim uppercase">{label}</span>
     </div>
   )
 }
@@ -51,8 +51,8 @@ export function BinaryClock() {
   }, [])
 
   return (
-    <Card className="flex flex-col items-center gap-3">
-      <div className="flex gap-4">
+    <Card className="flex flex-col items-center justify-center gap-3">
+      <div className="flex gap-6">
         <UnitBlock label="H" value={now.getHours()} />
         <UnitBlock label="M" value={now.getMinutes()} />
         <UnitBlock label="S" value={now.getSeconds()} />

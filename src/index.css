@@ -81,6 +81,7 @@ body {
 .card {
   border-color: var(--color-line-strong) !important;
   box-shadow: none !important;
+  background: linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%) !important;
 }
 
 /* Scrollbar styling */
@@ -140,7 +141,7 @@ button:hover:not(:disabled) {
 
 .flip-separator {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(1rem, min(8cqw, 20cqh), 10rem);
+  font-size: clamp(1rem, min(11cqw, 30cqh), 12rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   line-height: 1;
@@ -148,7 +149,7 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(1.5rem, 20cqh, 10rem);
+  min-height: clamp(1.5rem, 32cqh, 12rem);
   animation: blink 1s infinite;
 }
 
@@ -158,8 +159,8 @@ button:hover:not(:disabled) {
 }
 
 .flip-digit {
-  width: clamp(0.9rem, min(3cqw, 8cqh), 6.5rem);
-  height: clamp(1.5rem, 20cqh, 10rem);
+  width: clamp(0.9rem, min(4.2cqw, 12cqh), 8rem);
+  height: clamp(1.5rem, 32cqh, 12rem);
   position: relative;
   transform-style: preserve-3d;
 }
@@ -185,7 +186,7 @@ button:hover:not(:disabled) {
   align-items: center;
   justify-content: center;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(1rem, min(8cqw, 20cqh), 10rem);
+  font-size: clamp(1rem, min(11cqw, 30cqh), 12rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   backface-visibility: hidden;
@@ -376,13 +377,16 @@ button:hover:not(:disabled) {
     height: 100vh;
     box-sizing: border-box;
     gap: 1rem;
-    grid-template-columns: 1fr 1fr 1.3fr;
+    /* col3 (calendar/email) gets a bigger share than col1/col2 (clock,
+       spotify+binary) — narrows the clock/spotify/binary column group a
+       touch and gives the calendar/email column more room to the right. */
+    grid-template-columns: 0.9fr 0.9fr 1.5fr;
     grid-template-rows: auto auto auto 1fr;
     grid-template-areas:
       'header    header   header'
       'clock     clock    calendar'
-      'spotify   binary   calendar'
-      'spotify   weather  email';
+      'spotify   binary   email'
+      'weather   weather  email';
     overflow: hidden;
   }
 
@@ -390,9 +394,33 @@ button:hover:not(:disabled) {
     min-height: 8rem;
   }
 
+  /* Calendar is now a single short row instead of spanning down next to
+     binary — email moves up to sit right below it instead of leaving a
+     tall gap. */
+  .dashboard-calendar {
+    max-height: 12rem;
+  }
+
   .dashboard-calendar,
-  .dashboard-email,
-  .dashboard-spotify {
+  .dashboard-email {
+    overflow-y: auto;
+  }
+
+  /* Square-ish tiles: sized by their own column width via aspect-ratio,
+     not stretched to fill whatever the row ends up being (weather/binary
+     rows can differ in height across columns otherwise). */
+  .dashboard-spotify,
+  .dashboard-binary {
+    align-self: start;
+  }
+
+  .dashboard-spotify .card,
+  .dashboard-binary .card {
+    aspect-ratio: 1 / 1;
+    flex: none;
+  }
+
+  .dashboard-weather {
     overflow-y: auto;
   }
 
