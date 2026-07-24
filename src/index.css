@@ -444,12 +444,18 @@ button:hover:not(:disabled) {
     grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
     /* minmax(6rem, ...) on the last row is a hard floor for Weather — on a
        short window the other rows can no longer squeeze it down to a
-       sliver (or nothing) before the container scrolls instead. Row 2's
-       own minmax caps that row directly (rather than one cell in it, see
-       .dashboard-clock below) so Clock/Calendar/Buses all stretch to the
-       exact same height instead of each resolving its own auto height and
-       hoping they happen to match. */
-    grid-template-rows: auto minmax(8rem, 14rem) auto minmax(6rem, 1fr);
+       sliver (or nothing) before the container scrolls instead. Row 2 is
+       plain auto on purpose: minmax(min, FIXED-MAX) on a non-flex track
+       actively grows to that max using any free space in the grid's
+       "maximize tracks" step, which runs BEFORE 1fr tracks get anything -
+       so a minmax cap here was pegging row 2 at its ceiling in every
+       single test regardless of what Clock/Calendar/Buses actually
+       needed, starving Weather's 1fr row of the leftover space it's
+       supposed to get first look at. Plain auto only takes what its
+       tallest cell's real content needs. Clock matching Calendar/Buses
+       comes from display:flex on .dashboard-clock (below) letting it
+       stretch to that auto height, not from a track-level cap. */
+    grid-template-rows: auto auto auto minmax(6rem, 1fr);
     grid-template-areas:
       'header    header   header    header'
       'clock     clock    calendar  commits'
@@ -465,12 +471,11 @@ button:hover:not(:disabled) {
     overflow-x: hidden;
   }
 
-  /* Height itself now comes from row 2's own minmax (see
-     grid-template-rows above) via the default align-items:stretch, same
-     as Calendar/Buses - no separate cap here means the three can no
-     longer land at slightly different auto-resolved heights. overflow
-     stays as a safety net in case content ever wants more than the row
-     track allows. */
+  /* display:flex on .dashboard-clock (its base rule) plus flex:1 here is
+     what makes Clock stretch to match row 2's auto-resolved height, same
+     mechanism Calendar/Buses/Email/Guardian already use - no track-level
+     cap involved (see grid-template-rows above for why that approach
+     backfired). overflow stays as a safety net regardless. */
   .dashboard-clock .card {
     overflow: hidden;
   }
@@ -509,7 +514,11 @@ button:hover:not(:disabled) {
   .dashboard-spotify .card,
   .dashboard-binary .card {
     aspect-ratio: 1 / 1;
-    width: min(100%, 40vh);
+    /* Was bumped to 40vh to make these bigger (closing a visual gap), but
+       row 3 is an uncapped auto row - directly sized by this value with
+       nothing else limiting it, so a bigger square just steals height
+       from Weather below on a laptop-height window. Back to 30vh. */
+    width: min(100%, 30vh);
     flex: none;
     overflow: hidden;
   }
