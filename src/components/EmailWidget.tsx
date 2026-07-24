@@ -29,6 +29,7 @@ export function EmailWidget() {
   const [messages, setMessages] = useState<InboxMessage[] | null>(null)
   const [nextPageToken, setNextPageToken] = useState<string | undefined>(undefined)
   const [unreadCount, setUnreadCount] = useState<number | null>(null)
+  const [unreadOnly, setUnreadOnly] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -71,14 +72,25 @@ export function EmailWidget() {
     if (hasValidGmailToken()) connect()
   }, [])
 
+  const visibleMessages = unreadOnly ? (messages ?? []).filter((message) => message.unread) : (messages ?? [])
+
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-center gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Email</h2>
         {!!unreadCount && (
-          <span className="rounded-full bg-accent-neon px-2 py-0.5 text-xs font-semibold text-void">
+          <button
+            onClick={() => setUnreadOnly((v) => !v)}
+            aria-pressed={unreadOnly}
+            title={unreadOnly ? 'Show all messages' : 'Show only unread'}
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+              unreadOnly
+                ? 'bg-accent-bright text-void'
+                : 'bg-accent-neon text-void hover:bg-accent-bright'
+            }`}
+          >
             {unreadCount} unread
-          </span>
+          </button>
         )}
       </div>
       {messages === null ? (
@@ -91,8 +103,10 @@ export function EmailWidget() {
         </button>
       ) : (
         <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-          {messages.length === 0 && <li className="text-sm text-dim">Inbox empty.</li>}
-          {messages.map((message) => (
+          {visibleMessages.length === 0 && (
+            <li className="text-sm text-dim">{unreadOnly ? 'No unread messages loaded.' : 'Inbox empty.'}</li>
+          )}
+          {visibleMessages.map((message) => (
             <li key={message.id}>
               <a
                 href={gmailMessageUrl(message.id)}
