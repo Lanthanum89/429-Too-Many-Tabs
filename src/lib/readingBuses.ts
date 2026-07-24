@@ -1,51 +1,41 @@
 const API_KEY = import.meta.env.VITE_READING_BUSES_API_KEY
-const HOME_LAT_RAW = import.meta.env.VITE_HOME_LAT
-const HOME_LON_RAW = import.meta.env.VITE_HOME_LON
-const WORK_LAT_RAW = import.meta.env.VITE_WORK_LAT
-const WORK_LON_RAW = import.meta.env.VITE_WORK_LON
-const HOME_LAT = Number(HOME_LAT_RAW)
-const HOME_LON = Number(HOME_LON_RAW)
-const WORK_LAT = Number(WORK_LAT_RAW)
-const WORK_LON = Number(WORK_LON_RAW)
-
-export interface GeoPoint {
-  lat: number
-  lon: number
-}
+const HOME_STOP_CODES = (import.meta.env.VITE_HOME_STOP_CODES ?? '')
+  .split(',')
+  .map((code: string) => code.trim())
+  .filter(Boolean)
+const WORK_STOP_CODES = (import.meta.env.VITE_WORK_STOP_CODES ?? '')
+  .split(',')
+  .map((code: string) => code.trim())
+  .filter(Boolean)
 
 export interface BusStop {
   locationCode: string
   description: string
-  latitude: number
-  longitude: number
-  distanceMeters: number
 }
 
 interface RawStop {
   location_code: string
   description: string
-  latitude: string
-  longitude: string
 }
 
 export function hasReadingBusesKey(): boolean {
   return Boolean(API_KEY)
 }
 
-export function hasHomeLocation(): boolean {
-  return Boolean(HOME_LAT_RAW) && Boolean(HOME_LON_RAW) && Number.isFinite(HOME_LAT) && Number.isFinite(HOME_LON)
+export function hasHomeStops(): boolean {
+  return HOME_STOP_CODES.length > 0
 }
 
-export function hasWorkLocation(): boolean {
-  return Boolean(WORK_LAT_RAW) && Boolean(WORK_LON_RAW) && Number.isFinite(WORK_LAT) && Number.isFinite(WORK_LON)
+export function hasWorkStops(): boolean {
+  return WORK_STOP_CODES.length > 0
 }
 
-export function getHomeLocation(): GeoPoint {
-  return { lat: HOME_LAT, lon: HOME_LON }
+export function getHomeStopCodes(): string[] {
+  return HOME_STOP_CODES
 }
 
-export function getWorkLocation(): GeoPoint {
-  return { lat: WORK_LAT, lon: WORK_LON }
+export function getWorkStopCodes(): string[] {
+  return WORK_STOP_CODES
 }
 
 // The /busstops response has been observed as a bare JSON array, but the
@@ -60,17 +50,6 @@ function extractStops(payload: unknown): RawStop[] {
     }
   }
   throw new Error('Unexpected /busstops response shape')
-}
-
-function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371000
-  const toRad = (deg: number) => (deg * Math.PI) / 180
-  const dLat = toRad(lat2 - lat1)
-  const dLon = toRad(lon2 - lon1)
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2
-  return 2 * R * Math.asin(Math.sqrt(a))
 }
 
 export async function fetchBusStopsRaw(): Promise<unknown> {
@@ -100,23 +79,17 @@ export async function findStopByCode(locationCode: string): Promise<string | nul
   return match?.description ?? null
 }
 
-export async function fetchNearbyStops(origin: GeoPoint, limit = 5): Promise<BusStop[]> {
+// Looks up descriptions for a fixed list of stop codes, preserving the
+// order they were given in.
+export async function fetchStopsByCodes(codes: string[]): Promise<BusStop[]> {
   const raw = extractStops(await fetchBusStopsRaw())
-  const byLocation = new Map<string, BusStop>()
-
+  const byCode = new Map<string, string>()
   for (const stop of raw) {
-    if (byLocation.has(stop.location_code)) continue
-    const latitude = Number(stop.latitude)
-    const longitude = Number(stop.longitude)
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue
-    byLocation.set(stop.location_code, {
-      locationCode: stop.location_code,
-      description: stop.description,
-      latitude,
-      longitude,
-      distanceMeters: haversineMeters(origin.lat, origin.lon, latitude, longitude),
-    })
+    if (!byCode.has(stop.location_code)) byCode.set(stop.location_code, stop.description)
   }
 
-  return [...byLocation.values()].sort((a, b) => a.distanceMeters - b.distanceMeters).slice(0, limit)
+  return codes.map((code) => ({
+    locationCode: code,
+    description: byCode.get(code) ?? code,
+  }))
 }

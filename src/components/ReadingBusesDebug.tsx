@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
 import {
-  fetchNearbyStops,
   fetchStopPredictionsRaw,
+  fetchStopsByCodes,
   findStopByCode,
-  getHomeLocation,
-  getWorkLocation,
-  hasHomeLocation,
+  getHomeStopCodes,
+  getWorkStopCodes,
+  hasHomeStops,
   hasReadingBusesKey,
-  hasWorkLocation,
+  hasWorkStops,
   type BusStop,
 } from '../lib/readingBuses'
 
 type Origin = 'home' | 'work'
 
-// Temporary: shows the nearby-stops list plus the raw prediction feed for
-// the nearest one, so we can confirm the siri-sm response shape before
+// Temporary: shows the configured stop codes plus the raw prediction feed
+// for the first one, so we can confirm the siri-sm response shape before
 // writing a real "next bus" parser. Delete once confirmed.
 export function ReadingBusesDebug() {
   const [origin, setOrigin] = useState<Origin>('home')
@@ -28,7 +28,7 @@ export function ReadingBusesDebug() {
   const [lookupError, setLookupError] = useState<string | null>(null)
   const [lookupPending, setLookupPending] = useState(false)
 
-  const hasOrigin = origin === 'home' ? hasHomeLocation() : hasWorkLocation()
+  const hasOrigin = origin === 'home' ? hasHomeStops() : hasWorkStops()
 
   useEffect(() => {
     if (!hasReadingBusesKey() || !hasOrigin) return
@@ -36,8 +36,8 @@ export function ReadingBusesDebug() {
     setError(null)
     setPredictionsRaw(null)
     setPredictionsError(null)
-    const point = origin === 'home' ? getHomeLocation() : getWorkLocation()
-    fetchNearbyStops(point)
+    const codes = origin === 'home' ? getHomeStopCodes() : getWorkStopCodes()
+    fetchStopsByCodes(codes)
       .then(setStops)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load'))
   }, [origin, hasOrigin])
@@ -68,7 +68,7 @@ export function ReadingBusesDebug() {
     <Card className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Reading Buses (debug)</h2>
-        {hasHomeLocation() && hasWorkLocation() && (
+        {hasHomeStops() && hasWorkStops() && (
           <div className="flex rounded-full border border-line-strong p-0.5 text-[11px]">
             <button
               onClick={() => setOrigin('home')}
@@ -91,16 +91,14 @@ export function ReadingBusesDebug() {
       </div>
       {!hasReadingBusesKey() && <p className="text-xs text-dim">Set VITE_READING_BUSES_API_KEY.</p>}
       {hasReadingBusesKey() && !hasOrigin && (
-        <p className="text-xs text-dim">
-          Set VITE_{origin.toUpperCase()}_LAT / VITE_{origin.toUpperCase()}_LON.
-        </p>
+        <p className="text-xs text-dim">Set VITE_{origin.toUpperCase()}_STOP_CODES.</p>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
       {stops && (
         <ul className="text-xs text-ink">
           {stops.map((s) => (
             <li key={s.locationCode}>
-              {s.description} — {Math.round(s.distanceMeters)}m — {s.locationCode}
+              {s.description} — {s.locationCode}
             </li>
           ))}
         </ul>
