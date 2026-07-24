@@ -454,8 +454,10 @@ button:hover:not(:disabled) {
     /* Caps row2's auto height directly — the flip clock's own cqh-based
        sizing then just resolves smaller to fit this box instead of
        needing looser internal clamp caps to get the same effect. Frees
-       up the vertical room Weather's guaranteed floor draws from. */
-    max-height: 16rem;
+       up the vertical room Weather's guaranteed floor draws from. Raised
+       from 16rem to 18rem so real (non-empty) Calendar/Buses content
+       doesn't leave Clock visibly shorter than them in the same row. */
+    max-height: 18rem;
     overflow: hidden;
   }
 
