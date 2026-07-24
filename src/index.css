@@ -120,9 +120,14 @@ button:hover:not(:disabled) {
    cell (container-type:inline-size below), not the viewport — so the
    clock fits its box on any screen size instead of a fixed vw formula
    over/undershooting whenever the grid's column proportions change.
-   cqw covers width getting tight (narrow box), cqh covers height getting
-   tight (short box); whichever constraint is smaller wins via the min()
-   greedy pick built into each clamp. */
+   Width (cqw) is the primary driver — six digits need to fit the row's
+   width — and digit height is a fixed aspect-ratio off that width rather
+   than an independent cqh formula: with this box's actual proportions
+   (wide column, capped height) a min(cqw, cqh) pair converged on nearly
+   the same tiny value no matter how much the cqw coefficient was raised,
+   producing badly narrow, over-tall digits. .dashboard-clock's own
+   max-height + overflow:hidden below still caps the box if the
+   aspect-ratio'd result would be taller than available room. */
 .flip-clock-container {
   display: flex;
   align-items: center;
@@ -141,7 +146,7 @@ button:hover:not(:disabled) {
 
 .flip-separator {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(1rem, min(11cqw, 30cqh), 12rem);
+  font-size: clamp(1rem, 8.3cqw, 8rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   line-height: 1;
@@ -149,7 +154,7 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(1.5rem, 32cqh, 12rem);
+  aspect-ratio: 0.5 / 1;
   animation: blink 1s infinite;
 }
 
@@ -159,8 +164,8 @@ button:hover:not(:disabled) {
 }
 
 .flip-digit {
-  width: clamp(0.9rem, min(4.2cqw, 12cqh), 8rem);
-  height: clamp(1.5rem, 32cqh, 12rem);
+  width: clamp(1.3rem, 11.8cqw, 7.5rem);
+  aspect-ratio: 0.62 / 1;
   position: relative;
   transform-style: preserve-3d;
 }
@@ -186,7 +191,7 @@ button:hover:not(:disabled) {
   align-items: center;
   justify-content: center;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: clamp(1rem, min(11cqw, 30cqh), 12rem);
+  font-size: clamp(1rem, 9cqw, 7.5rem);
   font-weight: 900;
   color: var(--color-accent-neon);
   backface-visibility: hidden;
@@ -410,7 +415,18 @@ button:hover:not(:disabled) {
        sizing then just resolves smaller to fit this box instead of
        needing looser internal clamp caps to get the same effect. Frees
        up the vertical room Weather's guaranteed floor draws from. */
-    max-height: 13rem;
+    max-height: 16rem;
+    overflow: hidden;
+  }
+
+  /* Without this, Card's flex:1 (set below, shared with the other cards)
+     lets it grow past .dashboard-clock's max-height with nothing to stop
+     it — the flip clock's own cqh-based digit sizing then references
+     that uncapped, ever-growing height instead of the intended box size,
+     which is what produced badly distorted (very narrow, very tall)
+     digits. Clipping here keeps the box height the cap actually says. */
+  .dashboard-clock .card {
+    overflow: hidden;
   }
 
   /* No separate max-height here on purpose: Calendar shares row2 with

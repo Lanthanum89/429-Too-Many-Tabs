@@ -161,7 +161,7 @@ export function SpotifyWidget() {
             <img
               src={nowPlaying.albumArtUrl}
               alt=""
-              className="h-16 w-16 rounded-lg object-cover shadow-lg sm:h-20 sm:w-20"
+              className="h-14 w-14 shrink-0 rounded-lg object-cover shadow-lg"
             />
           )}
           {nowPlaying.trackUrl ? (
@@ -169,18 +169,18 @@ export function SpotifyWidget() {
               href={nowPlaying.trackUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-1 max-w-full truncate text-sm font-medium text-ink hover:text-accent-neon"
+              className="mt-1 max-w-full shrink-0 truncate text-sm font-medium text-ink hover:text-accent-neon"
             >
               {nowPlaying.trackName}
             </a>
           ) : (
-            <p className="mt-1 max-w-full truncate text-sm font-medium text-ink">{nowPlaying.trackName}</p>
+            <p className="mt-1 max-w-full shrink-0 truncate text-sm font-medium text-ink">{nowPlaying.trackName}</p>
           )}
-          <p className="max-w-full truncate text-xs text-muted">{nowPlaying.artistName}</p>
+          <p className="max-w-full shrink-0 truncate text-xs text-muted">{nowPlaying.artistName}</p>
           {nowPlaying.contextName && (
-            <p className="max-w-full truncate text-[11px] text-dim">Playing from: {nowPlaying.contextName}</p>
+            <p className="max-w-full shrink-0 truncate text-[11px] text-dim">Playing from: {nowPlaying.contextName}</p>
           )}
-          <div className="mt-1 w-full max-w-[180px]">
+          <div className="mt-1 w-full max-w-[180px] shrink-0">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
               <div
                 className="h-full rounded-full bg-accent transition-[width] duration-500 ease-linear"
@@ -192,7 +192,7 @@ export function SpotifyWidget() {
               <span>{formatDuration(nowPlaying.durationMs)}</span>
             </div>
           </div>
-          <div className="mt-1 flex items-center gap-4">
+          <div className="mt-1 flex shrink-0 items-center gap-4">
             <button
               onClick={handlePrevious}
               disabled={controlPending}
