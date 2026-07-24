@@ -148,7 +148,7 @@ export function EmailWidget() {
           {loading ? 'Connecting…' : 'Connect Gmail'}
         </button>
       ) : (
-        <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto">
+        <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto pr-2">
           {visibleMessages.length === 0 && (
             <li className="text-sm text-dim">
               {unreadOnly && starredOnly

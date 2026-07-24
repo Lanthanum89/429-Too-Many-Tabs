@@ -131,10 +131,10 @@ export function ReadingBusesWidget() {
                 href={liveDeparturesUrl(d.locationCode)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex flex-col gap-0 text-sm hover:text-accent-bright"
+                className="flex flex-col gap-0 rounded-lg border border-line px-2.5 py-1.5 text-sm transition-colors hover:border-accent-neon hover:bg-accent-neon/10"
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-ink underline decoration-dotted underline-offset-2">
+                  <span className="text-ink">
                     <span className="font-bold text-accent-bright">{d.line}</span> {d.destination}
                   </span>
                   <span className="flex items-center gap-1">
@@ -156,7 +156,7 @@ export function ReadingBusesWidget() {
                 href={liveDeparturesUrl(s.locationCode)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1 text-sm text-ink underline decoration-dotted underline-offset-2 hover:text-accent-bright"
+                className="flex items-center justify-between gap-2 rounded-lg border border-line px-2.5 py-1.5 text-sm text-ink transition-colors hover:border-accent-neon hover:bg-accent-neon/10"
               >
                 {s.description}
                 <ExternalLinkIcon />

@@ -503,7 +503,7 @@ button:hover:not(:disabled) {
   .dashboard-spotify .card,
   .dashboard-binary .card {
     aspect-ratio: 1 / 1;
-    width: min(100%, 30vh);
+    width: min(100%, 40vh);
     flex: none;
     overflow: hidden;
   }
