@@ -315,6 +315,9 @@ button:hover:not(:disabled) {
 }
 .dashboard-weather {
   grid-area: weather;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .dashboard-calendar {
   grid-area: calendar;
@@ -339,7 +342,8 @@ button:hover:not(:disabled) {
 .dashboard-clock .card,
 .dashboard-spotify .card,
 .dashboard-calendar .card,
-.dashboard-email .card {
+.dashboard-email .card,
+.dashboard-weather .card {
   flex: 1;
 }
 
@@ -377,10 +381,10 @@ button:hover:not(:disabled) {
     height: 100vh;
     box-sizing: border-box;
     gap: 1rem;
-    /* col3 (calendar/email) gets a bigger share than col1/col2 (clock,
-       spotify+binary) — narrows the clock/spotify/binary column group a
-       touch and gives the calendar/email column more room to the right. */
-    grid-template-columns: 0.9fr 0.9fr 1.5fr;
+    /* col3 (calendar/email) gets noticeably more share than col1/col2
+       (clock, spotify+binary) so the text-heavy calendar/email lists get
+       real width to work with. */
+    grid-template-columns: 0.6fr 0.6fr 2.4fr;
     /* minmax(6rem, ...) on the last row is a hard floor for Weather — on a
        short window the other rows can no longer squeeze it down to a
        sliver (or nothing) before the container scrolls instead. */
@@ -423,10 +427,17 @@ button:hover:not(:disabled) {
 
   /* Square-ish tiles: sized by their own column width via aspect-ratio,
      not stretched to fill whatever the row ends up being (weather/binary
-     rows can differ in height across columns otherwise). Capped to 34vh
+     rows can differ in height across columns otherwise). Capped to 30vh
      so on a wide-but-short window (a laptop, not a phone/tablet) the
      square doesn't grow tall enough on pure column width alone to push
-     Weather (and Email) past the viewport — it shrinks to fit instead. */
+     Weather (and Email) past the viewport — it shrinks to fit instead.
+     overflow:hidden on the card itself matters here: Spotify's real
+     (connected) content — art, title, artist, progress, transport
+     controls — is taller than a compact square once there's an actual
+     track playing, and with no clipping that content spilled straight
+     out the bottom of the box and visually overlapped Weather in the
+     row below. Binary uses the exact same rule, so once both render
+     without overflow they end up pixel-identical, as intended. */
   .dashboard-spotify,
   .dashboard-binary {
     align-self: start;
@@ -435,12 +446,17 @@ button:hover:not(:disabled) {
   .dashboard-spotify .card,
   .dashboard-binary .card {
     aspect-ratio: 1 / 1;
-    width: min(100%, 26vh);
+    width: min(100%, 30vh);
     flex: none;
+    overflow: hidden;
   }
 
+  /* No forced scrollbar — Weather's own content is short enough to fit
+     its guaranteed floor (see grid-template-rows above) without one; a
+     scrollbar here was from an overflow:auto that no longer serves a
+     purpose now that floor exists. */
   .dashboard-weather {
-    overflow-y: auto;
+    overflow: visible;
   }
 
   .dashboard-binary .card,

@@ -152,14 +152,16 @@ export function SpotifyWidget() {
 
   return (
     <Card className="flex flex-col items-center justify-center gap-1 text-center">
-      <h2 className="font-mono text-sm tracking-wide text-muted uppercase">Spotify</h2>
+      {!nowPlaying?.trackName && (
+        <h2 className="font-mono text-sm tracking-wide text-muted uppercase">Spotify</h2>
+      )}
       {nowPlaying?.trackName ? (
         <>
           {nowPlaying.albumArtUrl && (
             <img
               src={nowPlaying.albumArtUrl}
               alt=""
-              className="mt-1 h-40 w-40 rounded-lg object-cover shadow-lg sm:h-44 sm:w-44"
+              className="h-16 w-16 rounded-lg object-cover shadow-lg sm:h-20 sm:w-20"
             />
           )}
           {nowPlaying.trackUrl ? (
@@ -178,7 +180,7 @@ export function SpotifyWidget() {
           {nowPlaying.contextName && (
             <p className="max-w-full truncate text-[11px] text-dim">Playing from: {nowPlaying.contextName}</p>
           )}
-          <div className="mt-2 w-full max-w-[180px]">
+          <div className="mt-1 w-full max-w-[180px]">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
               <div
                 className="h-full rounded-full bg-accent transition-[width] duration-500 ease-linear"
@@ -190,7 +192,7 @@ export function SpotifyWidget() {
               <span>{formatDuration(nowPlaying.durationMs)}</span>
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-4">
+          <div className="mt-1 flex items-center gap-4">
             <button
               onClick={handlePrevious}
               disabled={controlPending}
