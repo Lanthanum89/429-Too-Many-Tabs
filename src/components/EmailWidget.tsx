@@ -14,6 +14,18 @@ function gmailMessageUrl(id: string): string {
   return `https://mail.google.com/mail/u/0/#inbox/${id}`
 }
 
+function formatReceived(internalDate: number): string {
+  const date = new Date(internalDate)
+  const now = new Date()
+  const sameDay =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  return sameDay
+    ? date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    : date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+}
+
 // Merges the "all starred" fetch with a regular inbox page, so a starred
 // message is never hidden behind "Load more" — later pages (via loadMore)
 // dedupe against this same set so a starred message already shown up top
@@ -136,7 +148,7 @@ export function EmailWidget() {
           {loading ? 'Connecting…' : 'Connect Gmail'}
         </button>
       ) : (
-        <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto">
           {visibleMessages.length === 0 && (
             <li className="text-sm text-dim">
               {unreadOnly && starredOnly
@@ -166,11 +178,14 @@ export function EmailWidget() {
                   <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7L2 9.2l7.1-.6z" />
                 </svg>
                 <span className="min-w-0 flex-1">
-                  <span
-                    className={`block truncate text-xs ${message.unread ? 'font-medium text-ink' : 'text-dim'}`}
-                    title={message.from}
-                  >
-                    {fromDisplayName(message.from)}
+                  <span className="flex items-baseline justify-between gap-2">
+                    <span
+                      className={`truncate text-xs ${message.unread ? 'font-medium text-ink' : 'text-dim'}`}
+                      title={message.from}
+                    >
+                      {fromDisplayName(message.from)}
+                    </span>
+                    <span className="shrink-0 text-[10px] text-dim">{formatReceived(message.internalDate)}</span>
                   </span>
                   <span
                     className={`block truncate text-sm ${message.unread ? 'font-semibold text-ink' : 'text-muted'}`}

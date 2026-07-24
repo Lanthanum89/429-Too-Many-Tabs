@@ -28,6 +28,14 @@ function liveDeparturesUrl(locationCode: string): string {
   return `https://www.reading-buses.co.uk/stops/${locationCode}`
 }
 
+function ExternalLinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
+      <path d="M7 17L17 7M17 7H9M17 7v8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export function ReadingBusesWidget() {
   const [origin, setOrigin] = useState<Origin>('home')
   const [departures, setDepartures] = useState<Departure[] | null>(null)
@@ -126,10 +134,13 @@ export function ReadingBusesWidget() {
                 className="flex flex-col gap-0 text-sm hover:text-accent-bright"
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-ink">
+                  <span className="text-ink underline decoration-dotted underline-offset-2">
                     <span className="font-bold text-accent-bright">{d.line}</span> {d.destination}
                   </span>
-                  <span className={d.monitored ? 'text-ink' : 'text-dim'}>{formatTime(d.time)}</span>
+                  <span className="flex items-center gap-1">
+                    <span className={d.monitored ? 'text-ink' : 'text-dim'}>{formatTime(d.time)}</span>
+                    <ExternalLinkIcon />
+                  </span>
                 </div>
                 <span className="text-[10px] uppercase tracking-wide text-dim">{d.stopName}</span>
               </a>
@@ -145,9 +156,10 @@ export function ReadingBusesWidget() {
                 href={liveDeparturesUrl(s.locationCode)}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sm text-ink hover:text-accent-bright"
+                className="flex items-center gap-1 text-sm text-ink underline decoration-dotted underline-offset-2 hover:text-accent-bright"
               >
                 {s.description}
+                <ExternalLinkIcon />
               </a>
             </li>
           ))}
