@@ -108,12 +108,12 @@ export function EmailWidget() {
             title={
               unreadCount === 0 ? 'No unread messages' : unreadOnly ? 'Show all messages' : 'Show only unread'
             }
-            className={`rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+            className={`rounded-full border-2 px-2 py-0.5 text-xs font-semibold transition-colors ${
               unreadCount === 0
-                ? 'bg-line text-dim'
+                ? 'border-line bg-transparent text-dim'
                 : unreadOnly
-                  ? 'bg-accent-bright text-void'
-                  : 'bg-accent-neon text-void hover:bg-accent-bright'
+                  ? 'border-accent-bright bg-accent-bright text-void'
+                  : 'border-accent-neon bg-transparent text-accent-neon hover:bg-accent-neon hover:text-void'
             }`}
           >
             {unreadCount} unread
@@ -127,12 +127,12 @@ export function EmailWidget() {
             title={
               starredCount === 0 ? 'No starred messages' : starredOnly ? 'Show all messages' : 'Show only starred'
             }
-            className={`rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${
+            className={`rounded-full border-2 px-2 py-0.5 text-xs font-semibold transition-colors ${
               starredCount === 0
-                ? 'bg-line text-dim'
+                ? 'border-line bg-transparent text-dim'
                 : starredOnly
-                  ? 'bg-accent-bright text-void'
-                  : 'bg-accent-neon text-void hover:bg-accent-bright'
+                  ? 'border-accent-bright bg-accent-bright text-void'
+                  : 'border-accent-neon bg-transparent text-accent-neon hover:bg-accent-neon hover:text-void'
             }`}
           >
             {starredCount} starred
