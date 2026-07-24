@@ -103,27 +103,38 @@ export function WeatherWidget() {
       <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
       {weather ? (
         <div className="flex w-full flex-1 items-start gap-3">
-          <div className="flex flex-col items-center gap-1">
-            <WeatherIcon weather={weather} />
-            <span className="font-clock text-4xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <WeatherIcon weather={weather} />
+              <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
+            </div>
+            <div className="flex flex-col text-base text-muted">
+              {weather.location && <span>{weather.location}</span>}
+              <span className="text-sm text-dim">{weather.description}</span>
+              <span className="text-sm text-dim">Feels like {Math.round(weather.feelsLikeC)}°</span>
+            </div>
           </div>
-          <div className="flex flex-col text-base text-muted">
-            {weather.location && <span>{weather.location}</span>}
-            <span className="text-sm text-dim">{weather.description}</span>
-            <span className="text-sm text-dim">Feels like {Math.round(weather.feelsLikeC)}°</span>
-          </div>
-          {weather.hourly.length > 0 && (
+          {(weather.hourly.length > 0 || weather.tomorrow) && (
             <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
               {weather.hourly.map((h, i) => {
                 const hour = new Date(h.time).getHours()
                 return (
                   <div key={i} className="flex items-center gap-2 text-sm">
-                    <span className="w-10 text-dim">{hour}:00</span>
-                    <span className="font-clock w-10 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
+                    <span className="w-16 text-dim">{hour}:00</span>
+                    <span className="font-clock w-16 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
                     <span className="w-16 text-right text-dim">{Math.round(h.precipitationChance)}% rain</span>
                   </div>
                 )
               })}
+              {weather.tomorrow && (
+                <div className="flex items-center gap-2 border-t border-line pt-1.5 text-sm">
+                  <span className="w-16 text-dim">Tomorrow</span>
+                  <span className="font-clock w-16 text-right font-semibold">
+                    {Math.round(weather.tomorrow.tempMaxC)}°/{Math.round(weather.tomorrow.tempMinC)}°
+                  </span>
+                  <span className="w-16 text-right text-dim">{Math.round(weather.tomorrow.precipitationChance)}% rain</span>
+                </div>
+              )}
             </div>
           )}
         </div>
