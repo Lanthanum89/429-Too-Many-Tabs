@@ -38,7 +38,7 @@ function App() {
             <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
               {greeting}, <span className="italic">Laura</span>.
             </h1>
-            <p className="font-mono text-xs tracking-wider text-dim opacity-50 leading-tight">
+            <p className="font-mono text-xs font-semibold tracking-wider text-muted leading-tight">
               {dateStr.toUpperCase()}
             </p>
           </div>

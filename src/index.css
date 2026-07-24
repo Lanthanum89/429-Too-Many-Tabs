@@ -141,7 +141,7 @@ button:hover:not(:disabled) {
 
 .flip-segment {
   display: flex;
-  gap: 0;
+  gap: 0.3rem;
 }
 
 .flip-separator {
@@ -182,6 +182,12 @@ button:hover:not(:disabled) {
   transform: rotateX(180deg);
 }
 
+/* Subtle split-flap shading: a soft top-to-bottom gradient per half plus
+   a darker seam right at the card's own mid-line (where a real
+   split-flap card's two physical leaves meet) — .flip-front and
+   .flip-back are each a full card face, not top/bottom halves of one,
+   so the seam here is purely cosmetic, matching the classic look rather
+   than mirroring the actual flip mechanism. */
 .flip-front,
 .flip-back {
   position: absolute;
@@ -198,8 +204,28 @@ button:hover:not(:disabled) {
   line-height: 1;
   border: 2px solid var(--color-line-strong);
   border-radius: 0.5rem;
-  background: var(--color-surface);
+  background: linear-gradient(
+    to bottom,
+    var(--color-surface-2) 0%,
+    var(--color-surface) 48%,
+    var(--color-surface) 52%,
+    var(--color-surface-2) 100%
+  );
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.flip-front::after,
+.flip-back::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: translateY(-1px);
+  background: rgba(0, 0, 0, 0.18);
+  pointer-events: none;
 }
 
 .flip-back {
