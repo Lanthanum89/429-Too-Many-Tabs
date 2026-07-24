@@ -25,7 +25,7 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
 
   if (desc.includes('thunder')) {
     return (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M7 16a4 4 0 0 1 .9-7.9A5 5 0 0 1 17.5 10 3.5 3.5 0 0 1 17 17H7" />
         <path d="M12 12l-2 4h3l-2 4" />
       </svg>
@@ -33,7 +33,7 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
   }
   if (desc.includes('snow')) {
     return (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M7 16a4 4 0 0 1 .9-7.9A5 5 0 0 1 17.5 10 3.5 3.5 0 0 1 17 17H7" />
         <path d="M9 19v.01M12 20v.01M15 19v.01" strokeLinecap="round" />
       </svg>
@@ -41,7 +41,7 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
   }
   if (desc.includes('rain') || desc.includes('drizzle')) {
     return (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M7 16a4 4 0 0 1 .9-7.9A5 5 0 0 1 17.5 10 3.5 3.5 0 0 1 17 17H7" />
         <path d="M9 19v2M12 19v2M15 19v2" strokeLinecap="round" />
       </svg>
@@ -49,20 +49,20 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
   }
   if (desc.includes('fog') || desc.includes('overcast') || desc.includes('cloud')) {
     return (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M7 16a4 4 0 0 1 .9-7.9A5 5 0 0 1 17.5 10 3.5 3.5 0 0 1 17 17H7" />
       </svg>
     )
   }
   if (!weather.isDay) {
     return (
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z" />
       </svg>
     )
   }
   return (
-    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
       <circle cx="12" cy="12" r="4.5" />
       <path d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8 6 18M18 6l1.8-1.8" strokeLinecap="round" />
     </svg>
