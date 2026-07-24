@@ -23,6 +23,13 @@
   --color-accent-neon: #9a7fc0;
   --color-danger: #a58ac0;
 
+  /* Fixed (not overridden per-theme) so the flip clock's cards read like
+     a physical split-flap display's dark plastic leaves regardless of
+     light/dark mode, rather than flipping to a light card in light mode. */
+  --color-flip-bg: #352c44;
+  --color-flip-bg-2: #2b2338;
+  --color-flip-text: #f2ecfb;
+
   --font-sans: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
@@ -127,12 +134,20 @@ button:hover:not(:disabled) {
    the same tiny value no matter how much the cqw coefficient was raised,
    producing badly narrow, over-tall digits. .dashboard-clock's own
    max-height + overflow:hidden below still caps the box if the
-   aspect-ratio'd result would be taller than available room. */
+   aspect-ratio'd result would be taller than available room.
+
+   Every gap/padding here is ALSO cqw-driven (with a tiny fixed floor/
+   ceiling only as a sanity clamp) rather than a flat rem value — a flat
+   rem gap doesn't shrink as the container narrows the way cqw-based
+   digit widths do, so at a narrower column the fixed-size gaps eat a
+   bigger relative share and the row overflows even though it fit fine
+   at a wider one. Keeping every term proportional to cqw keeps the
+   ratio (and therefore the fit) the same at any container width. */
 .flip-clock-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: clamp(2px, 1.2cqw, 0.5rem);
   perspective: 1000px;
   width: 100%;
   height: 100%;
@@ -141,7 +156,7 @@ button:hover:not(:disabled) {
 
 .flip-segment {
   display: flex;
-  gap: 0.3rem;
+  gap: clamp(1px, 0.6cqw, 0.3rem);
 }
 
 .flip-separator {
@@ -150,7 +165,7 @@ button:hover:not(:disabled) {
   font-weight: 900;
   color: var(--color-accent-neon);
   line-height: 1;
-  padding: 0 0.25rem;
+  padding: 0 clamp(1px, 0.6cqw, 0.25rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,12 +197,10 @@ button:hover:not(:disabled) {
   transform: rotateX(180deg);
 }
 
-/* Subtle split-flap shading: a soft top-to-bottom gradient per half plus
-   a darker seam right at the card's own mid-line (where a real
-   split-flap card's two physical leaves meet) — .flip-front and
-   .flip-back are each a full card face, not top/bottom halves of one,
-   so the seam here is purely cosmetic, matching the classic look rather
-   than mirroring the actual flip mechanism. */
+/* Dark split-flap "leaf" look: a fixed (non-theme-flipping) dark card
+   with light text, like the physical plastic cards on a real split-flap
+   display, rather than a card that matches whatever the page's surface
+   color happens to be in the current theme. */
 .flip-front,
 .flip-back {
   position: absolute;
@@ -199,33 +212,13 @@ button:hover:not(:disabled) {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: clamp(1rem, 9cqw, 7.5rem);
   font-weight: 900;
-  color: var(--color-accent-neon);
+  color: var(--color-flip-text);
   backface-visibility: hidden;
   line-height: 1;
-  border: 2px solid var(--color-line-strong);
   border-radius: 0.5rem;
-  background: linear-gradient(
-    to bottom,
-    var(--color-surface-2) 0%,
-    var(--color-surface) 48%,
-    var(--color-surface) 52%,
-    var(--color-surface-2) 100%
-  );
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(160deg, var(--color-flip-bg) 0%, var(--color-flip-bg-2) 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
   overflow: hidden;
-}
-
-.flip-front::after,
-.flip-back::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  transform: translateY(-1px);
-  background: rgba(0, 0, 0, 0.18);
-  pointer-events: none;
 }
 
 .flip-back {
