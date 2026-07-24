@@ -101,7 +101,7 @@ export function WeekCalendar() {
                 <span className="w-14 shrink-0 text-xs text-dim">
                   {event.dayLabel} {event.allDay ? '' : formatEventTime(event)}
                 </span>
-                <span className="truncate text-ink">{event.title}</span>
+                <span className="min-w-0 flex-1 truncate text-ink">{event.title}</span>
               </a>
             </li>
           ))}
