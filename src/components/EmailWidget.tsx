@@ -138,7 +138,15 @@ export function EmailWidget() {
       ) : (
         <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           {visibleMessages.length === 0 && (
-            <li className="text-sm text-dim">{unreadOnly ? 'No unread messages loaded.' : 'Inbox empty.'}</li>
+            <li className="text-sm text-dim">
+              {unreadOnly && starredOnly
+                ? 'No unread starred messages loaded.'
+                : unreadOnly
+                  ? 'No unread messages loaded.'
+                  : starredOnly
+                    ? 'No starred messages.'
+                    : 'Inbox empty.'}
+            </li>
           )}
           {visibleMessages.map((message) => (
             <li key={message.id}>
