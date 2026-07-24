@@ -111,6 +111,7 @@ export function WeatherWidget() {
             <div className="flex flex-1 flex-col text-xs text-muted">
               {weather.location && <span>{weather.location}</span>}
               <span className="text-[11px] text-dim">{weather.description}</span>
+              <span className="text-[11px] text-dim">Feels like {Math.round(weather.feelsLikeC)}°</span>
             </div>
           </div>
           {weather.hourly.length > 0 && (
@@ -121,6 +122,7 @@ export function WeatherWidget() {
                   <div key={i} className="flex flex-1 flex-col items-center gap-1 text-[11px]">
                     <span className="text-dim">{hour}:00</span>
                     <span className="font-clock text-sm font-semibold">{Math.round(h.temperatureC)}°</span>
+                    <span className="text-dim">{Math.round(h.precipitationChance)}% rain</span>
                   </div>
                 )
               })}

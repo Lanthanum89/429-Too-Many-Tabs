@@ -2,10 +2,12 @@ export interface HourlyForecast {
   time: string
   temperatureC: number
   weatherCode: number
+  precipitationChance: number
 }
 
 export interface WeatherSnapshot {
   temperatureC: number
+  feelsLikeC: number
   description: string
   isDay: boolean
   location: string
@@ -40,6 +42,7 @@ const WEATHER_DESCRIPTIONS: Record<number, string> = {
 interface OpenMeteoResponse {
   current?: {
     temperature_2m?: number
+    apparent_temperature?: number
     weather_code?: number
     is_day?: number
   }
@@ -47,6 +50,7 @@ interface OpenMeteoResponse {
     time?: string[]
     temperature_2m?: number[]
     weather_code?: number[]
+    precipitation_probability?: number[]
   }
 }
 
@@ -87,8 +91,8 @@ export async function fetchWeather(lat: number, lon: number, fallbackLocationNam
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
-    current: 'temperature_2m,weather_code,is_day',
-    hourly: 'temperature_2m,weather_code',
+    current: 'temperature_2m,apparent_temperature,weather_code,is_day',
+    hourly: 'temperature_2m,weather_code,precipitation_probability',
   })
   const [weatherRes, location] = await Promise.all([
     fetch(`https://api.open-meteo.com/v1/forecast?${params}`),
@@ -111,10 +115,12 @@ export async function fetchWeather(lat: number, lon: number, fallbackLocationNam
       time,
       temperatureC: data.hourly?.temperature_2m?.[currentHour + i] ?? 0,
       weatherCode: data.hourly?.weather_code?.[currentHour + i] ?? 0,
+      precipitationChance: data.hourly?.precipitation_probability?.[currentHour + i] ?? 0,
     }))
 
   return {
     temperatureC: current.temperature_2m ?? 0,
+    feelsLikeC: current.apparent_temperature ?? current.temperature_2m ?? 0,
     description: WEATHER_DESCRIPTIONS[weatherCode] ?? 'Unknown',
     isDay: current.is_day !== 0,
     location,
