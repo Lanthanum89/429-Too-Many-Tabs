@@ -1,8 +1,12 @@
 const API_KEY = import.meta.env.VITE_READING_BUSES_API_KEY
-const HOME_LAT = Number(import.meta.env.VITE_HOME_LAT)
-const HOME_LON = Number(import.meta.env.VITE_HOME_LON)
-const WORK_LAT = Number(import.meta.env.VITE_WORK_LAT)
-const WORK_LON = Number(import.meta.env.VITE_WORK_LON)
+const HOME_LAT_RAW = import.meta.env.VITE_HOME_LAT
+const HOME_LON_RAW = import.meta.env.VITE_HOME_LON
+const WORK_LAT_RAW = import.meta.env.VITE_WORK_LAT
+const WORK_LON_RAW = import.meta.env.VITE_WORK_LON
+const HOME_LAT = Number(HOME_LAT_RAW)
+const HOME_LON = Number(HOME_LON_RAW)
+const WORK_LAT = Number(WORK_LAT_RAW)
+const WORK_LON = Number(WORK_LON_RAW)
 
 export interface GeoPoint {
   lat: number
@@ -29,11 +33,11 @@ export function hasReadingBusesKey(): boolean {
 }
 
 export function hasHomeLocation(): boolean {
-  return Number.isFinite(HOME_LAT) && Number.isFinite(HOME_LON)
+  return Boolean(HOME_LAT_RAW) && Boolean(HOME_LON_RAW) && Number.isFinite(HOME_LAT) && Number.isFinite(HOME_LON)
 }
 
 export function hasWorkLocation(): boolean {
-  return Number.isFinite(WORK_LAT) && Number.isFinite(WORK_LON)
+  return Boolean(WORK_LAT_RAW) && Boolean(WORK_LON_RAW) && Number.isFinite(WORK_LAT) && Number.isFinite(WORK_LON)
 }
 
 export function getHomeLocation(): GeoPoint {
