@@ -166,7 +166,7 @@ export function EmailWidget() {
                 href={gmailMessageUrl(message.id)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-full items-start gap-2 py-1.5 text-left hover:text-accent-bright"
+                className="flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-surface-2 hover:text-accent-bright"
               >
                 <svg
                   viewBox="0 0 24 24"
