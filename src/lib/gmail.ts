@@ -62,13 +62,8 @@ async function gmailFetch<T>(path: string, token: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
-// Starred messages surface first regardless of age, then everything else
-// falls back to newest-first — matches how the widget's list is scanned.
 export function sortInboxMessages(messages: InboxMessage[]): InboxMessage[] {
-  return [...messages].sort((a, b) => {
-    if (a.starred !== b.starred) return a.starred ? -1 : 1
-    return b.internalDate - a.internalDate
-  })
+  return [...messages].sort((a, b) => b.internalDate - a.internalDate)
 }
 
 const PAGE_SIZE = 20
