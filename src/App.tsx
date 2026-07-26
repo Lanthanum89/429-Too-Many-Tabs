@@ -97,7 +97,7 @@ function App() {
         <GuardianWidget />
       </div>
       <div className="dashboard-radar">
-        <RadarWidget />
+        <RadarWidget theme={theme} />
       </div>
     </div>
   )

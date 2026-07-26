@@ -3,7 +3,7 @@ import { Card } from './Card'
 import { RainRadarPanel } from './RainRadarPanel'
 import { getCoords, type Coords } from '../lib/geolocation'
 
-export function RadarWidget() {
+export function RadarWidget({ theme }: { theme: 'light' | 'dark' }) {
   const [coords, setCoords] = useState<Coords | null>(null)
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export function RadarWidget() {
       <h2 className="font-mono text-lg font-bold text-accent-neon">Rain Radar</h2>
       {coords ? (
         <div className="min-h-0 w-full flex-1">
-          <RainRadarPanel lat={coords.lat} lon={coords.lon} />
+          <RainRadarPanel lat={coords.lat} lon={coords.lon} theme={theme} />
         </div>
       ) : (
         <p className="text-sm text-dim">Loading…</p>

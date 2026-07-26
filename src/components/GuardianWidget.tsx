@@ -45,7 +45,7 @@ export function GuardianWidget() {
           <p className="text-sm text-dim">Loading…</p>
         )
       ) : (
-        <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <ul className="flex max-h-52 min-h-0 flex-col overflow-y-auto">
           {headlines.length === 0 && <li className="text-sm text-dim">No headlines.</li>}
           {headlines.map((item) => (
             <li key={item.id}>

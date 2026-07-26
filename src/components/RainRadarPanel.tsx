@@ -4,7 +4,15 @@ import { fetchLatestRadarFrame } from '../lib/rainRadar'
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000
 
-export function RainRadarPanel({ lat, lon }: { lat: number; lon: number }) {
+export function RainRadarPanel({
+  lat,
+  lon,
+  theme,
+}: {
+  lat: number
+  lon: number
+  theme: 'light' | 'dark'
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const radarLayerRef = useRef<L.TileLayer | null>(null)
@@ -22,11 +30,12 @@ export function RainRadarPanel({ lat, lon }: { lat: number; lon: number }) {
     })
     mapRef.current = map
 
-    // CartoDB's dark basemap (free, no key - CC BY 3.0, attribution
-    // required) reads far closer to the app's dark-lilac theme than
-    // default OSM tiles; className hooks into index.css for the lilac
-    // tint filter.
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // CartoDB's free, no-key, CC BY 3.0 basemaps read far closer to the
+    // app's theme than default OSM tiles - dark_all for dark mode,
+    // light_all for light mode; className hooks into index.css for the
+    // lilac tint filter.
+    const basemapStyle = theme === 'dark' ? 'dark_all' : 'light_all'
+    L.tileLayer(`https://{s}.basemaps.cartocdn.com/${basemapStyle}/{z}/{x}/{y}{r}.png`, {
       attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
       className: 'map-tiles-themed',
@@ -43,8 +52,9 @@ export function RainRadarPanel({ lat, lon }: { lat: number; lon: number }) {
       resize.disconnect()
       map.remove()
       mapRef.current = null
+      radarLayerRef.current = null
     }
-  }, [lat, lon])
+  }, [lat, lon, theme])
 
   useEffect(() => {
     let cancelled = false
@@ -76,7 +86,7 @@ export function RainRadarPanel({ lat, lon }: { lat: number; lon: number }) {
       cancelled = true
       clearInterval(id)
     }
-  }, [lat, lon])
+  }, [lat, lon, theme])
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-lg">
