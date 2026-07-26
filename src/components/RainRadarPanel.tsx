@@ -5,11 +5,14 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import { fetchLatestRadarFrame } from '../lib/rainRadar'
 
-// Leaflet's default marker icon references its image assets via a
-// runtime-built relative path ("images/marker-icon.png"), which only
-// resolves in dev where Vite serves node_modules directly - the
-// production bundle has no such path, so the marker silently 404s
-// without this override pointing it at Vite's actually-bundled URLs.
+// Icon.Default._getIconUrl() unconditionally prepends an auto-detected
+// "imagePath" (read from leaflet.css's own background-image url()) in
+// front of whatever iconUrl/shadowUrl it's given, even a full absolute
+// URL - so mergeOptions alone still produced a mangled, doubled-up path
+// once that detection found leaflet.css. Deleting the override falls
+// back to the base Icon class's _getIconUrl, which just returns the
+// option as-is, so our explicit (Vite-resolved) URLs are used verbatim.
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,

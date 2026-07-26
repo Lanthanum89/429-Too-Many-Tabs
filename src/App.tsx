@@ -7,6 +7,7 @@ import { EmailWidget } from './components/EmailWidget'
 import { SpotifyWidget } from './components/SpotifyWidget'
 import { GuardianWidget } from './components/GuardianWidget'
 import { RadarWidget } from './components/RadarWidget'
+import { SunMoonWidget } from './components/SunMoonWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
 
 function getGreeting(hour: number): string {
@@ -87,6 +88,9 @@ function App() {
       </div>
       <div className="dashboard-weather">
         <WeatherWidget />
+      </div>
+      <div className="dashboard-sunmoon">
+        <SunMoonWidget />
       </div>
       <div className="dashboard-email">
         <EmailWidget />

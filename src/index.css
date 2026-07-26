@@ -243,6 +243,7 @@ button:hover:not(:disabled) {
     'spotify'
     'binary'
     'weather'
+    'sunmoon'
     'calendar'
     'commits'
     'email'
@@ -397,6 +398,13 @@ button:hover:not(:disabled) {
   min-height: 0;
   min-width: 0;
 }
+.dashboard-sunmoon {
+  grid-area: sunmoon;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
 
 .dashboard-clock .card,
 .dashboard-spotify .card,
@@ -405,7 +413,8 @@ button:hover:not(:disabled) {
 .dashboard-weather .card,
 .dashboard-commits .card,
 .dashboard-guardian .card,
-.dashboard-radar .card {
+.dashboard-radar .card,
+.dashboard-sunmoon .card {
   flex: 1;
 }
 
@@ -417,6 +426,7 @@ button:hover:not(:disabled) {
       'clock     clock'
       'spotify   spotify'
       'binary    weather'
+      'sunmoon   sunmoon'
       'calendar  commits'
       'email     guardian'
       'radar     radar';
@@ -432,6 +442,7 @@ button:hover:not(:disabled) {
       'clock     clock'
       'spotify   spotify'
       'binary    weather'
+      'sunmoon   sunmoon'
       'calendar  commits'
       'email     guardian'
       'radar     radar';
@@ -460,25 +471,26 @@ button:hover:not(:disabled) {
        their original single-column counterpart had (calendar/commits
        share clock's row; email/guardian share the two rows below it). */
     grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
-    /* minmax(6rem, ...) on the last row is a hard floor for Weather — on a
-       short window the other rows can no longer squeeze it down to a
-       sliver (or nothing) before the container scrolls instead. Row 2 is
-       plain auto on purpose: minmax(min, FIXED-MAX) on a non-flex track
-       actively grows to that max using any free space in the grid's
-       "maximize tracks" step, which runs BEFORE 1fr tracks get anything -
-       so a minmax cap here was pegging row 2 at its ceiling in every
-       single test regardless of what Clock/Calendar/Buses actually
-       needed, starving Weather's 1fr row of the leftover space it's
-       supposed to get first look at. Plain auto only takes what its
-       tallest cell's real content needs. Clock matching Calendar/Buses
-       comes from display:flex on .dashboard-clock (below) letting it
-       stretch to that auto height, not from a track-level cap. */
-    grid-template-rows: auto auto auto minmax(6rem, 1fr);
+    /* minmax(6rem, ...) on Weather's row is a hard floor — on a short
+       window the other rows can no longer squeeze it down to a sliver (or
+       nothing) before the container scrolls instead. That floor still
+       works from here even though Sun & Moon's row now comes after it:
+       what matters is the track's own sizing function (a flexible 1fr max
+       vs. a non-flex fixed max), not row order — see the note below on
+       why Sun & Moon is plain `auto` for the same reason Row 2 is. Plain
+       auto only takes what its tallest cell's real content needs, so it
+       never competes with Weather's 1fr for leftover space; a minmax(min,
+       FIXED-MAX) row would (that's the mistake this file's history keeps
+       warning about). Clock matching Calendar/Buses comes from
+       display:flex on .dashboard-clock (below) letting it stretch to that
+       auto height, not from a track-level cap. */
+    grid-template-rows: auto auto auto minmax(6rem, 1fr) auto;
     grid-template-areas:
       'header    header   header    header'
       'clock     clock    calendar  commits'
       'spotify   binary   email     guardian'
-      'weather   weather  email     radar';
+      'weather   weather  email     radar'
+      'sunmoon   sunmoon  email     radar';
     /* Spotify/binary are capped to a vh-based max size below, but on an
        unusually short window even the capped rows plus header/clock can
        still exceed 100vh — auto (not hidden) so that edge case scrolls
