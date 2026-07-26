@@ -8,6 +8,7 @@ import { SpotifyWidget } from './components/SpotifyWidget'
 import { GuardianWidget } from './components/GuardianWidget'
 import { RadarWidget } from './components/RadarWidget'
 import { CountdownWidget } from './components/CountdownWidget'
+import { GithubWidget } from './components/GithubWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
 
 function getGreeting(hour: number): string {
@@ -111,6 +112,9 @@ function App() {
       </div>
       <div className="dashboard-countdown">
         <CountdownWidget />
+      </div>
+      <div className="dashboard-github">
+        <GithubWidget />
       </div>
       <div className="dashboard-email">
         <EmailWidget />

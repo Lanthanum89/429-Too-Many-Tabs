@@ -244,6 +244,7 @@ button:hover:not(:disabled) {
     'binary'
     'weather'
     'countdown'
+    'github'
     'calendar'
     'commits'
     'email'
@@ -412,6 +413,13 @@ button:hover:not(:disabled) {
   min-height: 0;
   min-width: 0;
 }
+.dashboard-github {
+  grid-area: github;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
 
 .dashboard-clock .card,
 .dashboard-spotify .card,
@@ -421,7 +429,8 @@ button:hover:not(:disabled) {
 .dashboard-commits .card,
 .dashboard-guardian .card,
 .dashboard-radar .card,
-.dashboard-countdown .card {
+.dashboard-countdown .card,
+.dashboard-github .card {
   flex: 1;
 }
 
@@ -434,6 +443,7 @@ button:hover:not(:disabled) {
       'spotify   spotify'
       'binary    weather'
       'countdown countdown'
+      'github    github'
       'calendar  commits'
       'email     guardian'
       'radar     radar';
@@ -450,6 +460,7 @@ button:hover:not(:disabled) {
       'spotify   spotify'
       'binary    weather'
       'countdown countdown'
+      'github    github'
       'calendar  commits'
       'email     guardian'
       'radar     radar';
@@ -488,13 +499,15 @@ button:hover:not(:disabled) {
        content on any window taller than that minimum — tried giving
        Countdown that flexible row and it just became a big empty gap
        under the "N days until" line once there was real slack to fill.
-       Column 1-2 (Weather/Countdown) and columns 3-4 (Email/Radar) don't
-       need to bottom out level with each other, so instead of forcing
-       one more column's content to stretch into leftover space it has
-       no use for, row 6 exists ONLY for column 3-4 (a blank cell in
-       column 1-2, via the '.' placeholders below) and is the sole
-       flexible track — Email gets more rows to show, and Radar's map
-       actually has a use for the extra height, so it goes there. */
+       Column 1-2 (Weather/Countdown/GitHub) and columns 3-4 (Email/Radar)
+       don't need to bottom out level with each other, so instead of
+       forcing one more column's content to stretch into leftover space
+       it has no use for, row 6 exists ONLY for column 3-4 and is the
+       sole flexible track — Email gets more rows to show, and Radar's
+       map actually has a use for the extra height, so it goes there.
+       GitHub sits in column 1-2's row 6 cell too (a thin stat line, not
+       stretched - see align-self:start on it below), rather than adding
+       a 7th row that'd leave a gap between it and Countdown above. */
     grid-template-rows: auto auto auto auto auto minmax(4rem, 1fr);
     grid-template-areas:
       'header    header   header    header'
@@ -502,7 +515,7 @@ button:hover:not(:disabled) {
       'spotify   binary   email     guardian'
       'weather   weather  email     radar'
       'countdown countdown email     radar'
-      '.         .        email     radar';
+      'github    github   email     radar';
     /* Spotify/binary are capped to a vh-based max size below, but on an
        unusually short window even the capped rows plus header/clock can
        still exceed 100vh — auto (not hidden) so that edge case scrolls
@@ -550,6 +563,17 @@ button:hover:not(:disabled) {
      without overflow they end up pixel-identical, as intended. */
   .dashboard-spotify,
   .dashboard-binary {
+    align-self: start;
+  }
+
+  /* GitHub sits in row 6 (see grid-template-areas above), the flexible
+     track sized for Radar's map - without this it'd stretch to that same
+     tall height by grid's default align-items:stretch, turning a thin
+     stat line into another big mostly-empty card (the exact mistake
+     Countdown's row made before it went back to auto). align-self:start
+     keeps it sized to its own single-row content instead, same fix as
+     Spotify/Binary above for the same underlying reason. */
+  .dashboard-github {
     align-self: start;
   }
 
