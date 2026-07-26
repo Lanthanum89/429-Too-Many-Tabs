@@ -3,31 +3,37 @@
 A read-only personal dashboard for a phone or tablet propped up on a desk. No backend —
 it's a static PWA meant to be hosted on GitHub Pages.
 
-One glanceable page: clock, binary clock, weekly calendar strip, email, and Spotify all
-shown at once — no modes or settings to fiddle with. On a tablet in landscape it's
-laid out to fit entirely within one screen, no scrolling; portrait (phone or tablet)
-just stacks everything and scrolls normally — see [Layout](#layout) below.
+One glanceable page: clock, binary clock, weekly calendar strip, email, Spotify,
+weather, a live rain radar, Guardian headlines, live bus departures, a countdown, and a
+GitHub activity feed all shown at once — no modes or settings to fiddle with. On a
+tablet in landscape it's laid out to fit entirely within one screen, no scrolling;
+portrait (phone or tablet) just stacks everything and scrolls normally — see
+[Layout](#layout) below.
 
 Visual style is dark lilac, matching the [SoundTracks](https://github.com/Lanthanum89/spotify-stats-app)
 app: near-black background, lilac accent (`src/index.css`'s `@theme` block — `void`,
-`surface`, `line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`), with an
-editorial, magazine-style type pairing on top of it — Playfair Display (a high-contrast
-serif) for the clock's big digits and every widget's section heading, Inter for body text,
-and JetBrains Mono kept only for small technical labels (the date caption, binary-clock
-digit labels). All fonts are self-hosted via `@fontsource` rather than a CDN link, so
-they're bundled into the build and precached by the service worker — no external font
-request needed once installed. The clock defaults to 24-hour time (`hour12: false`).
+`surface`, `line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`), with
+Sora for body text and section headings and IBM Plex Mono for the clock's big digits
+and small technical labels (the date caption, binary-clock digit labels). All fonts are
+self-hosted via `@fontsource` rather than a CDN link, so they're bundled into the build
+and precached by the service worker — no external font request needed once installed.
+The clock defaults to 24-hour time (`hour12: false`).
 
 ## Widgets
 
 | Widget | What it shows |
 |---|---|
-| Clock | Big serif time display, and the date |
+| Clock | Big time display, and the date |
 | Binary clock | Same binary-coded-decimal format as [Binary Bloom](https://github.com/Lanthanum89/binary-clock) — hours/minutes/seconds each split into tens/ones digits, each digit a column of 4 dots (8-4-2-1). Always 24-hour |
 | Calendar | The current week as a compact Monday-first strip, with Google Calendar events plotted on their day — click a day to open a popup listing all of its events, each still linking out to Google Calendar |
-| Email | Your inbox — read and unread, with star status. Starred messages sort to the top, then everything else newest-first — click a subject to read it in-app, or open it in Gmail from there. "Load more" paginates further back |
+| Email | Your inbox — read and unread, with star status. Starred messages sort to the top, then everything else newest-first — click a subject to open it in Gmail. Independent unread/starred filter pills, and "Load more" to paginate further back |
 | Spotify | Currently-playing track with album art, progress bar, and playlist/album context — plus skip, pause/resume controls (requires Spotify Premium) — see [Spotify](#spotify) below |
-| Weather | Current temperature and conditions for your location (via browser geolocation, falling back to London if denied), refreshed every 15 minutes from [Open-Meteo](https://open-meteo.com) — no API key needed |
+| Weather | Current temperature and conditions for your location (via browser geolocation, falling back to London if denied) — feels-like temperature, chance of rain, a five-hour forecast, a next-day summary, and sunrise/sunset/moon phase/UV risk, refreshed every 15 minutes from [Open-Meteo](https://open-meteo.com) — no API key needed |
+| Rain Radar | A live precipitation radar map (via [RainViewer](https://www.rainviewer.com), no key needed) themed to match the dashboard, clamped to RainViewer's native zoom levels |
+| Guardian Headlines | The latest five headlines from [The Guardian's Open Platform](https://open-platform.theguardian.com), each linking out to the full article |
+| Reading Buses | Live departure times for configured home/work stops from [Reading Buses Open Data](https://reading-opendata.r2p.com/api-service) — see [the CORS workaround](#challenge) below |
+| Countdown | A user-set label and target date, with the days remaining |
+| GitHub | A small activity feed — public repos, followers, commits today, and recent public events |
 
 ## Setup
 
@@ -226,6 +232,15 @@ No registry, no per-mode sizing — just the one grid to update.
   explicit "disconnect" button, so revoking access has to be done from your
   [Spotify account's connected-apps settings](https://www.spotify.com/account/apps/) (or
   by clearing site data) rather than from the dashboard itself.
+- **Reading Buses has no CORS support at all** (confirmed in the browser, not assumed),
+  so live departures need the Cloudflare Worker proxy in
+  `cloudflare-worker/reading-buses-proxy/` deployed and its URL set in
+  `VITE_READING_BUSES_PROXY_URL`. Without it, the widget falls back to showing the
+  configured stops with static labels and a link out to the operator's own
+  live-departures page, so the feature degrades gracefully instead of breaking.
+- **The GitHub widget's username is hardcoded** (`src/lib/github.ts`) rather than an env
+  var or repo variable — this is a single-user personal dashboard, so a constant was
+  simpler than a setting that would only ever be set once.
 
 ### Spotify
 
