@@ -140,7 +140,7 @@ export function WeatherWidget() {
             )}
           </div>
           {sunAndUv && (
-            <div className="mt-2 flex w-full flex-wrap items-center gap-x-5 gap-y-1 border-t border-line pt-2 text-sm text-dim">
+            <div className="mt-1.5 flex w-full flex-wrap items-center gap-x-5 gap-y-1 border-t border-line pt-1.5 text-xs text-dim">
               <span>
                 {formatTime(sunAndUv.sunrise)} &middot; {formatTime(sunAndUv.sunset)}
               </span>

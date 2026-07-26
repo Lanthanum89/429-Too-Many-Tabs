@@ -45,7 +45,7 @@ export function CountdownWidget() {
   }
 
   return (
-    <Card className="flex flex-col gap-3">
+    <Card className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Countdown</h2>
         {config && (
@@ -57,7 +57,7 @@ export function CountdownWidget() {
       {config ? (
         <CountdownDisplay config={config} />
       ) : (
-        <div className="flex flex-1 flex-wrap content-center items-center gap-2">
+        <div className="flex min-h-0 flex-1 flex-wrap content-center items-center gap-2">
           <input
             type="text"
             placeholder="Days until…"
@@ -88,7 +88,7 @@ function CountdownDisplay({ config }: { config: CountdownConfig }) {
   const diff = daysBetween(new Date(), new Date(`${config.targetDate}T00:00:00`))
 
   return (
-    <div className="flex flex-1 flex-wrap content-center items-center gap-3">
+    <div className="flex min-h-0 flex-1 flex-wrap content-center items-center gap-3">
       <span className="font-clock text-5xl font-black leading-none text-accent-neon">{Math.abs(diff)}</span>
       <span className="text-base text-muted">
         {diff === 0 ? `${config.label} is today!` : diff > 0 ? `days until ${config.label}` : `days since ${config.label}`}

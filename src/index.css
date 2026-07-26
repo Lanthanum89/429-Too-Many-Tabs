@@ -319,8 +319,8 @@ button:hover:not(:disabled) {
   grid-area: header;
   background: transparent;
   border-bottom: 2px solid var(--color-accent-neon);
-  padding: 0.75rem 1rem 0.375rem 1rem;
-  margin-bottom: 0.25rem;
+  padding: 0.5rem 1rem 0.375rem 1rem;
+  margin-bottom: 0.125rem;
   border-radius: 0.5rem;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
@@ -464,7 +464,11 @@ button:hover:not(:disabled) {
     height: 100vh;
     height: 100dvh;
     box-sizing: border-box;
-    gap: 0.75rem;
+    /* Countdown's row (see grid-template-rows below) added a fifth row
+       to what used to be four - one more row means one more gap on top
+       of everything this budget already had to cover, so this was
+       trimmed further to help make room for it. */
+    gap: 0.625rem;
     /* col3+col4 (calendar/commits, email/guardian) split what used to be
        one wide 2.4fr column into two — calendar sits beside the commit
        graph, email beside Guardian headlines, both pairs at the height
