@@ -256,13 +256,6 @@ button:hover:not(:disabled) {
   max-width: 100%;
   margin: 0 auto;
   overflow-x: hidden;
-  /* body already sets this, but on the landscape layout .dashboard
-     itself is the element that actually scrolls (its own overflow-y:
-     auto, for the short-window fallback), not body - a pull-to-refresh
-     drag at the top of that scroll chains straight to the browser's
-     native rubber-band/refresh gesture unless it's stopped here too,
-     which visually stretches the whole grid taller than 100dvh. */
-  overscroll-behavior: none;
 }
 
 @media (max-width: 768px) {
@@ -482,6 +475,22 @@ button:hover:not(:disabled) {
     height: 100vh;
     height: 100dvh;
     box-sizing: border-box;
+    /* body already sets this, but on this layout .dashboard itself is
+       the element that actually scrolls (its own overflow-y:auto below,
+       for the short-window fallback) - a pull-to-refresh drag at the
+       top of that scroll chains straight to the browser's native
+       rubber-band/refresh gesture unless it's stopped here too, which
+       visually stretches the whole grid taller than 100dvh. Scoped to
+       this breakpoint only: applying it unconditionally on .dashboard
+       broke portrait scrolling entirely - overflow-x:hidden (in the
+       base rule) makes the *computed* overflow-y "auto" even in
+       portrait (a CSS quirk: an axis explicitly set to non-visible
+       forces the other, if visible, to auto), so mobile touch scrolling
+       was treating .dashboard as a real scroll container there too and
+       overscroll-behavior:none blocked it from handing the gesture off
+       to body - even though .dashboard has nothing to scroll in
+       portrait (page/body scrolls normally instead). */
+    overscroll-behavior: none;
     /* Countdown's row (see grid-template-rows below) added a fifth row
        to what used to be four - one more row means one more gap on top
        of everything this budget already had to cover, so this was
@@ -575,6 +584,16 @@ button:hover:not(:disabled) {
      Spotify/Binary above for the same underlying reason. */
   .dashboard-github {
     align-self: start;
+  }
+
+  /* Same fix, same reason as .dashboard-weather .card / .dashboard-
+     countdown .card above - even with align-self:start keeping the
+     wrapper sized to its own content rather than stretched, the card's
+     default min-height:auto still refuses to shrink below that content
+     on a short window, spilling past a too-short wrapper instead of
+     clipping/scrolling. */
+  .dashboard-github .card {
+    overflow-y: auto;
   }
 
   .dashboard-spotify .card,

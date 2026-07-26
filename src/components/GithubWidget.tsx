@@ -48,7 +48,14 @@ export function GithubWidget() {
             {activity.lastRepo && <span> &middot; last: {activity.lastRepo}</span>}
           </p>
           {activity.recentEvents.length > 0 && (
-            <ul className="flex flex-col divide-y divide-line">
+            // Capped to 3 rows' worth of height (each row is a fixed 29px
+            // - the summary line truncates to one line) same reasoning as
+            // Guardian's headline cap: this sits in the grid's flexible
+            // row, so an unbounded list here directly inflates how much
+            // vertical space the whole page needs, past the viewport on
+            // a real device even though the row itself has align-self:
+            // start. Scrolls for the rest instead.
+            <ul className="flex max-h-[90px] min-h-0 flex-col divide-y divide-line overflow-y-auto">
               {activity.recentEvents.map((event) => (
                 <li key={event.id} className="flex items-center justify-between gap-2 py-1">
                   <span className="truncate text-sm text-ink">
