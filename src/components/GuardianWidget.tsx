@@ -45,7 +45,11 @@ export function GuardianWidget() {
           <p className="text-sm text-dim">Loading…</p>
         )
       ) : (
-        <ul className="flex max-h-52 min-h-0 flex-col overflow-y-auto">
+        // Capped to exactly 3 rows' worth of height (each row is a fixed
+        // 50.5px now that the title truncates to one line - see the span
+        // below) so the cutoff always lands clean between headlines
+        // instead of mid-title; anything past that scrolls into view.
+        <ul className="flex max-h-[152px] min-h-0 flex-col overflow-y-auto">
           {headlines.length === 0 && <li className="text-sm text-dim">No headlines.</li>}
           {headlines.map((item) => (
             <li key={item.id}>
@@ -55,8 +59,8 @@ export function GuardianWidget() {
                 rel="noreferrer"
                 className="flex flex-col gap-0.5 py-1.5 hover:text-accent-bright"
               >
-                <span className="text-[11px] uppercase tracking-wide text-dim">{item.sectionName}</span>
-                <span className="text-sm font-medium text-ink">{item.webTitle}</span>
+                <span className="truncate text-[11px] uppercase tracking-wide text-dim">{item.sectionName}</span>
+                <span className="truncate text-sm font-medium text-ink">{item.webTitle}</span>
               </a>
             </li>
           ))}
