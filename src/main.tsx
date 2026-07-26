@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import { handleRedirect } from './lib/spotify.ts'
+import 'leaflet/dist/leaflet.css'
 import './index.css'
 
 // Resolve any pending Spotify auth redirect before the first render, so
