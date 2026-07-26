@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
-import { fetchGithubActivity, type GithubActivity } from '../lib/github'
+import { fetchGithubActivity, formatRelativeTime, type GithubActivity } from '../lib/github'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
 
@@ -32,13 +32,34 @@ export function GithubWidget() {
   }, [])
 
   return (
-    <Card className="flex flex-row items-center justify-between gap-2 py-3">
-      <h2 className="font-mono text-sm font-bold text-accent-neon">GitHub</h2>
+    <Card className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-mono text-sm font-bold text-accent-neon">GitHub</h2>
+        {activity && (
+          <span className="text-xs text-dim">
+            {activity.publicRepos} repos &middot; {activity.followers} followers
+          </span>
+        )}
+      </div>
       {activity ? (
-        <span className="truncate text-sm text-ink">
-          {activity.commitsToday} commit{activity.commitsToday === 1 ? '' : 's'} today
-          {activity.lastRepo && <span className="text-dim"> &middot; last: {activity.lastRepo}</span>}
-        </span>
+        <>
+          <p className="text-xs text-dim">
+            {activity.commitsToday} commit{activity.commitsToday === 1 ? '' : 's'} today
+            {activity.lastRepo && <span> &middot; last: {activity.lastRepo}</span>}
+          </p>
+          {activity.recentEvents.length > 0 && (
+            <ul className="flex flex-col divide-y divide-line">
+              {activity.recentEvents.map((event) => (
+                <li key={event.id} className="flex items-center justify-between gap-2 py-1">
+                  <span className="truncate text-sm text-ink">
+                    {event.summary} <span className="text-dim">&middot; {event.repo}</span>
+                  </span>
+                  <span className="shrink-0 text-xs text-dim">{formatRelativeTime(event.createdAt)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       ) : error ? (
         <span className="text-xs text-danger">{error}</span>
       ) : (
