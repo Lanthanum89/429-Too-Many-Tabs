@@ -547,9 +547,14 @@ button:hover:not(:disabled) {
     aspect-ratio: 1 / 1;
     /* Was bumped to 40vh to make these bigger (closing a visual gap), but
        row 3 is an uncapped auto row - directly sized by this value with
-       nothing else limiting it, so a bigger square just steals height
-       from Weather below on a laptop-height window. Back to 30vh. */
-    width: min(100%, 30vh);
+       nothing else limiting it, so a bigger square steals height from
+       whatever else shares its row's total budget. Weather has its own
+       row now so it's no longer the one losing out, but Countdown and
+       Radar (both in the flexible row5, which only gets whatever's left
+       after row3 and the rest) still are - the added 13rem cap trims
+       row3 a bit further in row3's usual case of being column-width-
+       bound rather than vh-bound, handing that back to them. */
+    width: min(100%, 30vh, 13rem);
     flex: none;
     overflow: hidden;
   }
