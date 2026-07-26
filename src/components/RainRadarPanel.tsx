@@ -22,8 +22,14 @@ export function RainRadarPanel({ lat, lon }: { lat: number; lon: number }) {
     })
     mapRef.current = map
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
+    // CartoDB's dark basemap (free, no key - CC BY 3.0, attribution
+    // required) reads far closer to the app's dark-lilac theme than
+    // default OSM tiles; className hooks into index.css for the lilac
+    // tint filter.
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      className: 'map-tiles-themed',
     }).addTo(map)
 
     L.marker([lat, lon]).addTo(map)
