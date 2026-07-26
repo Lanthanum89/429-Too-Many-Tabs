@@ -586,13 +586,20 @@ button:hover:not(:disabled) {
     align-self: start;
   }
 
-  /* Same fix, same reason as .dashboard-weather .card / .dashboard-
-     countdown .card above - even with align-self:start keeping the
-     wrapper sized to its own content rather than stretched, the card's
-     default min-height:auto still refuses to shrink below that content
-     on a short window, spilling past a too-short wrapper instead of
-     clipping/scrolling. */
+  /* align-self:start (above) means this wrapper is never squeezed
+     smaller than its own content, so unlike Weather/Countdown's card
+     overflow fix, there's no "too-short box" for overflow-y:auto to
+     rescue here. The real problem: row 6 is a *flexible* (1fr) track,
+     sized from leftover space, not from its cells' content the way a
+     plain auto row would be - so a non-flex sibling's own content need
+     (this card, however tall its recent-activity list happens to grow)
+     was never guaranteed to fit inside whatever row 6 resolves to, and
+     with nothing capping it, that difference just pushed the whole page
+     taller instead of clipping locally. A hard max-height with its own
+     scroll guarantees this card can never do that again, regardless of
+     how much activity the account has. */
   .dashboard-github .card {
+    max-height: 10rem;
     overflow-y: auto;
   }
 
