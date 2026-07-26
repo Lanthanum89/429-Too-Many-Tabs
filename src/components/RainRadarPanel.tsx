@@ -16,6 +16,7 @@ export function RainRadarPanel({ lat, lon }: { lat: number; lon: number }) {
     const map = L.map(containerRef.current, {
       center: [lat, lon],
       zoom: 7,
+      maxZoom: 12,
       zoomControl: false,
       attributionControl: true,
     })
@@ -49,6 +50,12 @@ export function RainRadarPanel({ lat, lon }: { lat: number; lon: number }) {
         if (radarLayerRef.current) mapRef.current.removeLayer(radarLayerRef.current)
         radarLayerRef.current = L.tileLayer(frame.tileUrlTemplate, {
           opacity: 0.6,
+          // RainViewer only generates radar tiles natively up to zoom 7 -
+          // without this, zooming past that requests tiles that don't
+          // exist and gets back a "Zoom Level Not Supported" placeholder
+          // image instead of an upscaled tile.
+          maxNativeZoom: 7,
+          maxZoom: 12,
           attribution: 'Weather data &copy; <a href="https://rainviewer.com">RainViewer</a>',
         }).addTo(mapRef.current)
         setError(null)
