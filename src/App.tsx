@@ -37,7 +37,7 @@ function App() {
     <div className="dashboard p-4 sm:p-6">
       <header>
         <div className="flex items-start justify-between gap-4 w-full">
-          <div className="flex flex-col gap-0 text-left">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
             <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
               {greeting}, <span className="italic">Laura</span>.
             </h1>
