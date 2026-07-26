@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react'
 import { Card } from './Card'
 import { getCoords, FALLBACK_LAT, FALLBACK_LON } from '../lib/geolocation'
 import { fetchWeather, type WeatherSnapshot } from '../lib/weather'
+import { fetchSunAndUv, getMoonPhase, getUvRiskLabel, type SunAndUv } from '../lib/sunAndMoon'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
+
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
 
 function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
   const desc = weather.description.toLowerCase()
@@ -56,23 +61,31 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
 
 export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null)
+  const [sunAndUv, setSunAndUv] = useState<SunAndUv | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const moon = getMoonPhase(new Date())
 
   useEffect(() => {
     let cancelled = false
 
     async function load() {
-      try {
-        const { lat, lon } = await getCoords()
-        const isFallback = lat === FALLBACK_LAT && lon === FALLBACK_LON
-        const data = await fetchWeather(lat, lon, isFallback ? 'London' : undefined)
-        if (!cancelled) {
-          setWeather(data)
-          setError(null)
-        }
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load weather')
+      const { lat, lon } = await getCoords()
+      const isFallback = lat === FALLBACK_LAT && lon === FALLBACK_LON
+      // allSettled, not all — sun/UV is supplementary to the core weather
+      // display, so a failure there shouldn't blank out the temperature
+      // and forecast too.
+      const [weatherResult, sunResult] = await Promise.allSettled([
+        fetchWeather(lat, lon, isFallback ? 'London' : undefined),
+        fetchSunAndUv(lat, lon),
+      ])
+      if (cancelled) return
+      if (weatherResult.status === 'fulfilled') {
+        setWeather(weatherResult.value)
+        setError(null)
+      } else {
+        setError(weatherResult.reason instanceof Error ? weatherResult.reason.message : 'Failed to load weather')
       }
+      if (sunResult.status === 'fulfilled') setSunAndUv(sunResult.value)
     }
 
     load()
@@ -87,44 +100,59 @@ export function WeatherWidget() {
     <Card className="flex flex-col items-start justify-start gap-2 text-accent-neon">
       <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
       {weather ? (
-        <div className="mt-2 flex w-full flex-1 items-start gap-3">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <WeatherIcon weather={weather} />
-              <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
-            </div>
-            <div className="flex flex-col text-base text-muted">
-              {weather.location && <span>{weather.location}</span>}
-              <div className="mt-2 flex flex-col text-sm text-dim">
-                <span>{weather.description}</span>
-                <span>Feels like {Math.round(weather.feelsLikeC)}°</span>
+        <>
+          <div className="mt-2 flex w-full flex-1 items-start gap-3">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <WeatherIcon weather={weather} />
+                <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
+              </div>
+              <div className="flex flex-col text-base text-muted">
+                {weather.location && <span>{weather.location}</span>}
+                <div className="mt-2 flex flex-col text-sm text-dim">
+                  <span>{weather.description}</span>
+                  <span>Feels like {Math.round(weather.feelsLikeC)}°</span>
+                </div>
               </div>
             </div>
-          </div>
-          {(weather.hourly.length > 0 || weather.tomorrow) && (
-            <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
-              {weather.hourly.map((h, i) => {
-                const hour = new Date(h.time).getHours()
-                return (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    <span className="w-16 text-dim">{hour}:00</span>
-                    <span className="font-clock w-16 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
-                    <span className="w-16 text-right text-dim">{Math.round(h.precipitationChance)}% rain</span>
+            {(weather.hourly.length > 0 || weather.tomorrow) && (
+              <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
+                {weather.hourly.map((h, i) => {
+                  const hour = new Date(h.time).getHours()
+                  return (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <span className="w-16 text-dim">{hour}:00</span>
+                      <span className="font-clock w-16 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
+                      <span className="w-16 text-right text-dim">{Math.round(h.precipitationChance)}% rain</span>
+                    </div>
+                  )
+                })}
+                {weather.tomorrow && (
+                  <div className="flex items-center gap-2 border-t border-line pt-1.5 text-sm">
+                    <span className="w-16 text-dim">Tomorrow</span>
+                    <span className="font-clock w-16 text-right font-semibold">
+                      {Math.round(weather.tomorrow.tempMaxC)}°/{Math.round(weather.tomorrow.tempMinC)}°
+                    </span>
+                    <span className="w-16 text-right text-dim">{Math.round(weather.tomorrow.precipitationChance)}% rain</span>
                   </div>
-                )
-              })}
-              {weather.tomorrow && (
-                <div className="flex items-center gap-2 border-t border-line pt-1.5 text-sm">
-                  <span className="w-16 text-dim">Tomorrow</span>
-                  <span className="font-clock w-16 text-right font-semibold">
-                    {Math.round(weather.tomorrow.tempMaxC)}°/{Math.round(weather.tomorrow.tempMinC)}°
-                  </span>
-                  <span className="w-16 text-right text-dim">{Math.round(weather.tomorrow.precipitationChance)}% rain</span>
-                </div>
-              )}
+                )}
+              </div>
+            )}
+          </div>
+          {sunAndUv && (
+            <div className="mt-2 flex w-full flex-wrap items-center gap-x-5 gap-y-1 border-t border-line pt-2 text-sm text-dim">
+              <span>
+                {formatTime(sunAndUv.sunrise)} &middot; {formatTime(sunAndUv.sunset)}
+              </span>
+              <span>
+                {moon.emoji} {moon.name}
+              </span>
+              <span>
+                UV {Math.round(sunAndUv.uvIndexMax)} &middot; {getUvRiskLabel(sunAndUv.uvIndexMax)}
+              </span>
             </div>
           )}
-        </div>
+        </>
       ) : error ? (
         <p className="text-xs text-danger">{error}</p>
       ) : (

@@ -7,13 +7,27 @@ import { EmailWidget } from './components/EmailWidget'
 import { SpotifyWidget } from './components/SpotifyWidget'
 import { GuardianWidget } from './components/GuardianWidget'
 import { RadarWidget } from './components/RadarWidget'
-import { SunMoonWidget } from './components/SunMoonWidget'
+import { CountdownWidget } from './components/CountdownWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
   if (hour < 18) return 'Good afternoon'
   return 'Good evening'
+}
+
+// ISO 8601 week number: the week containing the year's first Thursday is
+// week 1 - shifting to the nearest Thursday first is what makes the last
+// few days of December/first few of January land in the correct week
+// instead of off-by-one at the year boundary.
+function getISOWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const dayNum = (d.getUTCDay() + 6) % 7
+  d.setUTCDate(d.getUTCDate() - dayNum + 3)
+  const firstThursday = new Date(Date.UTC(d.getUTCFullYear(), 0, 4))
+  const firstThursdayDayNum = (firstThursday.getUTCDay() + 6) % 7
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstThursdayDayNum + 3)
+  return 1 + Math.round((d.getTime() - firstThursday.getTime()) / (7 * 86400000))
 }
 
 function App() {
@@ -34,16 +48,22 @@ function App() {
   const today = new Date()
   const greeting = getGreeting(today.getHours())
   const dateStr = today.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })
+  const week = getISOWeek(today)
   return (
     <div className="dashboard p-4 sm:p-6">
       <header>
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
-          <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
-            {greeting}, <span className="italic">Laura</span>.
-          </h1>
-          <p className="font-mono text-xs font-semibold tracking-wider text-muted leading-tight">
-            {dateStr.toUpperCase()}
-          </p>
+        <div className="flex items-center justify-between gap-4 w-full">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
+            <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
+              {greeting}, <span className="italic">Laura</span>.
+            </h1>
+            <p className="font-mono text-xs font-semibold tracking-wider text-muted leading-tight">
+              {dateStr.toUpperCase()}
+            </p>
+            <p className="font-mono text-xs font-semibold tracking-wider text-dim leading-tight">
+              WEEK {week}
+            </p>
+          </div>
           <button
             onClick={toggleTheme}
             className="theme-toggle"
@@ -89,8 +109,8 @@ function App() {
       <div className="dashboard-weather">
         <WeatherWidget />
       </div>
-      <div className="dashboard-sunmoon">
-        <SunMoonWidget />
+      <div className="dashboard-countdown">
+        <CountdownWidget />
       </div>
       <div className="dashboard-email">
         <EmailWidget />

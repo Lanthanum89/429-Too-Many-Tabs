@@ -243,7 +243,7 @@ button:hover:not(:disabled) {
     'spotify'
     'binary'
     'weather'
-    'sunmoon'
+    'countdown'
     'calendar'
     'commits'
     'email'
@@ -398,8 +398,8 @@ button:hover:not(:disabled) {
   min-height: 0;
   min-width: 0;
 }
-.dashboard-sunmoon {
-  grid-area: sunmoon;
+.dashboard-countdown {
+  grid-area: countdown;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -414,7 +414,7 @@ button:hover:not(:disabled) {
 .dashboard-commits .card,
 .dashboard-guardian .card,
 .dashboard-radar .card,
-.dashboard-sunmoon .card {
+.dashboard-countdown .card {
   flex: 1;
 }
 
@@ -426,7 +426,7 @@ button:hover:not(:disabled) {
       'clock     clock'
       'spotify   spotify'
       'binary    weather'
-      'sunmoon   sunmoon'
+      'countdown countdown'
       'calendar  commits'
       'email     guardian'
       'radar     radar';
@@ -442,7 +442,7 @@ button:hover:not(:disabled) {
       'clock     clock'
       'spotify   spotify'
       'binary    weather'
-      'sunmoon   sunmoon'
+      'countdown countdown'
       'calendar  commits'
       'email     guardian'
       'radar     radar';
@@ -475,19 +475,19 @@ button:hover:not(:disabled) {
        that note above): its real content (icon+temp plus a short forecast
        table) has a fixed, fairly short natural height, so giving it the
        flexible 1fr track left a large dead gap under the forecast table
-       on any window taller than that minimum. minmax(3.5rem, 1fr) on Sun &
-       Moon's row instead is the hard floor + flexible track now — a short
-       window can't squeeze it below a sliver, and any leftover height
-       actually goes somewhere with room to use it (its stat row centers
-       in whatever space it gets - see .dashboard-sunmoon > div below)
-       rather than sitting under Weather as blank space. */
+       on any window taller than that minimum. minmax(3.5rem, 1fr) on
+       Countdown's row instead is the hard floor + flexible track now — a
+       short window can't squeeze it below a sliver, and any leftover
+       height actually goes somewhere with room to use it (its content
+       centers in whatever space it gets - see .dashboard-countdown > div
+       below) rather than sitting under Weather as blank space. */
     grid-template-rows: auto auto auto auto minmax(3.5rem, 1fr);
     grid-template-areas:
       'header    header   header    header'
       'clock     clock    calendar  commits'
       'spotify   binary   email     guardian'
       'weather   weather  email     radar'
-      'sunmoon   sunmoon  email     radar';
+      'countdown countdown email     radar';
     /* Spotify/binary are capped to a vh-based max size below, but on an
        unusually short window even the capped rows plus header/clock can
        still exceed 100vh — auto (not hidden) so that edge case scrolls
@@ -570,7 +570,7 @@ button:hover:not(:disabled) {
     overflow-y: auto;
   }
 
-  .dashboard-sunmoon .card {
+  .dashboard-countdown .card {
     padding: 1rem 1.5rem;
   }
 }
