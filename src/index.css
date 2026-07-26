@@ -255,6 +255,13 @@ button:hover:not(:disabled) {
   max-width: 100%;
   margin: 0 auto;
   overflow-x: hidden;
+  /* body already sets this, but on the landscape layout .dashboard
+     itself is the element that actually scrolls (its own overflow-y:
+     auto, for the short-window fallback), not body - a pull-to-refresh
+     drag at the top of that scroll chains straight to the browser's
+     native rubber-band/refresh gesture unless it's stopped here too,
+     which visually stretches the whole grid taller than 100dvh. */
+  overscroll-behavior: none;
 }
 
 @media (max-width: 768px) {
