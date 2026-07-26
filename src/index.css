@@ -1,14 +1,14 @@
 @import 'tailwindcss';
 
-@import '@fontsource/outfit/400.css';
-@import '@fontsource/outfit/500.css';
-@import '@fontsource/outfit/600.css';
-@import '@fontsource/jetbrains-mono/400.css';
-@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/sora/400.css';
+@import '@fontsource/sora/500.css';
+@import '@fontsource/sora/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/700.css';
 
 /* Dark lilac, matching the SoundTracks app: near-black base, lilac accent.
-   Geometric aesthetic with JetBrains Mono for titles/tech elements,
-   Outfit for body text, responsive dashboard layout. */
+   Geometric aesthetic with IBM Plex Mono for titles/tech elements,
+   Sora for body text, responsive dashboard layout. */
 @theme {
   --color-void: #d4c4f0;
   --color-surface: #e0d8f5;
@@ -30,8 +30,8 @@
   --color-flip-bg-2: #2b2338;
   --color-flip-text: #f2ecfb;
 
-  --font-sans: 'Outfit', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'Sora', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 html,
@@ -160,7 +160,7 @@ button:hover:not(:disabled) {
 }
 
 .flip-separator {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: clamp(1rem, 8.3cqw, 8rem);
   font-weight: 900;
   color: var(--color-accent-neon);
@@ -209,7 +209,7 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: clamp(1rem, 9cqw, 7.5rem);
   font-weight: 900;
   color: var(--color-flip-text);
