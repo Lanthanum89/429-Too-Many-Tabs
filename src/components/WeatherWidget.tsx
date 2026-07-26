@@ -1,25 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
-import { RainRadarPanel } from './RainRadarPanel'
+import { getCoords, FALLBACK_LAT, FALLBACK_LON } from '../lib/geolocation'
 import { fetchWeather, type WeatherSnapshot } from '../lib/weather'
 
-// Central London — used only if geolocation is unavailable or denied.
-const FALLBACK_LAT = 51.5074
-const FALLBACK_LON = -0.1278
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
-
-function getCoords(): Promise<{ lat: number; lon: number }> {
-  if (!navigator.geolocation) {
-    return Promise.resolve({ lat: FALLBACK_LAT, lon: FALLBACK_LON })
-  }
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-      () => resolve({ lat: FALLBACK_LAT, lon: FALLBACK_LON }),
-      { timeout: 5000 },
-    )
-  })
-}
 
 function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
   const desc = weather.description.toLowerCase()
@@ -72,7 +56,6 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
 
 export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null)
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -85,7 +68,6 @@ export function WeatherWidget() {
         const data = await fetchWeather(lat, lon, isFallback ? 'London' : undefined)
         if (!cancelled) {
           setWeather(data)
-          setCoords({ lat, lon })
           setError(null)
         }
       } catch (err) {
@@ -105,48 +87,41 @@ export function WeatherWidget() {
     <Card className="flex flex-col items-start justify-start gap-2 text-accent-neon">
       <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
       {weather ? (
-        <div className="flex min-h-0 w-full flex-1 flex-col gap-2">
-          <div className="mt-2 flex w-full flex-1 items-start gap-3 overflow-hidden">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <WeatherIcon weather={weather} />
-                <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
-              </div>
-              <div className="flex flex-col text-base text-muted">
-                {weather.location && <span>{weather.location}</span>}
-                <div className="mt-2 flex flex-col text-sm text-dim">
-                  <span>{weather.description}</span>
-                  <span>Feels like {Math.round(weather.feelsLikeC)}°</span>
-                </div>
+        <div className="mt-2 flex w-full flex-1 items-start gap-3">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <WeatherIcon weather={weather} />
+              <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
+            </div>
+            <div className="flex flex-col text-base text-muted">
+              {weather.location && <span>{weather.location}</span>}
+              <div className="mt-2 flex flex-col text-sm text-dim">
+                <span>{weather.description}</span>
+                <span>Feels like {Math.round(weather.feelsLikeC)}°</span>
               </div>
             </div>
-            {(weather.hourly.length > 0 || weather.tomorrow) && (
-              <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
-                {weather.hourly.map((h, i) => {
-                  const hour = new Date(h.time).getHours()
-                  return (
-                    <div key={i} className="flex items-center gap-2 text-sm">
-                      <span className="w-16 text-dim">{hour}:00</span>
-                      <span className="font-clock w-16 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
-                      <span className="w-16 text-right text-dim">{Math.round(h.precipitationChance)}% rain</span>
-                    </div>
-                  )
-                })}
-                {weather.tomorrow && (
-                  <div className="flex items-center gap-2 border-t border-line pt-1.5 text-sm">
-                    <span className="w-16 text-dim">Tomorrow</span>
-                    <span className="font-clock w-16 text-right font-semibold">
-                      {Math.round(weather.tomorrow.tempMaxC)}°/{Math.round(weather.tomorrow.tempMinC)}°
-                    </span>
-                    <span className="w-16 text-right text-dim">{Math.round(weather.tomorrow.precipitationChance)}% rain</span>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
-          {coords && (
-            <div className="min-h-0 w-full flex-1 border-t border-line pt-2">
-              <RainRadarPanel lat={coords.lat} lon={coords.lon} />
+          {(weather.hourly.length > 0 || weather.tomorrow) && (
+            <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
+              {weather.hourly.map((h, i) => {
+                const hour = new Date(h.time).getHours()
+                return (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <span className="w-16 text-dim">{hour}:00</span>
+                    <span className="font-clock w-16 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
+                    <span className="w-16 text-right text-dim">{Math.round(h.precipitationChance)}% rain</span>
+                  </div>
+                )
+              })}
+              {weather.tomorrow && (
+                <div className="flex items-center gap-2 border-t border-line pt-1.5 text-sm">
+                  <span className="w-16 text-dim">Tomorrow</span>
+                  <span className="font-clock w-16 text-right font-semibold">
+                    {Math.round(weather.tomorrow.tempMaxC)}°/{Math.round(weather.tomorrow.tempMinC)}°
+                  </span>
+                  <span className="w-16 text-right text-dim">{Math.round(weather.tomorrow.precipitationChance)}% rain</span>
+                </div>
+              )}
             </div>
           )}
         </div>
