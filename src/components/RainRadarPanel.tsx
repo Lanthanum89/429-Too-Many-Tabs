@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import { fetchLatestRadarFrame } from '../lib/rainRadar'
+
+// Leaflet's default marker icon references its image assets via a
+// runtime-built relative path ("images/marker-icon.png"), which only
+// resolves in dev where Vite serves node_modules directly - the
+// production bundle has no such path, so the marker silently 404s
+// without this override pointing it at Vite's actually-bundled URLs.
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+})
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000
 

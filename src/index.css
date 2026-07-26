@@ -64,15 +64,16 @@ body {
 
 .theme-toggle {
   background: none;
-  border: 2px solid var(--color-line-strong);
+  border: 1.5px solid var(--color-line-strong);
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.25rem;
   transition: transform 0.2s ease, border-color 0.3s ease, color 0.3s ease;
   border-radius: 0;
   color: var(--color-line-strong);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .theme-toggle:hover {
@@ -441,7 +442,16 @@ button:hover:not(:disabled) {
 
 @media (min-width: 768px) and (orientation: landscape) {
   .dashboard {
+    /* 100vh is the *layout* viewport, which on Android Chrome stays tall
+       enough to include the address bar's height even while it's on
+       screen - the actual visible area is shorter, so a grid sized to
+       100vh gets cut off at the bottom on-device despite fitting fine in
+       a desktop browser or Playwright (which has no address bar to
+       shrink the view). 100dvh tracks the real visible viewport instead;
+       the plain 100vh above it is a fallback for browsers without dvh
+       support, immediately overridden where dvh is available. */
     height: 100vh;
+    height: 100dvh;
     box-sizing: border-box;
     gap: 0.75rem;
     /* col3+col4 (calendar/commits, email/guardian) split what used to be

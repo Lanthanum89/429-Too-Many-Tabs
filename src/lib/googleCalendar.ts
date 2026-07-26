@@ -82,10 +82,14 @@ async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<Cal
   })
 }
 
-// Fetches every event in the Monday-first week starting on `weekStart`.
-export async function fetchWeekEvents(weekStart: Date): Promise<CalendarEvent[]> {
-  const rangeStart = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate())
+// Fetches every event in the `days`-day span starting on `from`'s calendar
+// day, regardless of where that day falls in the Mon-Sun week - a fixed
+// Monday-first week range used to cut this off at the following Sunday,
+// so events later in the same rolling window (e.g. Monday's events when
+// `from` is a Sunday) never got fetched at all.
+export async function fetchUpcomingEvents(from: Date, days: number): Promise<CalendarEvent[]> {
+  const rangeStart = new Date(from.getFullYear(), from.getMonth(), from.getDate())
   const rangeEnd = new Date(rangeStart)
-  rangeEnd.setDate(rangeEnd.getDate() + 7)
+  rangeEnd.setDate(rangeEnd.getDate() + days)
   return fetchEventsInRange(rangeStart, rangeEnd)
 }

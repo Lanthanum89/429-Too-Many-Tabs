@@ -1,21 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Card } from './Card'
 import {
-  fetchWeekEvents,
+  fetchUpcomingEvents,
   hasValidCalendarToken,
   toDateKey,
   type CalendarEvent,
 } from '../lib/googleCalendar'
 
+const UPCOMING_DAYS = 3
 
 function formatEventTime(event: CalendarEvent): string {
   if (event.allDay) return 'All day'
   return event.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-}
-
-function getWeekStart(date: Date): Date {
-  const offset = (date.getDay() + 6) % 7 // Mon = 0 ... Sun = 6
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - offset)
 }
 
 export function WeekCalendar() {
@@ -24,13 +20,12 @@ export function WeekCalendar() {
   const [loading, setLoading] = useState(false)
 
   const today = useMemo(() => new Date(), [])
-  const weekStart = useMemo(() => getWeekStart(today), [today])
 
   async function connect() {
     setLoading(true)
     setError(null)
     try {
-      setEvents(await fetchWeekEvents(weekStart))
+      setEvents(await fetchUpcomingEvents(today, UPCOMING_DAYS))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load calendar')
     } finally {
@@ -54,7 +49,7 @@ export function WeekCalendar() {
 
   // Get upcoming events for next 3 days
   const upcomingEvents = useMemo(() => {
-    const nextThreeDays = Array.from({ length: 3 }, (_, i) => {
+    const nextThreeDays = Array.from({ length: UPCOMING_DAYS }, (_, i) => {
       const day = new Date(today)
       day.setDate(day.getDate() + i)
       return toDateKey(day)

@@ -36,15 +36,13 @@ function App() {
   return (
     <div className="dashboard p-4 sm:p-6">
       <header>
-        <div className="flex items-start justify-between gap-4 w-full">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
-            <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
-              {greeting}, <span className="italic">Laura</span>.
-            </h1>
-            <p className="font-mono text-xs font-semibold tracking-wider text-muted leading-tight">
-              {dateStr.toUpperCase()}
-            </p>
-          </div>
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
+          <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
+            {greeting}, <span className="italic">Laura</span>.
+          </h1>
+          <p className="font-mono text-xs font-semibold tracking-wider text-muted leading-tight">
+            {dateStr.toUpperCase()}
+          </p>
           <button
             onClick={toggleTheme}
             className="theme-toggle"
@@ -52,11 +50,11 @@ function App() {
             title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
           >
             {theme === 'light' ? (
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             ) : (
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="5" />
                 <line x1="12" y1="1" x2="12" y2="3" />
                 <line x1="12" y1="21" x2="12" y2="23" />
