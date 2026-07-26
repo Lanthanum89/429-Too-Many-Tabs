@@ -471,20 +471,17 @@ button:hover:not(:disabled) {
        their original single-column counterpart had (calendar/commits
        share clock's row; email/guardian share the two rows below it). */
     grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
-    /* minmax(6rem, ...) on Weather's row is a hard floor — on a short
-       window the other rows can no longer squeeze it down to a sliver (or
-       nothing) before the container scrolls instead. That floor still
-       works from here even though Sun & Moon's row now comes after it:
-       what matters is the track's own sizing function (a flexible 1fr max
-       vs. a non-flex fixed max), not row order — see the note below on
-       why Sun & Moon is plain `auto` for the same reason Row 2 is. Plain
-       auto only takes what its tallest cell's real content needs, so it
-       never competes with Weather's 1fr for leftover space; a minmax(min,
-       FIXED-MAX) row would (that's the mistake this file's history keeps
-       warning about). Clock matching Calendar/Buses comes from
-       display:flex on .dashboard-clock (below) letting it stretch to that
-       auto height, not from a track-level cap. */
-    grid-template-rows: auto auto auto minmax(6rem, 1fr) auto;
+    /* Weather is plain `auto` on purpose (same reasoning as Row 2 — see
+       that note above): its real content (icon+temp plus a short forecast
+       table) has a fixed, fairly short natural height, so giving it the
+       flexible 1fr track left a large dead gap under the forecast table
+       on any window taller than that minimum. minmax(3.5rem, 1fr) on Sun &
+       Moon's row instead is the hard floor + flexible track now — a short
+       window can't squeeze it below a sliver, and any leftover height
+       actually goes somewhere with room to use it (its stat row centers
+       in whatever space it gets - see .dashboard-sunmoon > div below)
+       rather than sitting under Weather as blank space. */
+    grid-template-rows: auto auto auto auto minmax(3.5rem, 1fr);
     grid-template-areas:
       'header    header   header    header'
       'clock     clock    calendar  commits'
@@ -553,17 +550,28 @@ button:hover:not(:disabled) {
     overflow: hidden;
   }
 
-  /* No forced scrollbar — Weather's own content is short enough to fit
-     its guaranteed floor (see grid-template-rows above) without one; a
-     scrollbar here was from an overflow:auto that no longer serves a
-     purpose now that floor exists. */
-  .dashboard-weather {
-    overflow: visible;
-  }
-
+  /* Weather lost its guaranteed floor when its row became auto (see
+     grid-template-rows above) - it's no longer sized by its own content
+     in isolation, it can get compressed below that on a short window
+     along with everything else. overflow:visible was fine back when a
+     floor made that impossible, but without it, the *card's* default
+     min-height:auto (a flex item inside .dashboard-weather's flex
+     column) refuses to shrink below its content and spills straight out
+     of a too-short row instead of clipping. Flexbox's automatic-minimum-
+     size rule keys off the item's *own* overflow, not its container's -
+     that's why this goes on .card (below), not on .dashboard-weather
+     itself. */
   .dashboard-binary .card,
   .dashboard-weather .card {
     padding: 1rem;
+  }
+
+  .dashboard-weather .card {
+    overflow-y: auto;
+  }
+
+  .dashboard-sunmoon .card {
+    padding: 1rem 1.5rem;
   }
 }
 

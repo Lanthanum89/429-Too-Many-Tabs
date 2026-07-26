@@ -41,7 +41,11 @@ export function SunMoonWidget() {
   return (
     <Card className="flex flex-col gap-3">
       <h2 className="font-mono text-lg font-bold text-accent-neon">Sun &amp; Moon</h2>
-      <div className="flex flex-1 flex-wrap items-center gap-x-6 gap-y-2">
+      {/* content-center (not just items-center): with a single wrapped
+          line, items-center only aligns items within that line's own
+          height - it's align-content that centers the line itself inside
+          whatever extra height this card's flexible grid row hands it. */}
+      <div className="flex flex-1 flex-wrap content-center items-center gap-x-6 gap-y-2">
         <div className="flex flex-col">
           <span className="text-[11px] uppercase tracking-wide text-dim">Sunrise / Sunset</span>
           {sunAndUv ? (
