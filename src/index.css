@@ -475,23 +475,27 @@ button:hover:not(:disabled) {
        their original single-column counterpart had (calendar/commits
        share clock's row; email/guardian share the two rows below it). */
     grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
-    /* Weather is plain `auto` on purpose (same reasoning as Row 2 — see
-       that note above): its real content (icon+temp plus a short forecast
-       table) has a fixed, fairly short natural height, so giving it the
-       flexible 1fr track left a large dead gap under the forecast table
-       on any window taller than that minimum. minmax(3.5rem, 1fr) on
-       Countdown's row instead is the hard floor + flexible track now — a
-       short window can't squeeze it below a sliver, and any leftover
-       height actually goes somewhere with room to use it (its content
-       centers in whatever space it gets - see .dashboard-countdown > div
-       below) rather than sitting under Weather as blank space. */
-    grid-template-rows: auto auto auto auto minmax(3.5rem, 1fr);
+    /* Weather and Countdown are both plain `auto` (same reasoning as Row
+       2 — see that note above): their real content is short and fixed,
+       so giving either the flexible track left a dead gap under their
+       content on any window taller than that minimum — tried giving
+       Countdown that flexible row and it just became a big empty gap
+       under the "N days until" line once there was real slack to fill.
+       Column 1-2 (Weather/Countdown) and columns 3-4 (Email/Radar) don't
+       need to bottom out level with each other, so instead of forcing
+       one more column's content to stretch into leftover space it has
+       no use for, row 6 exists ONLY for column 3-4 (a blank cell in
+       column 1-2, via the '.' placeholders below) and is the sole
+       flexible track — Email gets more rows to show, and Radar's map
+       actually has a use for the extra height, so it goes there. */
+    grid-template-rows: auto auto auto auto auto minmax(4rem, 1fr);
     grid-template-areas:
       'header    header   header    header'
       'clock     clock    calendar  commits'
       'spotify   binary   email     guardian'
       'weather   weather  email     radar'
-      'countdown countdown email     radar';
+      'countdown countdown email     radar'
+      '.         .        email     radar';
     /* Spotify/binary are capped to a vh-based max size below, but on an
        unusually short window even the capped rows plus header/clock can
        still exceed 100vh — auto (not hidden) so that edge case scrolls
@@ -579,8 +583,13 @@ button:hover:not(:disabled) {
     overflow-y: auto;
   }
 
+  /* Same fix, same reason as .dashboard-weather .card above - Countdown's
+     row is auto now too, so its card needs its own overflow set to zero
+     out the automatic min-height that would otherwise spill it past a
+     too-short row instead of clipping. */
   .dashboard-countdown .card {
     padding: 1rem 1.5rem;
+    overflow-y: auto;
   }
 }
 
