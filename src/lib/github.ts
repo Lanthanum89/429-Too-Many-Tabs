@@ -1,12 +1,12 @@
-const USERNAME = import.meta.env.VITE_GITHUB_USERNAME
+// Hardcoded rather than read from VITE_GITHUB_USERNAME - it's a public
+// username, not a secret, and wiring the env var through both build
+// workflows (deploy-pages.yml, build-android.yml) plus a repo
+// secret/variable kept silently not taking effect, so this is simpler.
+const USERNAME = 'Lanthanum89'
 
 export interface GithubActivity {
   commitsToday: number
   lastRepo: string | null
-}
-
-export function hasGithubUsername(): boolean {
-  return Boolean(USERNAME)
 }
 
 interface GithubEvent {
