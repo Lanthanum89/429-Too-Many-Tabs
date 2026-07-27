@@ -625,8 +625,14 @@ button:hover:not(:disabled) {
        activity list instead (see max-height below), which does have
        more real content to show, so the trade is worth it now: a
        13.5rem cap (vs. the old pure-30vh sizing, ~236px measured at a
-       typical width) frees up the ~22px GitHub's 4th row needs. */
+       typical width) frees up the ~22px GitHub's 4th row needs.
+       margin-inline:auto matters more on a wide screen than it looks in
+       a narrow test: the cap only ever shrinks the square below 100% of
+       its column on a wide-enough viewport, and without this the shrunk
+       square just sits flush left, leaving a lopsided gap on the right
+       that reads as broken/misaligned rather than intentional. */
     width: min(100%, 30vh, 13.5rem);
+    margin-inline: auto;
     flex: none;
     overflow: hidden;
   }
