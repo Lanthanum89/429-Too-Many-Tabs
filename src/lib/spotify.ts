@@ -286,3 +286,7 @@ export function pausePlayback(): Promise<void> {
 export function resumePlayback(): Promise<void> {
   return playbackControlRequest('PUT', '/play')
 }
+
+export function setShuffle(state: boolean): Promise<void> {
+  return playbackControlRequest('PUT', `/shuffle?state=${state}`)
+}

@@ -7,6 +7,7 @@ import {
   pausePlayback,
   PlaybackControlError,
   resumePlayback,
+  setShuffle,
   skipToNext,
   skipToPrevious,
   type NowPlaying,
@@ -34,6 +35,12 @@ export function SpotifyWidget() {
   const [controlError, setControlError] = useState<string | null>(null)
   const [controlPending, setControlPending] = useState(false)
   const [displayedProgressMs, setDisplayedProgressMs] = useState(0)
+  // Optimistic-only, not synced from Spotify: the currently-playing endpoint
+  // this widget polls doesn't include shuffle_state (only the heavier
+  // /me/player endpoint does, which needs a broader scope) - so this
+  // reflects what was last toggled here, not necessarily the account's true
+  // state if changed from another device in the meantime.
+  const [shuffleOn, setShuffleOn] = useState(false)
   const lastSyncRef = useRef(Date.now())
 
   async function poll() {
@@ -124,6 +131,13 @@ export function SpotifyWidget() {
     void runControl(skipToNext)
   }
 
+  function handleShuffle() {
+    const next = !shuffleOn
+    // Optimistic flip, same pattern as play/pause below.
+    setShuffleOn(next)
+    void runControl(() => setShuffle(next))
+  }
+
   function handlePlayPause() {
     const isPlaying = nowPlaying?.isPlaying ?? false
     // Optimistic flip so the button feels instant instead of waiting on the network.
@@ -192,7 +206,22 @@ export function SpotifyWidget() {
               <span>{formatDuration(nowPlaying.durationMs)}</span>
             </div>
           </div>
-          <div className="mt-1 flex shrink-0 items-center gap-4">
+          <div className="mt-1 flex shrink-0 items-center gap-3">
+            <button
+              onClick={handleShuffle}
+              disabled={controlPending}
+              aria-label={shuffleOn ? 'Disable shuffle' : 'Enable shuffle'}
+              aria-pressed={shuffleOn}
+              className={`${shuffleOn ? 'text-accent-neon' : 'text-muted'} hover:text-accent-neon disabled:opacity-40`}
+            >
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 3 21 3 21 8" />
+                <line x1="4" y1="20" x2="21" y2="3" />
+                <polyline points="21 16 21 21 16 21" />
+                <line x1="15" y1="15" x2="21" y2="21" />
+                <line x1="4" y1="4" x2="9" y2="9" />
+              </svg>
+            </button>
             <button
               onClick={handlePrevious}
               disabled={controlPending}
