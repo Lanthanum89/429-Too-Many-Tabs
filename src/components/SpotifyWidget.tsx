@@ -212,9 +212,13 @@ export function SpotifyWidget() {
               disabled={controlPending}
               aria-label={shuffleOn ? 'Disable shuffle' : 'Enable shuffle'}
               aria-pressed={shuffleOn}
-              className={`${shuffleOn ? 'text-accent-neon' : 'text-muted'} hover:text-accent-neon disabled:opacity-40`}
+              className={`flex items-center justify-center rounded-full border-2 p-1 transition-colors disabled:opacity-40 ${
+                shuffleOn
+                  ? 'border-accent-bright bg-accent-bright text-void'
+                  : 'border-line bg-transparent text-muted hover:border-accent-neon hover:text-accent-neon'
+              }`}
             >
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="16 3 21 3 21 8" />
                 <line x1="4" y1="20" x2="21" y2="3" />
                 <polyline points="21 16 21 21 16 21" />
