@@ -599,7 +599,16 @@ button:hover:not(:disabled) {
      scroll guarantees this card can never do that again, regardless of
      how much activity the account has. */
   .dashboard-github .card {
-    max-height: 10rem;
+    /* Bumped from 10rem: with Spotify/Binary back to their natural size
+       (no longer traded away for this), there's genuine unused slack
+       below this card on a real device - row 6 is sized for Radar's
+       much taller map, and this card was leaving most of that height
+       sitting empty rather than using it. Padding/gap trimmed a little
+       so the extra room actually shows a 4th activity row (see the ul's
+       own max-height in GithubWidget.tsx) instead of just being eaten
+       by the card's own chrome. */
+    max-height: 13rem;
+    padding: 0.875rem 1.25rem;
     overflow-y: auto;
   }
 
