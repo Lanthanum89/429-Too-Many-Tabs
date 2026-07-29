@@ -599,16 +599,7 @@ button:hover:not(:disabled) {
      scroll guarantees this card can never do that again, regardless of
      how much activity the account has. */
   .dashboard-github .card {
-    /* Bumped from 10rem to fit a 4th activity row (each is a fixed 29px -
-       see the ul's own max-height in GithubWidget.tsx), paid for by
-       shrinking Spotify/Binary's cap above (there was only ~14px of
-       slack below this card before that trade, not enough on its own).
-       Padding/gap trimmed below rather than pushing this even higher -
-       the card's own chrome (default p-6 padding + gaps) was ~110px on
-       its own, which would have needed a much bigger cap (and a much
-       bigger cut from Spotify/Binary) to fit a full 4th row otherwise. */
-    max-height: 13rem;
-    padding: 0.875rem 1.25rem;
+    max-height: 10rem;
     overflow-y: auto;
   }
 
@@ -618,21 +609,16 @@ button:hover:not(:disabled) {
     /* Was bumped to 40vh to make these bigger (closing a visual gap), but
        row 3 is an uncapped auto row - directly sized by this value with
        nothing else limiting it, so a bigger square steals height from
-       whatever else shares its row's total budget.
-       A tighter cap here was tried once before to hand row 3's slack to
-       Countdown, but Countdown had no more content to grow into then -
-       it just became a big empty gap. This time it's going to GitHub's
-       activity list instead (see max-height below), which does have
-       more real content to show, so the trade is worth it now: a
-       13.5rem cap (vs. the old pure-30vh sizing, ~236px measured at a
-       typical width) frees up the ~22px GitHub's 4th row needs.
-       margin-inline:auto matters more on a wide screen than it looks in
-       a narrow test: the cap only ever shrinks the square below 100% of
-       its column on a wide-enough viewport, and without this the shrunk
-       square just sits flush left, leaving a lopsided gap on the right
-       that reads as broken/misaligned rather than intentional. */
-    width: min(100%, 30vh, 13.5rem);
-    margin-inline: auto;
+       whatever else shares its row's total budget. Back to 30vh.
+       (A tighter fixed-rem cap was tried twice to hand row 3's slack to
+       something else - first Countdown, which had no content to grow
+       into and just left a big empty gap; then GitHub's activity list,
+       for a 4th visible row. Both times the fixed cap looked fine in
+       testing but read as visibly undersized on a genuinely large
+       tablet screen, where 30vh alone would have sized them much
+       bigger - not worth trading a prominent, obviously-wrong-sized
+       tile for one extra line of secondary content. Reverted both.) */
+    width: min(100%, 30vh);
     flex: none;
     overflow: hidden;
   }
