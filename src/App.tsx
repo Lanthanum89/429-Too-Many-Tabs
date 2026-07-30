@@ -36,6 +36,14 @@ function App() {
     const saved = localStorage.getItem('theme') as 'light' | 'dark' | null
     return saved || 'light'
   })
+  const [refreshing, setRefreshing] = useState(false)
+
+  function handleRefresh() {
+    setRefreshing(true)
+    // A reload this fast would otherwise skip right past the spin - give it
+    // a beat to actually be seen before the page tears down.
+    setTimeout(() => window.location.reload(), 500)
+  }
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -67,12 +75,21 @@ function App() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => window.location.reload()}
+              onClick={handleRefresh}
+              disabled={refreshing}
               className="theme-toggle"
               aria-label="Refresh dashboard"
               title="Refresh dashboard"
             >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className={refreshing ? 'animate-spin' : ''}
+              >
                 <path d="M21 12a9 9 0 1 1-2.64-6.36" strokeLinecap="round" />
                 <path d="M21 3v6h-6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>

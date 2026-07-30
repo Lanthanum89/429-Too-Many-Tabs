@@ -17,10 +17,10 @@ function DigitColumn({ digit }: { digit: number }) {
       {digitBits(digit).map((on, i) => (
         <span
           key={i}
-          className={`h-5 w-5 rounded-full border-2 ${
+          className={`h-5 w-5 rounded-full border-2 transition-all duration-300 ease-bounce ${
             on
-              ? 'border-accent-neon bg-accent-neon'
-              : 'border-line-strong bg-void'
+              ? 'scale-110 border-accent-neon bg-accent-neon'
+              : 'scale-100 border-line-strong bg-void'
           }`}
         />
       ))}

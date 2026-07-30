@@ -104,7 +104,9 @@ export function WeatherWidget() {
           <div className="mt-2 flex w-full flex-1 items-start gap-3">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <WeatherIcon weather={weather} />
+                <span className="inline-block animate-float">
+                  <WeatherIcon weather={weather} />
+                </span>
                 <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
               </div>
               <div className="flex flex-col text-base text-muted">

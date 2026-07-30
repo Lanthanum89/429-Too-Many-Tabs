@@ -86,12 +86,22 @@ export function CountdownWidget() {
 
 function CountdownDisplay({ config }: { config: CountdownConfig }) {
   const diff = daysBetween(new Date(), new Date(`${config.targetDate}T00:00:00`))
+  const isToday = diff === 0
+  const isSoon = diff > 0 && diff <= 3
 
   return (
     <div className="flex min-h-0 flex-1 flex-wrap content-center items-center gap-3">
-      <span className="font-clock text-5xl font-black leading-none text-accent-neon">{Math.abs(diff)}</span>
+      {isToday && (
+        <span className="animate-bounce text-4xl" aria-hidden="true">
+          🎉
+        </span>
+      )}
+      <span className={`font-clock text-5xl font-black leading-none text-accent-neon ${isSoon ? 'animate-pulse' : ''}`}>
+        {Math.abs(diff)}
+      </span>
       <span className="text-base text-muted">
-        {diff === 0 ? `${config.label} is today!` : diff > 0 ? `days until ${config.label}` : `days since ${config.label}`}
+        {isToday ? `${config.label} is today!` : diff > 0 ? `days until ${config.label}` : `days since ${config.label}`}
+        {isSoon && ' — nearly there!'}
       </span>
     </div>
   )

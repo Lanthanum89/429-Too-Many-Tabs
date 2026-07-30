@@ -32,6 +32,36 @@
 
   --font-sans: 'Sora', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* A little playful overshoot-then-settle, instead of every hover/toggle
+     easing linearly like a spreadsheet. Used anywhere something should
+     feel like it has a bit of spring in it. */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Slow, steady spin for Spotify's album art while playing - a record
+     on a turntable, not a loading spinner, so it stays gentle (3s/turn)
+     rather than anything frantic. */
+  --animate-vinyl-spin: vinyl-spin 3s linear infinite;
+
+  /* A small idle bob for the weather icon - just enough to feel alive
+     without being distracting sitting next to a big static temperature
+     number. */
+  --animate-float: float 3.5s ease-in-out infinite;
+}
+
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(4deg);
+  }
 }
 
 html,
@@ -67,7 +97,7 @@ body {
   border: 1.5px solid var(--color-line-strong);
   cursor: pointer;
   padding: 0.25rem;
-  transition: transform 0.2s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: transform 0.4s var(--ease-bounce), border-color 0.3s ease, color 0.3s ease;
   border-radius: 0;
   color: var(--color-line-strong);
   display: flex;
@@ -77,19 +107,27 @@ body {
 }
 
 .theme-toggle:hover {
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(-8deg);
   border-color: var(--color-accent-neon);
   color: var(--color-accent-neon);
 }
 
 .theme-toggle:active {
-  transform: scale(0.95);
+  transform: scale(0.9) rotate(12deg);
 }
 
 .card {
   border-color: var(--color-line-strong) !important;
   box-shadow: none !important;
   background: linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%) !important;
+  /* transform-only (no width/height/margin), so this never touches the
+     grid's own size calculations - purely a hover flourish. */
+  transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -6px rgba(30, 15, 45, 0.25) !important;
 }
 
 /* Scrollbar styling */

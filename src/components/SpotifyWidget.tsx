@@ -175,7 +175,9 @@ export function SpotifyWidget() {
             <img
               src={nowPlaying.albumArtUrl}
               alt=""
-              className="h-14 w-14 shrink-0 rounded-lg object-cover shadow-lg"
+              className={`h-14 w-14 shrink-0 rounded-full object-cover shadow-lg ${
+                nowPlaying.isPlaying ? 'animate-vinyl-spin' : ''
+              }`}
             />
           )}
           {nowPlaying.trackUrl ? (
@@ -212,7 +214,7 @@ export function SpotifyWidget() {
               disabled={controlPending}
               aria-label={shuffleOn ? 'Disable shuffle' : 'Enable shuffle'}
               aria-pressed={shuffleOn}
-              className={`flex items-center justify-center rounded-full border-2 p-1 transition-colors disabled:opacity-40 ${
+              className={`flex items-center justify-center rounded-full border-2 p-1 transition-all duration-200 ease-bounce hover:scale-110 active:scale-90 disabled:opacity-40 ${
                 shuffleOn
                   ? 'border-accent-bright bg-accent-bright text-void'
                   : 'border-line bg-transparent text-muted hover:border-accent-neon hover:text-accent-neon'
@@ -230,7 +232,7 @@ export function SpotifyWidget() {
               onClick={handlePrevious}
               disabled={controlPending}
               aria-label="Previous track"
-              className="text-muted hover:text-accent-neon disabled:opacity-40"
+              className="text-muted transition-transform duration-200 ease-bounce hover:scale-125 hover:text-accent-neon active:scale-90 disabled:opacity-40"
             >
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                 <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
@@ -240,7 +242,7 @@ export function SpotifyWidget() {
               onClick={handlePlayPause}
               disabled={controlPending}
               aria-label={nowPlaying.isPlaying ? 'Pause' : 'Play'}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-void hover:bg-accent-neon disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-void transition-transform duration-200 ease-bounce hover:scale-110 hover:bg-accent-neon active:scale-90 disabled:opacity-40"
             >
               {nowPlaying.isPlaying ? (
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
@@ -256,7 +258,7 @@ export function SpotifyWidget() {
               onClick={handleNext}
               disabled={controlPending}
               aria-label="Next track"
-              className="text-muted hover:text-accent-neon disabled:opacity-40"
+              className="text-muted transition-transform duration-200 ease-bounce hover:scale-125 hover:text-accent-neon active:scale-90 disabled:opacity-40"
             >
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                 <path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z" />
