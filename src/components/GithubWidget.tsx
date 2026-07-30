@@ -48,12 +48,10 @@ export function GithubWidget() {
             {activity.lastRepo && <span> &middot; last: {activity.lastRepo}</span>}
           </p>
           {activity.recentEvents.length > 0 && (
-            // Capped to 4 rows' worth of height (each row is a fixed 29px
-            // - the summary line truncates to one line), matched to the
-            // card's own max-height above so the 4th row is actually
-            // visible instead of needing a second, inner scroll on top of
-            // the card's outer one. Scrolls for the rest instead.
-            <ul className="flex max-h-[119px] min-h-0 flex-col divide-y divide-line overflow-y-auto">
+            // Capped to 3 rows' worth of height (each row is a fixed 29px
+            // - the summary line truncates to one line). Scrolls for the
+            // rest instead.
+            <ul className="flex max-h-[90px] min-h-0 flex-col divide-y divide-line overflow-y-auto">
               {activity.recentEvents.map((event) => (
                 <li key={event.id} className="flex items-center justify-between gap-2 py-1">
                   <span className="truncate text-sm text-ink">

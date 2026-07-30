@@ -165,50 +165,59 @@ export function SpotifyWidget() {
     : 0
 
   return (
-    <Card className="flex flex-col items-center justify-center gap-1 text-center">
+    <Card className="flex flex-col items-center justify-center gap-2 text-center">
       {!nowPlaying?.trackName && (
         <h2 className="font-mono text-sm tracking-wide text-muted uppercase">Spotify</h2>
       )}
       {nowPlaying?.trackName ? (
         <>
-          {nowPlaying.albumArtUrl && (
-            <img
-              src={nowPlaying.albumArtUrl}
-              alt=""
-              className={`h-14 w-14 shrink-0 rounded-full object-cover shadow-lg ${
-                nowPlaying.isPlaying ? 'animate-vinyl-spin' : ''
-              }`}
-            />
-          )}
-          {nowPlaying.trackUrl ? (
-            <a
-              href={nowPlaying.trackUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-1 max-w-full shrink-0 truncate text-sm font-medium text-ink hover:text-accent-neon"
-            >
-              {nowPlaying.trackName}
-            </a>
-          ) : (
-            <p className="mt-1 max-w-full shrink-0 truncate text-sm font-medium text-ink">{nowPlaying.trackName}</p>
-          )}
-          <p className="max-w-full shrink-0 truncate text-xs text-muted">{nowPlaying.artistName}</p>
-          {nowPlaying.contextName && (
-            <p className="max-w-full shrink-0 truncate text-[11px] text-dim">Playing from: {nowPlaying.contextName}</p>
-          )}
-          <div className="mt-1 w-full max-w-[180px] shrink-0">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
-              <div
-                className="h-full rounded-full bg-accent transition-[width] duration-500 ease-linear"
-                style={{ width: `${progressPercent}%` }}
+          {/* Side-by-side, not stacked: the card is wide-and-short now
+              (rectangular, not square), so art-on-top-of-everything-else
+              no longer fits without either shrinking the art back down or
+              clipping the controls - horizontal layout uses the actual
+              shape it has instead of fighting it. */}
+          <div className="flex w-full items-center gap-3">
+            {nowPlaying.albumArtUrl && (
+              <img
+                src={nowPlaying.albumArtUrl}
+                alt=""
+                className={`h-16 w-16 shrink-0 rounded-full object-cover shadow-lg ${
+                  nowPlaying.isPlaying ? 'animate-vinyl-spin' : ''
+                }`}
               />
-            </div>
-            <div className="mt-1 flex justify-between text-[10px] text-dim">
-              <span>{formatDuration(displayedProgressMs)}</span>
-              <span>{formatDuration(nowPlaying.durationMs)}</span>
+            )}
+            <div className="min-w-0 flex-1 text-left">
+              {nowPlaying.trackUrl ? (
+                <a
+                  href={nowPlaying.trackUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block truncate text-sm font-medium text-ink hover:text-accent-neon"
+                >
+                  {nowPlaying.trackName}
+                </a>
+              ) : (
+                <p className="truncate text-sm font-medium text-ink">{nowPlaying.trackName}</p>
+              )}
+              <p className="truncate text-xs text-muted">{nowPlaying.artistName}</p>
+              {nowPlaying.contextName && (
+                <p className="truncate text-[11px] text-dim">Playing from: {nowPlaying.contextName}</p>
+              )}
+              <div className="mt-1 w-full">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+                  <div
+                    className="h-full rounded-full bg-accent transition-[width] duration-500 ease-linear"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <div className="mt-1 flex justify-between text-[10px] text-dim">
+                  <span>{formatDuration(displayedProgressMs)}</span>
+                  <span>{formatDuration(nowPlaying.durationMs)}</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="mt-1 flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <button
               onClick={handleShuffle}
               disabled={controlPending}

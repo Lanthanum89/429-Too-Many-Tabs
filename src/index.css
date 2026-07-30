@@ -6,22 +6,33 @@
 @import '@fontsource/ibm-plex-mono/400.css';
 @import '@fontsource/ibm-plex-mono/700.css';
 
-/* Dark lilac, matching the SoundTracks app: near-black base, lilac accent.
+/* Light mode: strawberry - creamy pink base, berry-red accents, with
+   green kept to the thin/subtle border lines only (a hint of leaf, not
+   a competing second brand color). Dark mode keeps the original lilac
+   scheme entirely via its own override block below - this only touches
+   the light (default, unscoped) values.
    Geometric aesthetic with IBM Plex Mono for titles/tech elements,
    Sora for body text, responsive dashboard layout. */
 @theme {
-  --color-void: #d4c4f0;
-  --color-surface: #e0d8f5;
-  --color-surface-2: #d9cff0;
-  --color-line: #cfc4eb;
-  --color-line-strong: #4a4055;
-  --color-ink: #2a1a3a;
-  --color-muted: #6a5a7a;
-  --color-dim: #8a7a9a;
-  --color-accent: #9a7fc0;
-  --color-accent-bright: #aa90d0;
-  --color-accent-neon: #9a7fc0;
-  --color-danger: #a58ac0;
+  --color-void: #fdf1f0;
+  --color-surface: #fce4e3;
+  --color-surface-2: #f8d2d3;
+  --color-line: #a8c99a;
+  --color-line-strong: #c2445f;
+  --color-ink: #3d1220;
+  --color-muted: #8f4a52;
+  --color-dim: #b98a8e;
+  --color-accent: #e0435c;
+  --color-accent-bright: #ef5d74;
+  --color-accent-neon: #d4275a;
+  --color-danger: #c81e3a;
+
+  /* Binary clock's three units get their own pastel hue so hours/mins/secs
+     are visually distinct at a glance instead of one flat color - kept
+     soft/pastel rather than the punchier accent-neon red. */
+  --color-clock-hour: #d4275a;
+  --color-clock-min: #ef8ba0;
+  --color-clock-sec: #93c47d;
 
   /* Fixed (not overridden per-theme) so the flip clock's cards read like
      a physical split-flap display's dark plastic leaves regardless of
@@ -90,6 +101,10 @@ body {
   --color-accent-bright: #e0c8f5;
   --color-accent-neon: #d4b8f0;
   --color-danger: #d4b8f0;
+
+  --color-clock-hour: #d4b8f0;
+  --color-clock-min: #b89ae0;
+  --color-clock-sec: #e8d5f5;
 }
 
 .theme-toggle {
@@ -389,6 +404,7 @@ button:hover:not(:disabled) {
 }
 .dashboard-binary {
   grid-area: binary;
+  min-width: 0;
 }
 .dashboard-weather {
   grid-area: weather;
@@ -415,6 +431,7 @@ button:hover:not(:disabled) {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
 }
 .dashboard-commits {
   grid-area: commits;
@@ -645,26 +662,22 @@ button:hover:not(:disabled) {
        so the extra room actually shows a 4th activity row (see the ul's
        own max-height in GithubWidget.tsx) instead of just being eaten
        by the card's own chrome. */
-    max-height: 13rem;
+    max-height: 12.5rem;
     padding: 0.875rem 1.25rem;
     overflow-y: auto;
   }
 
   .dashboard-spotify .card,
   .dashboard-binary .card {
-    aspect-ratio: 1 / 1;
-    /* Was bumped to 40vh to make these bigger (closing a visual gap), but
-       row 3 is an uncapped auto row - directly sized by this value with
-       nothing else limiting it, so a bigger square steals height from
-       whatever else shares its row's total budget. Back to 30vh.
-       (A tighter fixed-rem cap was tried twice to hand row 3's slack to
-       something else - first Countdown, which had no content to grow
-       into and just left a big empty gap; then GitHub's activity list,
-       for a 4th visible row. Both times the fixed cap looked fine in
-       testing but read as visibly undersized on a genuinely large
-       tablet screen, where 30vh alone would have sized them much
-       bigger - not worth trading a prominent, obviously-wrong-sized
-       tile for one extra line of secondary content. Reverted both.) */
+    /* Was a 1:1 square - capping the *width* to shrink them (tried twice:
+       once for Countdown's benefit, once for GitHub's) always read as
+       visibly undersized on a wide tablet, because a square capped below
+       its column's full width leaves an obvious flush-left gap next to
+       it. Going rectangular instead: full column width still, just
+       proportionally shorter, so there's no side gap - only the height
+       row 3 needs shrinks, freeing it for GitHub below without touching
+       how wide either tile reads. */
+    aspect-ratio: 4 / 3;
     width: min(100%, 30vh);
     flex: none;
     overflow: hidden;
@@ -700,20 +713,32 @@ button:hover:not(:disabled) {
   }
 }
 
-/* Tints CartoDB's dark basemap toward the app's lilac palette instead of
-   its native neutral grey/blue - the radar overlay itself is left
-   unfiltered so its rain-intensity colours stay meaningful. Rotation is
-   small on purpose: the basemap's existing blue-grey undertone (~215°
-   hue) is already close to the app's accent lilac (~265° hue), so only
-   ~50° of rotation is needed - a bigger swing (as first tried) overshoots
-   past purple into green/yellow. */
+/* Tints the basemap and Leaflet's default (blue, ~215° hue) marker
+   toward whichever accent hue the current theme actually uses, rather
+   than a single fixed rotation for both. Dark mode's accent lilac sits
+   at ~265° hue, so ~50° of rotation was enough there - light mode's new
+   strawberry accent sits at ~342° hue (pink-red), a much bigger swing
+   from blue, so it needs ~125° instead or the marker still reads
+   purple against the new pink/red palette. */
 .map-tiles-themed {
+  filter: hue-rotate(125deg) saturate(1.2);
+}
+
+.leaflet-marker-icon {
+  filter: hue-rotate(125deg) saturate(1.3);
+}
+
+:root[data-theme='dark'] .map-tiles-themed {
   filter: hue-rotate(50deg) saturate(1.2);
 }
 
+:root[data-theme='dark'] .leaflet-marker-icon {
+  filter: hue-rotate(50deg) saturate(1.3);
+}
+
 /* Leaflet's default light attribution/marker styling reads out of place
-   against a dark themed map - restyled to match the app's card language
-   (dark surface, lilac accent border) instead of overriding piecemeal. */
+   against a themed map - restyled to match the app's card language
+   instead of overriding piecemeal. */
 .leaflet-control-attribution {
   background: var(--color-void) !important;
   color: var(--color-dim) !important;
@@ -722,8 +747,4 @@ button:hover:not(:disabled) {
 
 .leaflet-control-attribution a {
   color: var(--color-accent-neon) !important;
-}
-
-.leaflet-marker-icon {
-  filter: hue-rotate(50deg) saturate(1.3);
 }
