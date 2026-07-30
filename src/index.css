@@ -617,6 +617,40 @@ button:hover:not(:disabled) {
   }
 }
 
+/* A tall tablet in portrait matched the two 2-column blocks above
+   (640px+, 768-1024px) purely on width, but pairing Binary+Weather side
+   by side only actually makes sense when there's spare *width* relative
+   to height - a portrait tablet has plenty of width in absolute terms
+   but is still a tall narrow column shape, same as a phone, just bigger.
+   Overrides back to the same single-stack layout mobile uses (source
+   order after both 2-column blocks so it wins the cascade for any width
+   they'd otherwise also match). Unlike the 1025px breakpoint above,
+   `orientation` is trustworthy here specifically because the failure
+   mode found on a real device only ever went one direction (a landscape
+   window misreporting as non-landscape) - this rule only needs the
+   opposite, unambiguous case: a window that's genuinely taller than
+   wide is portrait, full stop. */
+@media (min-width: 640px) and (max-width: 1024px) and (orientation: portrait) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'header'
+      'clock'
+      'spotify'
+      'binary'
+      'weather'
+      'countdown'
+      'github'
+      'calendar'
+      'commits'
+      'email'
+      'guardian'
+      'radar';
+    padding: 1rem;
+    gap: 1rem;
+  }
+}
+
 /* Width alone, not `orientation: landscape` - this used to gate on
    orientation too, but a real landscape tablet was still falling through
    to the 768-1024 2-column block above, meaning every fix made to this
