@@ -10,7 +10,15 @@ function FlipDigit({ value, prevValue }: { value: string; prevValue: string }) {
 
   return (
     <div className="flip-digit">
-      <div className={`flip-card ${isChanging ? 'flipping' : ''}`}>
+      {/* key={value} forces a fresh element every time the digit changes -
+          without it, isChanging stays true continuously once a digit is
+          ticking every second (this render's prevValue is always last
+          render's value), so the 'flipping' class never actually leaves
+          and re-joins and the CSS animation below never restarts: only
+          the very first change ever plays, everything after is a silent
+          text swap frozen at rotateX(180deg). Remounting guarantees the
+          animation replays from its 0% keyframe on every single change. */}
+      <div key={value} className={`flip-card ${isChanging ? 'flipping' : ''}`}>
         <div className="flip-front">{prevValue}</div>
         <div className="flip-back">{value}</div>
       </div>

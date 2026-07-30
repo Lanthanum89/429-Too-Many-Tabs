@@ -315,11 +315,31 @@ button:hover:not(:disabled) {
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
+/* A `transition` here (the previous approach) needs an actual property
+   *change* between renders to fire, which never happened for a
+   continuously-ticking digit (see the key={value} comment in Clock.tsx)
+   - `animation` sidesteps that entirely, since it plays from its 0%
+   keyframe any time the class is present on a freshly-mounted element,
+   with no prior state required. The midpoint scale/shadow punch (the
+   card is edge-on and near-invisible there anyway) is what gives the
+   flip some mechanical weight instead of a flat rotation. */
 .flip-card.flipping {
-  transform: rotateX(180deg);
+  animation: flip-punch 0.55s var(--ease-bounce) both;
+}
+
+@keyframes flip-punch {
+  0% {
+    transform: rotateX(0deg) scale(1);
+  }
+  50% {
+    transform: rotateX(90deg) scale(1.06);
+    box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.4);
+  }
+  100% {
+    transform: rotateX(180deg) scale(1);
+  }
 }
 
 /* Dark split-flap "leaf" look: a fixed (non-theme-flipping) dark card
