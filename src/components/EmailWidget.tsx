@@ -14,6 +14,77 @@ function gmailMessageUrl(id: string): string {
   return `https://mail.google.com/mail/u/0/#inbox/${id}`
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000
+
+interface DayBucket {
+  label: string
+  count: number
+  isToday: boolean
+}
+
+// Buckets whatever messages are currently loaded client-side (the regular
+// inbox page plus all-starred, capped as described in gmail.ts) by the
+// calendar day they arrived - not a true 7-day total for a busy inbox
+// beyond what's been paged in, but plenty for an at-a-glance trend rather
+// than a precise count.
+function volumeByDay(messages: InboxMessage[]): DayBucket[] {
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+  const days: DayBucket[] = Array.from({ length: 7 }, (_, i) => {
+    const dayStart = startOfToday.getTime() - (6 - i) * DAY_MS
+    return {
+      label: new Date(dayStart).toLocaleDateString([], { weekday: 'short' }).slice(0, 2),
+      count: 0,
+      isToday: i === 6,
+    }
+  })
+  const oldestDayStart = startOfToday.getTime() - 6 * DAY_MS
+  for (const message of messages) {
+    if (message.internalDate < oldestDayStart) continue
+    const dayIndex = Math.floor((message.internalDate - oldestDayStart) / DAY_MS)
+    if (dayIndex >= 0 && dayIndex < days.length) days[dayIndex].count++
+  }
+  return days
+}
+
+// Bottom-anchored bars via a flex-grow spacer + flex-grow bar pair, rather
+// than percentage heights - keeps the proportions correct regardless of
+// however tall the flex layout ends up giving this chart, no fixed pixel
+// height required anywhere in the chain.
+function EmailVolumeChart({ messages }: { messages: InboxMessage[] }) {
+  const days = volumeByDay(messages)
+  const max = Math.max(1, ...days.map((day) => day.count))
+
+  return (
+    <div className="flex min-h-0 flex-[1_1_50%] flex-col gap-1.5 border-t border-line pt-2">
+      <p className="shrink-0 text-[11px] font-semibold tracking-wide text-dim uppercase">Received this week</p>
+      <div className="flex min-h-0 flex-1 items-stretch gap-2">
+        {days.map((day, i) => (
+          <div
+            key={i}
+            className="flex min-h-0 flex-1 flex-col items-center"
+            title={`${day.count} email${day.count === 1 ? '' : 's'}`}
+          >
+            <div className="flex w-full flex-1 flex-col">
+              <div style={{ flexGrow: max - day.count }} />
+              <span className="pb-0.5 text-center text-[10px] text-dim">{day.count > 0 ? day.count : ''}</span>
+              <div
+                style={{ flexGrow: day.count || 0.001 }}
+                className={`w-full min-h-[3px] rounded-t-md transition-[flex-grow] duration-500 ease-bounce ${
+                  day.isToday ? 'bg-accent-neon' : 'bg-accent'
+                }`}
+              />
+            </div>
+            <span className={`mt-1 text-[10px] font-medium uppercase ${day.isToday ? 'text-accent-neon' : 'text-dim'}`}>
+              {day.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function formatReceived(internalDate: number): string {
   const date = new Date(internalDate)
   const now = new Date()
@@ -148,7 +219,8 @@ export function EmailWidget() {
           {loading ? 'Connecting…' : 'Connect Gmail'}
         </button>
       ) : (
-        <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto pr-2">
+        <>
+        <ul className="flex min-h-0 flex-[1_1_50%] flex-col divide-y divide-line overflow-y-auto pr-2">
           {visibleMessages.length === 0 && (
             <li className="text-sm text-dim">
               {unreadOnly && starredOnly
@@ -209,6 +281,8 @@ export function EmailWidget() {
             </li>
           )}
         </ul>
+        <EmailVolumeChart messages={messages ?? []} />
+        </>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
     </Card>

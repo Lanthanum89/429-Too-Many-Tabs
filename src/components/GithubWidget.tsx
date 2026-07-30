@@ -48,10 +48,12 @@ export function GithubWidget() {
             {activity.lastRepo && <span> &middot; last: {activity.lastRepo}</span>}
           </p>
           {activity.recentEvents.length > 0 && (
-            // Capped to 3 rows' worth of height (each row is a fixed 29px
-            // - the summary line truncates to one line). Scrolls for the
-            // rest instead.
-            <ul className="flex max-h-[90px] min-h-0 flex-col divide-y divide-line overflow-y-auto">
+            // Grows to fill whatever height the card ends up with (see
+            // .dashboard-leftstack in index.css - GitHub's card now
+            // flex-grows to match Radar's height) rather than a fixed
+            // row cap, so extra room shows more real activity instead of
+            // sitting empty. Scrolls if there's still more than fits.
+            <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto">
               {activity.recentEvents.map((event) => (
                 <li key={event.id} className="flex items-center justify-between gap-2 py-1">
                   <span className="truncate text-sm text-ink">

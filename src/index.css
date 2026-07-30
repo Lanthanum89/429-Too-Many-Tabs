@@ -468,6 +468,15 @@ button:hover:not(:disabled) {
   min-height: 0;
   min-width: 0;
 }
+/* Invisible by default (display:contents) so Weather/Countdown/GitHub
+   keep participating in the grid individually at every breakpoint below
+   - only the wide landscape layout (see that media query) turns this
+   into an actual flex column, at which point its children's own
+   grid-area above stops applying (they're flex items of this instead of
+   grid items themselves). */
+.dashboard-leftstack {
+  display: contents;
+}
 
 .dashboard-clock .card,
 .dashboard-spotify .card,
@@ -557,29 +566,29 @@ button:hover:not(:disabled) {
        their original single-column counterpart had (calendar/commits
        share clock's row; email/guardian share the two rows below it). */
     grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
-    /* Weather and Countdown are both plain `auto` (same reasoning as Row
-       2 — see that note above): their real content is short and fixed,
-       so giving either the flexible track left a dead gap under their
-       content on any window taller than that minimum — tried giving
-       Countdown that flexible row and it just became a big empty gap
-       under the "N days until" line once there was real slack to fill.
-       Column 1-2 (Weather/Countdown/GitHub) and columns 3-4 (Email/Radar)
-       don't need to bottom out level with each other, so instead of
-       forcing one more column's content to stretch into leftover space
-       it has no use for, row 6 exists ONLY for column 3-4 and is the
-       sole flexible track — Email gets more rows to show, and Radar's
-       map actually has a use for the extra height, so it goes there.
-       GitHub sits in column 1-2's row 6 cell too (a thin stat line, not
-       stretched - see align-self:start on it below), rather than adding
-       a 7th row that'd leave a gap between it and Countdown above. */
+    /* Row 6 is the sole flexible track, sized by whatever column 3-4
+       (Email/Radar) needs — Radar's map has a genuine use for extra
+       height on a tall window. Column 1-2 (Weather/Countdown/GitHub)
+       will never naturally need that much, so rows 4-6 collapse into
+       ONE spanned cell for it (the 'leftstack' area, see
+       .dashboard-leftstack below) instead of three separate rows: a
+       shared grid row can only be as short as its shortest column's
+       *minimum*, not its tallest's, so giving Weather/Countdown/GitHub
+       their own individual auto rows left GitHub's row 6 resolving to
+       Radar's full height with nothing telling GitHub's thin card to
+       actually fill it - the leftover always rendered as bare page
+       background beneath it (and grew every time GitHub's card shrank).
+       leftstack turns that same leftover space into flex-grow room
+       instead, so the stack always reaches exactly as far down as
+       column 3-4 does, no matter how tall GitHub's content is. */
     grid-template-rows: auto auto auto auto auto minmax(4rem, 1fr);
     grid-template-areas:
-      'header    header   header    header'
-      'clock     clock    calendar  commits'
-      'spotify   binary   email     guardian'
-      'weather   weather  email     radar'
-      'countdown countdown email     radar'
-      'github    github   email     radar';
+      'header    header    header    header'
+      'clock     clock     calendar  commits'
+      'spotify   binary    email     guardian'
+      'leftstack leftstack email     radar'
+      'leftstack leftstack email     radar'
+      'leftstack leftstack email     radar';
     /* Spotify/binary are capped to a vh-based max size below, but on an
        unusually short window even the capped rows plus header/clock can
        still exceed 100vh — auto (not hidden) so that edge case scrolls
@@ -630,39 +639,39 @@ button:hover:not(:disabled) {
     align-self: start;
   }
 
-  /* GitHub sits in row 6 (see grid-template-areas above), the flexible
-     track sized for Radar's map - without this it'd stretch to that same
-     tall height by grid's default align-items:stretch, turning a thin
-     stat line into another big mostly-empty card (the exact mistake
-     Countdown's row made before it went back to auto). align-self:start
-     keeps it sized to its own single-row content instead, same fix as
-     Spotify/Binary above for the same underlying reason. */
-  .dashboard-github {
-    align-self: start;
+  /* leftstack is a grid item spanning rows 4-6 (see grid-template-areas
+     above), stretched by grid's default align-items:stretch to whatever
+     height column 3-4 (Email/Radar) needs. Turned into a flex column so
+     that height gets distributed instead of left empty: Weather/
+     Countdown stay their natural size (flex-shrink:0 so they also can't
+     get squeezed on a short window - the floor a plain grid `auto` row
+     used to give them for free), and GitHub absorbs 100% of whatever's
+     left via flex-grow, so the stack's bottom edge always lands exactly
+     where column 3-4's does. */
+  .dashboard-leftstack {
+    grid-area: leftstack;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    min-height: 0;
   }
 
-  /* align-self:start (above) means this wrapper is never squeezed
-     smaller than its own content, so unlike Weather/Countdown's card
-     overflow fix, there's no "too-short box" for overflow-y:auto to
-     rescue here. The real problem: row 6 is a *flexible* (1fr) track,
-     sized from leftover space, not from its cells' content the way a
-     plain auto row would be - so a non-flex sibling's own content need
-     (this card, however tall its recent-activity list happens to grow)
-     was never guaranteed to fit inside whatever row 6 resolves to, and
-     with nothing capping it, that difference just pushed the whole page
-     taller instead of clipping locally. A hard max-height with its own
-     scroll guarantees this card can never do that again, regardless of
-     how much activity the account has. */
+  .dashboard-weather,
+  .dashboard-countdown {
+    flex: 0 0 auto;
+  }
+
+  .dashboard-github {
+    flex: 1 1 auto;
+  }
+
+  /* Grows to fill whatever leftstack's flex-grow gives it (see above) -
+     a max-height cap here is exactly the old bug (a hard-coded height
+     that's either too short, leaving a gap below it again, or too tall
+     and overflowing) - overflow-y:auto is the only guard actually needed,
+     for the rare case the account has more activity than even the fully
+     grown card can show. */
   .dashboard-github .card {
-    /* Bumped from 10rem: with Spotify/Binary back to their natural size
-       (no longer traded away for this), there's genuine unused slack
-       below this card on a real device - row 6 is sized for Radar's
-       much taller map, and this card was leaving most of that height
-       sitting empty rather than using it. Padding/gap trimmed a little
-       so the extra room actually shows a 4th activity row (see the ul's
-       own max-height in GithubWidget.tsx) instead of just being eaten
-       by the card's own chrome. */
-    max-height: 12.5rem;
     padding: 0.875rem 1.25rem;
     overflow-y: auto;
   }
@@ -683,17 +692,15 @@ button:hover:not(:disabled) {
     overflow: hidden;
   }
 
-  /* Weather lost its guaranteed floor when its row became auto (see
-     grid-template-rows above) - it's no longer sized by its own content
-     in isolation, it can get compressed below that on a short window
-     along with everything else. overflow:visible was fine back when a
-     floor made that impossible, but without it, the *card's* default
-     min-height:auto (a flex item inside .dashboard-weather's flex
-     column) refuses to shrink below its content and spills straight out
-     of a too-short row instead of clipping. Flexbox's automatic-minimum-
-     size rule keys off the item's *own* overflow, not its container's -
-     that's why this goes on .card (below), not on .dashboard-weather
-     itself. */
+  /* flex-shrink:0 on .dashboard-weather (above) gives it a real floor
+     again, but on a genuinely too-short window .dashboard's own
+     overflow-y:auto safety net can still end up squeezing this row -
+     when that happens the *card's* default min-height:auto (a flex item
+     inside .dashboard-weather's flex column) refuses to shrink below its
+     content and spills out instead of clipping. Flexbox's automatic-
+     minimum-size rule keys off the item's *own* overflow, not its
+     container's - that's why this goes on .card (below), not on
+     .dashboard-weather itself. */
   .dashboard-binary .card,
   .dashboard-weather .card {
     padding: 1rem;

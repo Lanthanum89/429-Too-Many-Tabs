@@ -137,14 +137,16 @@ function App() {
       <div className="dashboard-binary">
         <BinaryClock />
       </div>
-      <div className="dashboard-weather">
-        <WeatherWidget />
-      </div>
-      <div className="dashboard-countdown">
-        <CountdownWidget />
-      </div>
-      <div className="dashboard-github">
-        <GithubWidget />
+      <div className="dashboard-leftstack">
+        <div className="dashboard-weather">
+          <WeatherWidget />
+        </div>
+        <div className="dashboard-countdown">
+          <CountdownWidget />
+        </div>
+        <div className="dashboard-github">
+          <GithubWidget />
+        </div>
       </div>
       <div className="dashboard-email">
         <EmailWidget />
