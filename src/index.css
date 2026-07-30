@@ -5,6 +5,8 @@
 @import '@fontsource/sora/600.css';
 @import '@fontsource/ibm-plex-mono/400.css';
 @import '@fontsource/ibm-plex-mono/700.css';
+@import '@fontsource/caveat/600.css';
+@import '@fontsource/caveat/700.css';
 
 /* Light mode: strawberry - creamy pink base, berry-red accents, with
    green kept to the thin/subtle border lines only (a hint of leaf, not
@@ -42,7 +44,13 @@
   --color-flip-text: #f2ecfb;
 
   --font-sans: 'Sora', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* Every card title/header already uses the `font-mono` utility, so
+     repointing this one token is enough to swap them all to a playful
+     handwritten hand instead of touching each component individually -
+     the flip clock keeps IBM Plex Mono directly (hardcoded in its own
+     rule, not through this token) since a script font would fight the
+     mechanical split-flap look there. */
+  --font-mono: 'Caveat', 'Comic Sans MS', cursive;
 
   /* A little playful overshoot-then-settle, instead of every hover/toggle
      easing linearly like a spreadsheet. Used anywhere something should
