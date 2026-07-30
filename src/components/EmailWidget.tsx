@@ -47,38 +47,60 @@ function volumeByDay(messages: InboxMessage[]): DayBucket[] {
   return days
 }
 
-// Bottom-anchored bars via a flex-grow spacer + flex-grow bar pair, rather
-// than percentage heights - keeps the proportions correct regardless of
-// however tall the flex layout ends up giving this chart, no fixed pixel
-// height required anywhere in the chain.
+// A compact sparkline instead of bars - reads at a glance without needing
+// nearly as much vertical room, so it can dock as a fixed-height strip
+// under the message list rather than fighting it for half the card.
+// viewBox is a fixed 100x30 units with preserveAspectRatio="none", so it
+// stretches to whatever width the card has with no JS measurement, and
+// vector-effect keeps the stroke a constant screen-pixel width despite
+// that non-uniform scaling.
 function EmailVolumeChart({ messages }: { messages: InboxMessage[] }) {
   const days = volumeByDay(messages)
   const max = Math.max(1, ...days.map((day) => day.count))
+  const points = days.map((day, i) => ({
+    x: (i / (days.length - 1)) * 100,
+    y: 28 - (day.count / max) * 24,
+    day,
+  }))
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+  const areaPath = `${linePath} L 100 30 L 0 30 Z`
 
   return (
-    <div className="flex min-h-0 flex-[1_1_50%] flex-col gap-1.5 border-t border-line pt-2">
-      <p className="shrink-0 text-[11px] font-semibold tracking-wide text-dim uppercase">Received this week</p>
-      <div className="flex min-h-0 flex-1 items-stretch gap-2">
-        {days.map((day, i) => (
-          <div
+    <div className="flex shrink-0 flex-col gap-1 border-t border-line pt-2">
+      <p className="text-[11px] font-semibold tracking-wide text-dim uppercase">Received this week</p>
+      <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="h-10 w-full overflow-visible">
+        <path d={areaPath} className="fill-accent/15" stroke="none" />
+        <path
+          d={linePath}
+          className="fill-none stroke-accent"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+        {points.map((p, i) => (
+          <circle
             key={i}
-            className="flex min-h-0 flex-1 flex-col items-center"
-            title={`${day.count} email${day.count === 1 ? '' : 's'}`}
+            cx={p.x}
+            cy={p.y}
+            r={p.day.isToday ? 2.4 : 1.4}
+            vectorEffect="non-scaling-stroke"
+            className={p.day.isToday ? 'fill-accent-neon' : 'fill-accent'}
           >
-            <div className="flex w-full flex-1 flex-col">
-              <div style={{ flexGrow: max - day.count }} />
-              <span className="pb-0.5 text-center text-[10px] text-dim">{day.count > 0 ? day.count : ''}</span>
-              <div
-                style={{ flexGrow: day.count || 0.001 }}
-                className={`w-full min-h-[3px] rounded-t-md transition-[flex-grow] duration-500 ease-bounce ${
-                  day.isToday ? 'bg-accent-neon' : 'bg-accent'
-                }`}
-              />
-            </div>
-            <span className={`mt-1 text-[10px] font-medium uppercase ${day.isToday ? 'text-accent-neon' : 'text-dim'}`}>
-              {day.label}
-            </span>
-          </div>
+            <title>
+              {p.day.count} email{p.day.count === 1 ? '' : 's'}
+            </title>
+          </circle>
+        ))}
+      </svg>
+      <div className="flex justify-between">
+        {days.map((day, i) => (
+          <span
+            key={i}
+            className={`text-[9px] font-medium uppercase ${day.isToday ? 'text-accent-neon' : 'text-dim'}`}
+          >
+            {day.label}
+          </span>
         ))}
       </div>
     </div>
@@ -220,7 +242,7 @@ export function EmailWidget() {
         </button>
       ) : (
         <>
-        <ul className="flex min-h-0 flex-[1_1_50%] flex-col divide-y divide-line overflow-y-auto pr-2">
+        <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto pr-2">
           {visibleMessages.length === 0 && (
             <li className="text-sm text-dim">
               {unreadOnly && starredOnly

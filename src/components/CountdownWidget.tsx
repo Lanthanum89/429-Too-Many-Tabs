@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Card } from './Card'
 
 const STORAGE_KEY = 'life-dashboard:countdown'
@@ -6,6 +6,10 @@ const STORAGE_KEY = 'life-dashboard:countdown'
 interface CountdownConfig {
   label: string
   targetDate: string // YYYY-MM-DD
+  // Optional because configs saved before the progress ring existed won't
+  // have it - the ring just doesn't render for those until re-set, rather
+  // than faking a start date that'd throw the progress off.
+  createdAt?: string
 }
 
 function loadConfig(): CountdownConfig | null {
@@ -33,7 +37,11 @@ export function CountdownWidget() {
 
   function save() {
     if (!date) return
-    const next: CountdownConfig = { label: label.trim() || 'the big day', targetDate: date }
+    const next: CountdownConfig = {
+      label: label.trim() || 'the big day',
+      targetDate: date,
+      createdAt: new Date().toISOString().slice(0, 10),
+    }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
     setConfig(next)
   }
@@ -84,10 +92,49 @@ export function CountdownWidget() {
   )
 }
 
+// A ring circumference of 100 makes strokeDasharray/strokeDashoffset just
+// read as percentages directly, no circle-math needed inline below.
+const RING_CIRCUMFERENCE = 100
+
+function CountdownRing({ progress, isToday, children }: { progress: number | null; isToday: boolean; children: ReactNode }) {
+  return (
+    <div className="relative flex h-20 w-20 shrink-0 items-center justify-center">
+      {progress !== null && (
+        <svg viewBox="0 0 36 36" className="absolute inset-0 h-full w-full -rotate-90">
+          <circle cx="18" cy="18" r="15.9155" fill="none" strokeWidth="2.5" className="stroke-line" />
+          <circle
+            cx="18"
+            cy="18"
+            r="15.9155"
+            fill="none"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeDasharray={RING_CIRCUMFERENCE}
+            strokeDashoffset={RING_CIRCUMFERENCE * (1 - progress)}
+            className={`transition-[stroke-dashoffset] duration-700 ease-bounce ${
+              isToday ? 'stroke-accent-neon' : 'stroke-accent'
+            }`}
+          />
+        </svg>
+      )}
+      {children}
+    </div>
+  )
+}
+
 function CountdownDisplay({ config }: { config: CountdownConfig }) {
   const diff = daysBetween(new Date(), new Date(`${config.targetDate}T00:00:00`))
   const isToday = diff === 0
   const isSoon = diff > 0 && diff <= 3
+
+  // Progress toward the target since the countdown was set - null (no
+  // ring) for configs saved before createdAt existed, or once the target
+  // has passed (diff < 0), where "progress" no longer means anything.
+  let progress: number | null = null
+  if (config.createdAt && diff >= 0) {
+    const totalDays = daysBetween(new Date(`${config.createdAt}T00:00:00`), new Date(`${config.targetDate}T00:00:00`))
+    progress = totalDays > 0 ? Math.min(1, Math.max(0, 1 - diff / totalDays)) : 1
+  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-wrap content-center items-center gap-3">
@@ -96,9 +143,11 @@ function CountdownDisplay({ config }: { config: CountdownConfig }) {
           🎉
         </span>
       )}
-      <span className={`font-clock text-5xl font-black leading-none text-accent-neon ${isSoon ? 'animate-pulse' : ''}`}>
-        {Math.abs(diff)}
-      </span>
+      <CountdownRing progress={progress} isToday={isToday}>
+        <span className={`font-clock text-3xl font-black leading-none text-accent-neon ${isSoon ? 'animate-pulse' : ''}`}>
+          {Math.abs(diff)}
+        </span>
+      </CountdownRing>
       <span className="text-base text-muted">
         {isToday ? `${config.label} is today!` : diff > 0 ? `days until ${config.label}` : `days since ${config.label}`}
         {isSoon && ' — nearly there!'}

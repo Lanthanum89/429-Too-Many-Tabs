@@ -1,8 +1,29 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
-import { fetchGithubActivity, formatRelativeTime, type GithubActivity } from '../lib/github'
+import { fetchGithubActivity, formatRelativeTime, type DayActivity, type GithubActivity } from '../lib/github'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
+
+// A compact GitHub-style contribution strip - 14 little squares, darker
+// for more commits that day - rather than the full text feed being the
+// only view into recent activity.
+function GithubHeatmap({ days }: { days: DayActivity[] }) {
+  const max = Math.max(1, ...days.map((day) => day.count))
+  return (
+    <div className="flex shrink-0 items-center gap-[3px]">
+      {days.map((day, i) => (
+        <span
+          key={i}
+          title={`${day.count} commit${day.count === 1 ? '' : 's'}`}
+          className={`h-2.5 flex-1 rounded-sm ${day.count === 0 ? 'bg-line' : 'bg-accent-neon'} ${
+            day.isToday ? 'ring-1 ring-accent-bright' : ''
+          }`}
+          style={day.count > 0 ? { opacity: 0.35 + (day.count / max) * 0.65 } : undefined}
+        />
+      ))}
+    </div>
+  )
+}
 
 export function GithubWidget() {
   const [activity, setActivity] = useState<GithubActivity | null>(null)
@@ -43,10 +64,18 @@ export function GithubWidget() {
       </div>
       {activity ? (
         <>
-          <p className="text-xs text-dim">
-            {activity.commitsToday} commit{activity.commitsToday === 1 ? '' : 's'} today
-            {activity.lastRepo && <span> &middot; last: {activity.lastRepo}</span>}
+          <p className="flex items-center gap-1.5 text-xs text-dim">
+            <span>
+              {activity.commitsToday} commit{activity.commitsToday === 1 ? '' : 's'} today
+              {activity.lastRepo && <span> &middot; last: {activity.lastRepo}</span>}
+            </span>
+            {activity.streakDays >= 2 && (
+              <span className="rounded-full border border-accent-neon px-1.5 py-0.5 text-[10px] font-semibold text-accent-neon">
+                🔥 {activity.streakDays} day streak
+              </span>
+            )}
           </p>
+          <GithubHeatmap days={activity.dailyCommits} />
           {activity.recentEvents.length > 0 && (
             // Grows to fill whatever height the card ends up with (see
             // .dashboard-leftstack in index.css - GitHub's card now

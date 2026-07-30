@@ -75,6 +75,69 @@
   }
 }
 
+/* Weather condition touches (see WeatherFx in WeatherWidget.tsx) - a soft
+   pulsing glow behind a clear-day sun, or a couple of tiny raindrops/
+   snowflakes falling past a rain/snow icon. All purely decorative and
+   absolutely positioned, so they add no layout size of their own. */
+.weather-fx-sun-glow {
+  background: radial-gradient(circle, var(--color-accent-bright) 0%, transparent 70%);
+  animation: sun-glow-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes sun-glow-pulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.15);
+  }
+}
+
+.weather-fx-raindrop {
+  height: 7px;
+  border-radius: 999px;
+  opacity: 0;
+  animation: raindrop-fall 1.1s linear infinite;
+}
+
+@keyframes raindrop-fall {
+  0% {
+    transform: translateY(-2px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+
+.weather-fx-snowflake {
+  opacity: 0;
+  animation: snowflake-drift 3s ease-in infinite;
+}
+
+@keyframes snowflake-drift {
+  0% {
+    transform: translate(0, -2px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(6px, 22px);
+    opacity: 0;
+  }
+}
+
 html,
 body,
 #root {
@@ -526,7 +589,18 @@ button:hover:not(:disabled) {
   }
 }
 
-@media (min-width: 768px) and (orientation: landscape) {
+/* Width alone, not `orientation: landscape` - this used to gate on
+   orientation too, but a real landscape tablet was still falling through
+   to the 768-1024 2-column block above, meaning every fix made to this
+   block was silently never reaching that screen. `orientation` reflects
+   the browser's own viewport box (not a device sensor), so anything that
+   shrinks the visible height relative to width from what the OS reports
+   - split-screen/DeX/a multi-window mode, mainly - can make a physically
+   sideways tablet still read as non-landscape here. Width is the actual
+   constraint (four columns need room, full stop), so it's the only
+   condition now - 1025px sits just above the 2-column block's own
+   max-width so the two never overlap or fight over the same window. */
+@media (min-width: 1025px) {
   .dashboard {
     /* 100vh is the *layout* viewport, which on Android Chrome stays tall
        enough to include the address bar's height even while it's on

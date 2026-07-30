@@ -59,6 +59,53 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
   )
 }
 
+type WeatherFxKind = 'sun' | 'rain' | 'snow' | null
+
+function weatherFxKind(weather: WeatherSnapshot): WeatherFxKind {
+  const desc = weather.description.toLowerCase()
+  if (desc.includes('snow')) return 'snow'
+  if (desc.includes('rain') || desc.includes('drizzle') || desc.includes('thunder')) return 'rain'
+  if (weather.isDay && !desc.includes('cloud') && !desc.includes('fog') && !desc.includes('overcast')) return 'sun'
+  return null
+}
+
+// Small decorative-only touches layered behind the icon so the widget
+// reacts to what the weather actually is, not just showing a static glyph
+// - purely cosmetic (aria-hidden, no layout footprint of its own since
+// everything here is absolutely positioned within the icon's own box).
+function WeatherFx({ kind }: { kind: WeatherFxKind }) {
+  if (kind === 'sun') {
+    return <span className="weather-fx-sun-glow absolute inset-0 -z-10 rounded-full" aria-hidden="true" />
+  }
+  if (kind === 'rain') {
+    return (
+      <span className="pointer-events-none absolute inset-0" aria-hidden="true">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="weather-fx-raindrop absolute top-1/2 block w-px bg-accent"
+            style={{ left: `${22 + i * 24}%`, animationDelay: `${i * 0.3}s` }}
+          />
+        ))}
+      </span>
+    )
+  }
+  if (kind === 'snow') {
+    return (
+      <span className="pointer-events-none absolute inset-0" aria-hidden="true">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="weather-fx-snowflake absolute top-0 block h-1 w-1 rounded-full bg-accent-bright"
+            style={{ left: `${18 + i * 26}%`, animationDelay: `${i * 0.6}s` }}
+          />
+        ))}
+      </span>
+    )
+  }
+  return null
+}
+
 export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null)
   const [sunAndUv, setSunAndUv] = useState<SunAndUv | null>(null)
@@ -104,7 +151,8 @@ export function WeatherWidget() {
           <div className="mt-2 flex w-full flex-1 items-start gap-3">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span className="inline-block animate-float">
+                <span className="relative inline-block animate-float">
+                  <WeatherFx kind={weatherFxKind(weather)} />
                   <WeatherIcon weather={weather} />
                 </span>
                 <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
