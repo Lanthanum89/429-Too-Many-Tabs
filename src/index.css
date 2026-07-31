@@ -3,9 +3,9 @@
 @import '@fontsource/sora/400.css';
 @import '@fontsource/sora/500.css';
 @import '@fontsource/sora/600.css';
-@import '@fontsource/quicksand/500.css';
-@import '@fontsource/quicksand/600.css';
-@import '@fontsource/quicksand/700.css';
+@import '@fontsource/baloo-2/600.css';
+@import '@fontsource/baloo-2/700.css';
+@import '@fontsource/baloo-2/800.css';
 @import '@fontsource/fredoka/600.css';
 @import '@fontsource/fredoka/700.css';
 
@@ -14,10 +14,11 @@
    a competing second brand color). Dark mode keeps the original lilac
    scheme entirely via its own override block below - this only touches
    the light (default, unscoped) values.
-   No terminal/mono fonts anywhere in this theme on purpose: Quicksand
-   (rounded, friendly) for titles/labels, Fredoka (rounded, bold) for the
-   big numeral displays - flip clock, temperature, countdown - Sora stays
-   for body copy since it's already soft/geometric rather than technical. */
+   No terminal/mono fonts anywhere in this theme on purpose: Baloo 2
+   (bold, bubbly, rounded) for titles/labels, Fredoka (rounded, bold) for
+   the big numeral displays - flip clock, temperature, countdown - Sora
+   stays for body copy since it's already soft/geometric rather than
+   technical. */
 @theme {
   --color-void: #fdf1f0;
   --color-surface: #fce4e3;
@@ -49,12 +50,13 @@
   --font-sans: 'Sora', system-ui, sans-serif;
   /* Every card title/header already uses the `font-mono` utility, so
      repointing this one token is enough to swap them all at once rather
-     than touching each component individually. Quicksand instead of the
-     earlier Caveat: still rounded and friendly, but a proper UI sans
-     rather than a script face, so it reads clearly at the small sizes
-     some of these titles/labels use too (Caveat's cursive joins got
-     harder to parse below ~12px). */
-  --font-mono: 'Quicksand', system-ui, sans-serif;
+     than touching each component individually. Baloo 2 instead of
+     Quicksand: Quicksand's rounded terminals read as too plain/generic
+     for this - Baloo 2 is heavier and bouncier, with actual bubble-
+     letter character, which suits "strawberry whimsical" a lot better
+     while staying a legible UI sans (not a script face like the
+     Caveat attempt before it). */
+  --font-mono: 'Baloo 2', system-ui, sans-serif;
   /* Was declared but never actually defined anywhere (the `font-clock`
      utility class had nothing backing it, so anything using it silently
      fell back to body text) - now it is, for the flip clock plus the
