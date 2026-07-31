@@ -15,10 +15,12 @@ function GithubHeatmap({ days }: { days: DayActivity[] }) {
         <span
           key={i}
           title={`${day.count} commit${day.count === 1 ? '' : 's'}`}
-          className={`h-2.5 flex-1 rounded-sm ${day.count === 0 ? 'bg-line' : 'bg-accent-neon'} ${
-            day.isToday ? 'ring-1 ring-accent-bright' : ''
-          }`}
-          style={day.count > 0 ? { opacity: 0.35 + (day.count / max) * 0.65 } : undefined}
+          // Single hue throughout (no green) - a bare, barely-there pink
+          // for a quiet day, ramping up to the full bright accent for the
+          // busiest one, so intensity reads as "how much," not a
+          // red/green active-vs-inactive signal.
+          className={`h-2.5 flex-1 rounded-sm bg-accent-neon ${day.isToday ? 'ring-1 ring-accent-bright' : ''}`}
+          style={{ opacity: day.count === 0 ? 0.16 : 0.4 + (day.count / max) * 0.6 }}
         />
       ))}
     </div>
