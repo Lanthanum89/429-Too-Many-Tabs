@@ -155,7 +155,7 @@ export function WeatherWidget() {
                   <WeatherFx kind={weatherFxKind(weather)} />
                   <WeatherIcon weather={weather} />
                 </span>
-                <span className="font-clock text-6xl font-black leading-none">{Math.round(weather.temperatureC)}°</span>
+                <span className="font-clock text-6xl font-bold leading-none">{Math.round(weather.temperatureC)}°</span>
               </div>
               <div className="flex flex-col text-base text-muted">
                 {weather.location && <span>{weather.location}</span>}

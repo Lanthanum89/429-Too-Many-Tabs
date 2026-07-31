@@ -3,18 +3,21 @@
 @import '@fontsource/sora/400.css';
 @import '@fontsource/sora/500.css';
 @import '@fontsource/sora/600.css';
-@import '@fontsource/ibm-plex-mono/400.css';
-@import '@fontsource/ibm-plex-mono/700.css';
-@import '@fontsource/caveat/600.css';
-@import '@fontsource/caveat/700.css';
+@import '@fontsource/quicksand/500.css';
+@import '@fontsource/quicksand/600.css';
+@import '@fontsource/quicksand/700.css';
+@import '@fontsource/fredoka/600.css';
+@import '@fontsource/fredoka/700.css';
 
 /* Light mode: strawberry - creamy pink base, berry-red accents, with
    green kept to the thin/subtle border lines only (a hint of leaf, not
    a competing second brand color). Dark mode keeps the original lilac
    scheme entirely via its own override block below - this only touches
    the light (default, unscoped) values.
-   Geometric aesthetic with IBM Plex Mono for titles/tech elements,
-   Sora for body text, responsive dashboard layout. */
+   No terminal/mono fonts anywhere in this theme on purpose: Quicksand
+   (rounded, friendly) for titles/labels, Fredoka (rounded, bold) for the
+   big numeral displays - flip clock, temperature, countdown - Sora stays
+   for body copy since it's already soft/geometric rather than technical. */
 @theme {
   --color-void: #fdf1f0;
   --color-surface: #fce4e3;
@@ -45,12 +48,22 @@
 
   --font-sans: 'Sora', system-ui, sans-serif;
   /* Every card title/header already uses the `font-mono` utility, so
-     repointing this one token is enough to swap them all to a playful
-     handwritten hand instead of touching each component individually -
-     the flip clock keeps IBM Plex Mono directly (hardcoded in its own
-     rule, not through this token) since a script font would fight the
-     mechanical split-flap look there. */
-  --font-mono: 'Caveat', 'Comic Sans MS', cursive;
+     repointing this one token is enough to swap them all at once rather
+     than touching each component individually. Quicksand instead of the
+     earlier Caveat: still rounded and friendly, but a proper UI sans
+     rather than a script face, so it reads clearly at the small sizes
+     some of these titles/labels use too (Caveat's cursive joins got
+     harder to parse below ~12px). */
+  --font-mono: 'Quicksand', system-ui, sans-serif;
+  /* Was declared but never actually defined anywhere (the `font-clock`
+     utility class had nothing backing it, so anything using it silently
+     fell back to body text) - now it is, for the flip clock plus the
+     other big numeral displays (temperature, countdown) that were
+     reaching for it already. Fredoka's weights only go to 700, not 900 -
+     the handful of `font-black` usages on font-clock text were bumped
+     down to `font-bold` to match an actual loaded weight instead of
+     asking the browser to synthesize a heavier one. */
+  --font-clock: 'Fredoka', system-ui, sans-serif;
 
   /* A little playful overshoot-then-settle, instead of every hover/toggle
      easing linearly like a spreadsheet. Used anywhere something should
@@ -285,9 +298,9 @@ button:hover:not(:disabled) {
 }
 
 .flip-separator {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: var(--font-clock);
   font-size: clamp(1rem, 8.3cqw, 8rem);
-  font-weight: 900;
+  font-weight: 700;
   color: var(--color-accent-neon);
   line-height: 1;
   padding: 0 clamp(1px, 0.6cqw, 0.25rem);
@@ -354,9 +367,9 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-family: var(--font-clock);
   font-size: clamp(1rem, 9cqw, 7.5rem);
-  font-weight: 900;
+  font-weight: 700;
   color: var(--color-flip-text);
   backface-visibility: hidden;
   line-height: 1;

@@ -144,7 +144,7 @@ function CountdownDisplay({ config }: { config: CountdownConfig }) {
         </span>
       )}
       <CountdownRing progress={progress} isToday={isToday}>
-        <span className={`font-clock text-3xl font-black leading-none text-accent-neon ${isSoon ? 'animate-pulse' : ''}`}>
+        <span className={`font-clock text-3xl font-bold leading-none text-accent-neon ${isSoon ? 'animate-pulse' : ''}`}>
           {Math.abs(diff)}
         </span>
       </CountdownRing>
