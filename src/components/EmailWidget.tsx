@@ -14,99 +14,6 @@ function gmailMessageUrl(id: string): string {
   return `https://mail.google.com/mail/u/0/#inbox/${id}`
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000
-
-interface DayBucket {
-  label: string
-  count: number
-  isToday: boolean
-}
-
-// Buckets whatever messages are currently loaded client-side (the regular
-// inbox page plus all-starred, capped as described in gmail.ts) by the
-// calendar day they arrived - not a true 7-day total for a busy inbox
-// beyond what's been paged in, but plenty for an at-a-glance trend rather
-// than a precise count.
-function volumeByDay(messages: InboxMessage[]): DayBucket[] {
-  const startOfToday = new Date()
-  startOfToday.setHours(0, 0, 0, 0)
-  const days: DayBucket[] = Array.from({ length: 7 }, (_, i) => {
-    const dayStart = startOfToday.getTime() - (6 - i) * DAY_MS
-    return {
-      label: new Date(dayStart).toLocaleDateString([], { weekday: 'short' }).slice(0, 2),
-      count: 0,
-      isToday: i === 6,
-    }
-  })
-  const oldestDayStart = startOfToday.getTime() - 6 * DAY_MS
-  for (const message of messages) {
-    if (message.internalDate < oldestDayStart) continue
-    const dayIndex = Math.floor((message.internalDate - oldestDayStart) / DAY_MS)
-    if (dayIndex >= 0 && dayIndex < days.length) days[dayIndex].count++
-  }
-  return days
-}
-
-// A compact sparkline instead of bars - reads at a glance without needing
-// nearly as much vertical room, so it can dock as a fixed-height strip
-// under the message list rather than fighting it for half the card.
-// viewBox is a fixed 100x30 units with preserveAspectRatio="none", so it
-// stretches to whatever width the card has with no JS measurement, and
-// vector-effect keeps the stroke a constant screen-pixel width despite
-// that non-uniform scaling.
-function EmailVolumeChart({ messages }: { messages: InboxMessage[] }) {
-  const days = volumeByDay(messages)
-  const max = Math.max(1, ...days.map((day) => day.count))
-  const points = days.map((day, i) => ({
-    x: (i / (days.length - 1)) * 100,
-    y: 28 - (day.count / max) * 24,
-    day,
-  }))
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-  const areaPath = `${linePath} L 100 30 L 0 30 Z`
-
-  return (
-    <div className="flex shrink-0 flex-col gap-1 border-t border-line pt-2">
-      <p className="text-[11px] font-semibold tracking-wide text-dim uppercase">Received this week</p>
-      <svg viewBox="0 0 100 30" preserveAspectRatio="none" className="h-10 w-full overflow-visible">
-        <path d={areaPath} className="fill-accent/15" stroke="none" />
-        <path
-          d={linePath}
-          className="fill-none stroke-accent"
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-        />
-        {points.map((p, i) => (
-          <circle
-            key={i}
-            cx={p.x}
-            cy={p.y}
-            r={p.day.isToday ? 2.4 : 1.4}
-            vectorEffect="non-scaling-stroke"
-            className={p.day.isToday ? 'fill-accent-neon' : 'fill-accent'}
-          >
-            <title>
-              {p.day.count} email{p.day.count === 1 ? '' : 's'}
-            </title>
-          </circle>
-        ))}
-      </svg>
-      <div className="flex justify-between">
-        {days.map((day, i) => (
-          <span
-            key={i}
-            className={`text-[9px] font-medium uppercase ${day.isToday ? 'text-accent-neon' : 'text-dim'}`}
-          >
-            {day.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function formatReceived(internalDate: number): string {
   const date = new Date(internalDate)
   const now = new Date()
@@ -241,7 +148,6 @@ export function EmailWidget() {
           {loading ? 'Connecting…' : 'Connect Gmail'}
         </button>
       ) : (
-        <>
         <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto pr-2">
           {visibleMessages.length === 0 && (
             <li className="text-sm text-dim">
@@ -303,8 +209,6 @@ export function EmailWidget() {
             </li>
           )}
         </ul>
-        <EmailVolumeChart messages={messages ?? []} />
-        </>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
     </Card>
