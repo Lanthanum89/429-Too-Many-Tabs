@@ -32,6 +32,30 @@ export interface GithubActivity {
 const HEATMAP_DAYS = 14
 const DAY_MS = 24 * 60 * 60 * 1000
 
+interface GithubEvent {
+  id: string
+  type: string
+  created_at: string
+  repo?: { name: string }
+  payload?: {
+    commits?: unknown[]
+    // The events API's `commits` array is frequently empty (GitHub trims
+    // it for large or older pushes) even though the push itself had
+    // commits - distinct_size/size are the actual counts and stay
+    // populated regardless, so they're the reliable source, with
+    // commits.length only as a last-resort fallback.
+    distinct_size?: number
+    size?: number
+    action?: string
+    ref_type?: string
+    pull_request?: { merged?: boolean }
+  }
+}
+
+function pushCommitCount(event: GithubEvent): number {
+  return event.payload?.distinct_size ?? event.payload?.size ?? event.payload?.commits?.length ?? 0
+}
+
 function dailyCommitCounts(pushEvents: GithubEvent[]): DayActivity[] {
   const startOfToday = new Date()
   startOfToday.setHours(0, 0, 0, 0)
@@ -44,7 +68,7 @@ function dailyCommitCounts(pushEvents: GithubEvent[]): DayActivity[] {
     const eventTime = new Date(event.created_at).getTime()
     if (eventTime < oldestDayStart) continue
     const dayIndex = Math.floor((eventTime - oldestDayStart) / DAY_MS)
-    if (dayIndex >= 0 && dayIndex < days.length) days[dayIndex].count += event.payload?.commits?.length ?? 0
+    if (dayIndex >= 0 && dayIndex < days.length) days[dayIndex].count += pushCommitCount(event)
   }
   return days
 }
@@ -59,19 +83,6 @@ function computeStreak(days: DayActivity[]): number {
     streak++
   }
   return streak
-}
-
-interface GithubEvent {
-  id: string
-  type: string
-  created_at: string
-  repo?: { name: string }
-  payload?: {
-    commits?: unknown[]
-    action?: string
-    ref_type?: string
-    pull_request?: { merged?: boolean }
-  }
 }
 
 interface GithubProfile {
@@ -95,7 +106,7 @@ function repoShortName(fullName: string | undefined): string | null {
 // which is worth surfacing for "anything else to do with git" rather than
 // filtering down to commits alone.
 function summarizeEvent(event: GithubEvent): string | null {
-  const commits = event.payload?.commits?.length ?? 0
+  const commits = pushCommitCount(event)
   switch (event.type) {
     case 'PushEvent':
       return `Pushed ${commits} commit${commits === 1 ? '' : 's'}`
@@ -137,9 +148,7 @@ export async function fetchGithubActivity(): Promise<GithubActivity> {
   const events = (await eventsRes.json()) as GithubEvent[]
   const pushEvents = events.filter((e) => e.type === 'PushEvent')
 
-  const commitsToday = pushEvents
-    .filter((e) => isToday(e.created_at))
-    .reduce((sum, e) => sum + (e.payload?.commits?.length ?? 0), 0)
+  const commitsToday = pushEvents.filter((e) => isToday(e.created_at)).reduce((sum, e) => sum + pushCommitCount(e), 0)
 
   const lastRepo = repoShortName(pushEvents[0]?.repo?.name)
 
