@@ -574,13 +574,17 @@ button:hover:not(:disabled) {
   min-height: 0;
   min-width: 0;
 }
-/* Invisible by default (display:contents) so Weather/Countdown/GitHub
-   keep participating in the grid individually at every breakpoint below
-   - only the wide landscape layout (see that media query) turns this
-   into an actual flex column, at which point its children's own
-   grid-area above stops applying (they're flex items of this instead of
-   grid items themselves). */
-.dashboard-leftstack {
+/* Invisible by default (display:contents) so Spotify/Binary/Weather/
+   Countdown/GitHub keep participating in the grid individually at every
+   breakpoint below - only the wide landscape layout (see that media
+   query) turns this into an actual flex column, at which point its
+   children's own grid-area above stops applying (they're flex items of
+   this instead of grid items themselves). Same trick one level deeper
+   for dashboard-spotify-binary-row, since Spotify+Binary need to stay
+   side by side *within* that flex column rather than each getting their
+   own full-width row like Weather/Countdown/GitHub do. */
+.dashboard-leftstack,
+.dashboard-spotify-binary-row {
   display: contents;
 }
 
@@ -719,24 +723,25 @@ button:hover:not(:disabled) {
     grid-template-columns: 0.6fr 0.6fr 1.2fr 1.2fr;
     /* Row 6 is the sole flexible track, sized by whatever column 3-4
        (Email/Radar) needs — Radar's map has a genuine use for extra
-       height on a tall window. Column 1-2 (Weather/Countdown/GitHub)
-       will never naturally need that much, so rows 4-6 collapse into
-       ONE spanned cell for it (the 'leftstack' area, see
-       .dashboard-leftstack below) instead of three separate rows: a
+       height on a tall window. Column 1-2 (Spotify/Binary/Weather/
+       Countdown/GitHub) will never naturally need that much, so rows
+       3-6 *all* collapse into ONE spanned cell for it (the 'leftstack'
+       area, see .dashboard-leftstack below) instead of separate rows: a
        shared grid row can only be as short as its shortest column's
-       *minimum*, not its tallest's, so giving Weather/Countdown/GitHub
-       their own individual auto rows left GitHub's row 6 resolving to
-       Radar's full height with nothing telling GitHub's thin card to
-       actually fill it - the leftover always rendered as bare page
-       background beneath it (and grew every time GitHub's card shrank).
-       leftstack turns that same leftover space into flex-grow room
-       instead, so the stack always reaches exactly as far down as
-       column 3-4 does, no matter how tall GitHub's content is. */
+       *minimum*, not its tallest's, so giving column 1-2's pieces their
+       own individual rows left each of those rows resolving to whatever
+       column 3-4 needed there (Guardian's headline list in row 3,
+       Radar's map in rows 4-6), with nothing telling Spotify/Binary or
+       GitHub's own much-shorter content to actually fill that - the
+       leftover always rendered as bare page background. leftstack turns
+       that same leftover space into flex-grow room instead, so the
+       stack always reaches exactly as far down as column 3-4 does, no
+       matter how tall (or short) its own pieces are. */
     grid-template-rows: auto auto auto auto auto minmax(4rem, 1fr);
     grid-template-areas:
       'header    header    header    header'
       'clock     clock     calendar  commits'
-      'spotify   binary    email     guardian'
+      'leftstack leftstack email     guardian'
       'leftstack leftstack email     radar'
       'leftstack leftstack email     radar'
       'leftstack leftstack email     radar';
@@ -772,39 +777,36 @@ button:hover:not(:disabled) {
     overflow-y: auto;
   }
 
-  /* Square-ish tiles: sized by their own column width via aspect-ratio,
-     not stretched to fill whatever the row ends up being (weather/binary
-     rows can differ in height across columns otherwise). Capped to 30vh
-     so on a wide-but-short window (a laptop, not a phone/tablet) the
-     square doesn't grow tall enough on pure column width alone to push
-     Weather (and Email) past the viewport — it shrinks to fit instead.
-     overflow:hidden on the card itself matters here: Spotify's real
-     (connected) content — art, title, artist, progress, transport
-     controls — is taller than a compact square once there's an actual
-     track playing, and with no clipping that content spilled straight
-     out the bottom of the box and visually overlapped Weather in the
-     row below. Binary uses the exact same rule, so once both render
-     without overflow they end up pixel-identical, as intended. */
-  .dashboard-spotify,
-  .dashboard-binary {
-    align-self: start;
-  }
-
-  /* leftstack is a grid item spanning rows 4-6 (see grid-template-areas
+  /* leftstack is a grid item spanning rows 3-6 (see grid-template-areas
      above), stretched by grid's default align-items:stretch to whatever
-     height column 3-4 (Email/Radar) needs. Turned into a flex column so
-     that height gets distributed instead of left empty: Weather/
-     Countdown stay their natural size (flex-shrink:0 so they also can't
-     get squeezed on a short window - the floor a plain grid `auto` row
-     used to give them for free), and GitHub absorbs 100% of whatever's
-     left via flex-grow, so the stack's bottom edge always lands exactly
-     where column 3-4's does. */
+     height column 3-4 (Email/Radar/Guardian) needs. Turned into a flex
+     column so that height gets distributed instead of left empty:
+     Spotify/Binary's row and Weather/Countdown stay their natural size
+     (flex-shrink:0 so they also can't get squeezed on a short window -
+     the floor a plain grid `auto` row used to give them for free), and
+     GitHub absorbs 100% of whatever's left via flex-grow, so the stack's
+     bottom edge always lands exactly where column 3-4's does. */
   .dashboard-leftstack {
     grid-area: leftstack;
     display: flex;
     flex-direction: column;
     gap: 0.625rem;
     min-height: 0;
+  }
+
+  /* Spotify+Binary side by side within the leftstack flex column, same
+     width split a `0.6fr 0.6fr` grid pairing would give them (equal
+     flex-basis, same gap as the grid's own). */
+  .dashboard-spotify-binary-row {
+    display: flex;
+    gap: 0.625rem;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  .dashboard-spotify,
+  .dashboard-binary {
+    flex: 1 1 0;
   }
 
   .dashboard-weather,

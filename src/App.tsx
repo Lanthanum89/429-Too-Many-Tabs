@@ -131,13 +131,15 @@ function App() {
       <div className="dashboard-commits">
         <ReadingBusesWidget />
       </div>
-      <div className="dashboard-spotify">
-        <SpotifyWidget />
-      </div>
-      <div className="dashboard-binary">
-        <BinaryClock />
-      </div>
       <div className="dashboard-leftstack">
+        <div className="dashboard-spotify-binary-row">
+          <div className="dashboard-spotify">
+            <SpotifyWidget />
+          </div>
+          <div className="dashboard-binary">
+            <BinaryClock />
+          </div>
+        </div>
         <div className="dashboard-weather">
           <WeatherWidget />
         </div>
