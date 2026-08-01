@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
+import { Strawberry } from './Doodles'
 import {
   fetchAllStarredMessages,
   fetchInboxMessages,
@@ -150,14 +151,17 @@ export function EmailWidget() {
       ) : (
         <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto pr-2">
           {visibleMessages.length === 0 && (
-            <li className="text-sm text-dim">
-              {unreadOnly && starredOnly
-                ? 'No unread starred messages loaded.'
-                : unreadOnly
-                  ? 'No unread messages loaded.'
-                  : starredOnly
-                    ? 'No starred messages.'
-                    : 'Inbox empty.'}
+            <li className="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-center text-sm text-dim">
+              <Strawberry className="h-10 w-10" />
+              <span>
+                {unreadOnly && starredOnly
+                  ? 'No unread starred messages loaded.'
+                  : unreadOnly
+                    ? 'No unread messages loaded.'
+                    : starredOnly
+                      ? 'No starred messages.'
+                      : 'Inbox empty.'}
+              </span>
             </li>
           )}
           {visibleMessages.map((message) => (

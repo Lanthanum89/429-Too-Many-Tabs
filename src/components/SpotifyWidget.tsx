@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
+import { Teddy } from './Doodles'
 import {
   connectSpotify,
   fetchCurrentlyPlaying,
@@ -340,7 +341,10 @@ export function SpotifyWidget() {
           {controlError && <p className="mt-1 text-[11px] text-danger">{controlError}</p>}
         </>
       ) : (
-        <p className="text-sm text-dim">Nothing playing.</p>
+        <>
+          <Teddy className="h-10 w-10" />
+          <p className="text-sm text-dim">Nothing playing.</p>
+        </>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
     </Card>
