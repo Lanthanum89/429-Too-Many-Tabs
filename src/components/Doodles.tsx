@@ -1,5 +1,3 @@
-import type { CSSProperties } from 'react'
-
 // Small hand-drawn-style mascots for the strawberry/whimsical theme - flat
 // shapes, big dot eyes, soft blush, matching the bold-but-cute illustration
 // style from the mood board (rounded characters, pastel fills, simple
@@ -56,66 +54,5 @@ export function Teddy({ className = '' }: { className?: string }) {
       <ellipse cx="50" cy="58" rx="4.5" ry="3.4" fill="#3d1220" />
       <path d="M50 61 L50 66 M50 66 Q45 71 41 68 M50 66 Q55 71 59 68" stroke="#3d1220" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
-  )
-}
-
-// A string of party pennants (the Kidnichols header's bunting) - stretches
-// to whatever width its container gives it via preserveAspectRatio="none"
-// (same trick as the old email sparkline), so it works at any card/header
-// width with no JS measurement. Purely decorative: meant to be absolutely
-// positioned by the caller, takes no layout space of its own.
-const BUNTING_COLORS = ['#e0435c', '#8fbf7a', '#f28ba0', '#ef8ba0', '#93c47d']
-
-export function Bunting({ className = '', flagCount = 18 }: { className?: string; flagCount?: number }) {
-  const flagWidth = 100 / flagCount
-  return (
-    <svg viewBox="0 0 100 14" preserveAspectRatio="none" className={className} aria-hidden="true">
-      <line x1="0" y1="1" x2="100" y2="1" stroke="#c2445f" strokeWidth="0.6" />
-      {Array.from({ length: flagCount }, (_, i) => {
-        const x = i * flagWidth
-        return (
-          <path
-            key={i}
-            d={`M${x + flagWidth * 0.12} 1 L${x + flagWidth * 0.88} 1 L${x + flagWidth * 0.5} 12 Z`}
-            fill={BUNTING_COLORS[i % BUNTING_COLORS.length]}
-          />
-        )
-      })}
-    </svg>
-  )
-}
-
-// A little scattered pop of pastel confetti pieces around whatever this
-// wraps - each piece is placed via CSS custom properties (--tx/--ty, the
-// resting offset from center) consumed by the confetti-pop keyframes in
-// index.css, so the animation is pure CSS and this component just picks
-// the positions/colors/timing.
-const CONFETTI_PIECES: { x: number; y: number; color: string; delay: number; shape: 'square' | 'round' }[] = [
-  { x: -32, y: -20, color: '#f28ba0', delay: 0, shape: 'square' },
-  { x: 30, y: -24, color: '#93c47d', delay: 0.15, shape: 'round' },
-  { x: -22, y: 16, color: '#e0435c', delay: 0.3, shape: 'round' },
-  { x: 34, y: 12, color: '#ef8ba0', delay: 0.45, shape: 'square' },
-  { x: 2, y: -32, color: '#8fbf7a', delay: 0.2, shape: 'square' },
-  { x: -36, y: 2, color: '#e0435c', delay: 0.5, shape: 'round' },
-]
-
-export function ConfettiBurst({ className = '' }: { className?: string }) {
-  return (
-    <span className={`pointer-events-none absolute inset-0 ${className}`} aria-hidden="true">
-      {CONFETTI_PIECES.map((p, i) => (
-        <span
-          key={i}
-          className={`confetti-piece absolute top-1/2 left-1/2 h-2 w-2 ${p.shape === 'round' ? 'rounded-full' : 'rounded-sm'}`}
-          style={
-            {
-              backgroundColor: p.color,
-              animationDelay: `${p.delay}s`,
-              '--confetti-x': `${p.x}px`,
-              '--confetti-y': `${p.y}px`,
-            } as CSSProperties
-          }
-        />
-      ))}
-    </span>
   )
 }

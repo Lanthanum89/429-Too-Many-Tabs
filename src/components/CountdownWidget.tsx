@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from 'react'
 import { Card } from './Card'
-import { ConfettiBurst } from './Doodles'
 
 const STORAGE_KEY = 'life-dashboard:countdown'
 
@@ -145,7 +144,6 @@ function CountdownDisplay({ config }: { config: CountdownConfig }) {
         </span>
       )}
       <CountdownRing progress={progress} isToday={isToday}>
-        {isToday && <ConfettiBurst />}
         <span className={`font-clock text-3xl font-bold leading-none text-accent-neon ${isSoon ? 'animate-pulse' : ''}`}>
           {Math.abs(diff)}
         </span>
