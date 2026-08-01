@@ -10,7 +10,6 @@ import { RadarWidget } from './components/RadarWidget'
 import { CountdownWidget } from './components/CountdownWidget'
 import { GithubWidget } from './components/GithubWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
-import { Strawberry } from './components/Doodles'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -64,7 +63,6 @@ function App() {
       <header>
         <div className="flex items-center justify-between gap-4 w-full">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
-            <Strawberry className="h-6 w-6 shrink-0 -mb-1 animate-float" />
             <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
               {greeting}, <span className="italic">Laura</span>.
             </h1>
