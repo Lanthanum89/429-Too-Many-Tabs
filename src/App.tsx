@@ -10,6 +10,7 @@ import { RadarWidget } from './components/RadarWidget'
 import { CountdownWidget } from './components/CountdownWidget'
 import { GithubWidget } from './components/GithubWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
+import { Bunting } from './components/Doodles'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -60,6 +61,7 @@ function App() {
   const week = getISOWeek(today)
   return (
     <div className="dashboard p-4 sm:p-6">
+      <Bunting className="dashboard-bunting" />
       <header>
         <div className="flex items-center justify-between gap-4 w-full">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
