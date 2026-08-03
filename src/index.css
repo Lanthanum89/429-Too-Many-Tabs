@@ -783,13 +783,23 @@ button:hover:not(:disabled) {
      Clock, so it just stretches (grid's default align-items:stretch) to
      match whatever height Clock's own max-height resolves the row to.
      A shorter cap here left dead space between Calendar's bottom and
-     Email's top — that was the "large gap" this row previously had. */
+     Email's top — that was the "large gap" this row previously had.
 
-  .dashboard-calendar,
-  .dashboard-email,
-  .dashboard-commits,
-  .dashboard-guardian {
-    overflow-y: auto;
+     overflow lives on the *card* (below), not this wrapper, on purpose -
+     each widget's own list already scrolls internally (min-h-0 flex-1
+     overflow-y-auto on its ul), so this is just the same safety net
+     Clock's card already has for anything that somehow still runs long.
+     Putting it on the wrapper instead was clipping the hover lift: the
+     card is what actually translates on :hover, and a transformed child
+     moving 3px above its own overflow:auto *parent*'s box gets its top
+     edge (border included) clipped by that parent - the same underlying
+     "automatic minimum size" family of bug, just on the hover transform
+     instead of layout this time. */
+  .dashboard-calendar .card,
+  .dashboard-email .card,
+  .dashboard-commits .card,
+  .dashboard-guardian .card {
+    overflow: hidden;
   }
 
   /* leftstack is a grid item spanning rows 3-6 (see grid-template-areas

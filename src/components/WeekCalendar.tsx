@@ -83,7 +83,7 @@ export function WeekCalendar() {
           {loading ? 'Connecting…' : 'Connect Google Calendar'}
         </button>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
           {upcomingEvents.length === 0 && <li className="text-sm text-dim">No upcoming events.</li>}
           {upcomingEvents.map((event) => (
             <li key={event.id}>
