@@ -327,18 +327,29 @@ body {
 .card {
   border-color: var(--color-line-strong) !important;
   background: linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%) !important;
-  transform: translateY(0);
+  transform: translate(0, 0);
   transition: transform 120ms ease, box-shadow 120ms ease;
+  /* Bottom + right steps (rather than bottom alone) is what actually
+     reads as a pressable button facet, not just an underline. Trimmed
+     down from the first pass (was 8px) - at full thickness the shadow
+     was eating almost the entire 10px grid gap, so adjacent cards read
+     as touching instead of separated. */
   box-shadow:
-    0 8px 0 var(--color-line-strong),
-    0 12px 16px rgba(30, 15, 45, 0.2) !important;
+    5px 0 0 var(--color-line-strong),
+    0 5px 0 var(--color-line-strong),
+    0 7px 10px rgba(30, 15, 45, 0.18) !important;
 }
 
 .card:hover {
-  transform: translateY(3px);
+  /* Moves diagonally toward the shadow's own corner (down-right), not
+     straight down - the shadow shrinking on both axes at once is what
+     sells "sinking into its own bevel" instead of just "getting
+     shorter underneath." */
+  transform: translate(2px, 3px);
   box-shadow:
-    0 5px 0 var(--color-line-strong),
-    0 7px 10px rgba(30, 15, 45, 0.16) !important;
+    3px 0 0 var(--color-line-strong),
+    0 3px 0 var(--color-line-strong),
+    0 4px 6px rgba(30, 15, 45, 0.14) !important;
 }
 
 /* Scrollbar styling */
