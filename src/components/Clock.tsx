@@ -9,7 +9,7 @@ function FlipDigit({ value, prevValue }: { value: string; prevValue: string }) {
   const isChanging = value !== prevValue
 
   return (
-    <div className="flip-digit">
+    <div className="flip-digit clock-key">
       {/* key={value} forces a fresh element every time the digit changes -
           without it, isChanging stays true continuously once a digit is
           ticking every second (this render's prevValue is always last

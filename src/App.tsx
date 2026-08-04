@@ -73,11 +73,11 @@ function App() {
               WEEK {week}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="key-sm-wrapper flex items-center gap-2">
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="theme-toggle"
+              className="theme-toggle key-sm"
               aria-label="Refresh dashboard"
               title="Refresh dashboard"
             >
@@ -96,7 +96,7 @@ function App() {
             </button>
             <button
               onClick={toggleTheme}
-              className="theme-toggle"
+              className="theme-toggle key-sm"
               aria-label="Toggle dark mode"
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >

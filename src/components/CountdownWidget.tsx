@@ -65,7 +65,7 @@ export function CountdownWidget() {
       {config ? (
         <CountdownDisplay config={config} />
       ) : (
-        <div className="flex min-h-0 flex-1 flex-wrap content-center items-center gap-2">
+        <div className="key-sm-wrapper flex min-h-0 flex-1 flex-wrap content-center items-center gap-2">
           <input
             type="text"
             placeholder="Days until…"
@@ -82,7 +82,7 @@ export function CountdownWidget() {
           <button
             onClick={save}
             disabled={!date}
-            className="border-2 border-accent-neon bg-transparent px-3 py-1.5 text-sm font-semibold text-accent-neon transition-all hover:bg-accent-neon hover:text-void disabled:opacity-50"
+            className="key-sm border-2 border-accent-neon bg-transparent px-3 py-1.5 text-sm font-semibold text-accent-neon hover:bg-accent-neon hover:text-void disabled:opacity-50"
           >
             Set
           </button>

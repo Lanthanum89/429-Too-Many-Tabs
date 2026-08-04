@@ -94,19 +94,19 @@ export function ReadingBusesWidget() {
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Buses</h2>
         {hasHomeStops() && hasWorkStops() && (
-          <div className="flex rounded-full border border-line-strong p-0.5 text-[11px]">
+          <div className="key-sm-wrapper flex gap-1 text-[11px]">
             <button
               onClick={() => setOrigin('home')}
-              className={`rounded-full px-2.5 py-0.5 transition-colors ${
-                origin === 'home' ? 'bg-accent-neon text-void' : 'text-dim hover:text-ink'
+              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+                origin === 'home' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
               Home
             </button>
             <button
               onClick={() => setOrigin('work')}
-              className={`rounded-full px-2.5 py-0.5 transition-colors ${
-                origin === 'work' ? 'bg-accent-neon text-void' : 'text-dim hover:text-ink'
+              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+                origin === 'work' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
               Work
@@ -123,7 +123,7 @@ export function ReadingBusesWidget() {
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
       {departures && (
-        <ul className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto">
+        <ul className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto">
           {departures.length === 0 && <li className="text-sm text-dim">No buses due.</li>}
           {departures.slice(0, MAX_DEPARTURES).map((d, i) => (
             <li key={i}>
@@ -131,7 +131,7 @@ export function ReadingBusesWidget() {
                 href={liveDeparturesUrl(d.locationCode)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex flex-col gap-0 rounded-lg border border-line px-2.5 py-1.5 text-sm transition-colors hover:border-accent-neon hover:bg-accent-neon/10"
+                className="key-sm flex flex-col gap-0 rounded-lg border-2 border-line px-2.5 py-1.5 text-sm hover:bg-accent-neon/10"
               >
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-ink">
@@ -149,14 +149,14 @@ export function ReadingBusesWidget() {
         </ul>
       )}
       {stopInfo && (
-        <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+        <ul className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto">
           {stopInfo.map((s) => (
             <li key={s.locationCode}>
               <a
                 href={liveDeparturesUrl(s.locationCode)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between gap-2 rounded-lg border border-line px-2.5 py-1.5 text-sm text-ink transition-colors hover:border-accent-neon hover:bg-accent-neon/10"
+                className="key-sm flex items-center justify-between gap-2 rounded-lg border-2 border-line px-2.5 py-1.5 text-sm text-ink hover:bg-accent-neon/10"
               >
                 {s.description}
                 <ExternalLinkIcon />

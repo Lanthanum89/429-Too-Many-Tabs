@@ -208,12 +208,15 @@ body {
   --color-clock-sec: #e8d5f5;
 }
 
+/* Transform is left to .key-sm (applied alongside this in JSX) now - a
+   keycap press and the old scale/rotate bounce would fight over the
+   same property, so this only owns the color/border feedback. */
 .theme-toggle {
   background: none;
   border: 1.5px solid var(--color-line-strong);
   cursor: pointer;
   padding: 0.25rem;
-  transition: transform 0.4s var(--ease-bounce), border-color 0.3s ease, color 0.3s ease;
+  transition: border-color 0.3s ease, color 0.3s ease;
   border-radius: 0;
   color: var(--color-line-strong);
   display: flex;
@@ -223,13 +226,96 @@ body {
 }
 
 .theme-toggle:hover {
-  transform: scale(1.15) rotate(-8deg);
   border-color: var(--color-accent-neon);
   color: var(--color-accent-neon);
 }
 
-.theme-toggle:active {
-  transform: scale(0.9) rotate(12deg);
+/* Retro mechanical-keycap press: a thick "step" shadow that compresses
+   and the element sinks toward it on hover/press, like a physical
+   keyboard switch. --key-shadow-color defaults to the theme's own
+   border red (so it's already correct in dark mode too) - the flip
+   clock overrides it locally to its own fixed dark-plastic tone instead,
+   since that element doesn't recolor with the theme.
+   Two sizes: .key for anything roughly button-sized (media controls,
+   bus route cards), .key-sm for small chrome (toggles, filter pills) -
+   the full-size travel/shadow would dwarf a 24px pill. .clock-key is
+   its own thing: hover-only, no :active, because the flip-clock digits
+   are a *display*, not a control - a full pressed-button animation on
+   them would wrongly imply that clicking one does something.
+   Reserved for things that read as keys/buttons - never applied to
+   whole cards, which would flatten the page into one giant keyboard. */
+.key,
+.key-sm,
+.clock-key {
+  transform: translateY(0);
+  /* Folds color/border/background in here too (rather than leaving them
+     to a separate transition-colors utility) - a plain `transition`
+     shorthand overwrites the whole property list, so two separate rules
+     setting it would silently fight over which one actually applies. */
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.key {
+  box-shadow:
+    0 6px 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 8px 10px rgba(0, 0, 0, 0.2);
+}
+.key:hover {
+  transform: translateY(2px);
+  box-shadow:
+    0 4px 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 5px 7px rgba(0, 0, 0, 0.16);
+}
+.key:active {
+  transform: translateY(6px);
+  box-shadow:
+    0 0 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.key-sm {
+  box-shadow:
+    0 3px 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 4px 5px rgba(0, 0, 0, 0.18);
+}
+.key-sm:hover {
+  transform: translateY(1px);
+  box-shadow:
+    0 2px 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 3px 4px rgba(0, 0, 0, 0.14);
+}
+.key-sm:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 0 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.clock-key {
+  box-shadow:
+    0 8px 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 10px 12px rgba(0, 0, 0, 0.2);
+}
+.clock-key:hover {
+  transform: translateY(2px);
+  box-shadow:
+    0 6px 0 var(--key-shadow-color, var(--color-line-strong)),
+    0 8px 10px rgba(0, 0, 0, 0.16);
+}
+
+/* Reserves room for the resting-state shadow (the tallest it gets) so
+   the thick lower edge doesn't overlap whatever sits below the key, or
+   get clipped by a parent that clips overflow. */
+.key-wrapper {
+  padding-bottom: 10px;
+}
+.key-sm-wrapper {
+  padding-bottom: 5px;
 }
 
 .card {
@@ -306,6 +392,13 @@ button:hover:not(:disabled) {
   perspective: 1000px;
   width: 100%;
   height: 100%;
+  /* Room for the digits' own keycap shadow (see .flip-digit below) -
+     without it, this container's own overflow:hidden would clip the
+     shadow right off since it renders below each digit's box. Padding
+     (not just removing overflow:hidden) so the flex content re-centers
+     into the remaining space instead of the shadow fighting the card's
+     own bottom edge. */
+  padding-bottom: 10px;
   overflow: hidden;
 }
 
@@ -338,6 +431,11 @@ button:hover:not(:disabled) {
   aspect-ratio: 0.62 / 1;
   position: relative;
   transform-style: preserve-3d;
+  border-radius: 0.5rem;
+  /* Fixed regardless of theme, matching --color-flip-bg/-bg-2 (also
+     fixed) - these read as physical dark plastic keys, not chrome that
+     should recolor with light/dark mode. */
+  --key-shadow-color: #1d1728;
 }
 
 .flip-card {

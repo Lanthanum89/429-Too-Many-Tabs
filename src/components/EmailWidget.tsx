@@ -99,7 +99,7 @@ export function EmailWidget() {
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex items-center gap-2">
+      <div className="key-sm-wrapper flex items-center gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Email</h2>
         {unreadCount !== null && (
           <button
@@ -109,7 +109,7 @@ export function EmailWidget() {
             title={
               unreadCount === 0 ? 'No unread messages' : unreadOnly ? 'Show all messages' : 'Show only unread'
             }
-            className={`rounded-full border-2 px-2 py-0.5 text-xs font-semibold transition-colors ${
+            className={`key-sm rounded-full border-2 px-2 py-0.5 text-xs font-semibold ${
               unreadCount === 0
                 ? 'border-line bg-transparent text-dim'
                 : unreadOnly
@@ -128,7 +128,7 @@ export function EmailWidget() {
             title={
               starredCount === 0 ? 'No starred messages' : starredOnly ? 'Show all messages' : 'Show only starred'
             }
-            className={`rounded-full border-2 px-2 py-0.5 text-xs font-semibold transition-colors ${
+            className={`key-sm rounded-full border-2 px-2 py-0.5 text-xs font-semibold ${
               starredCount === 0
                 ? 'border-line bg-transparent text-dim'
                 : starredOnly
