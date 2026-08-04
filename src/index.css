@@ -184,55 +184,25 @@ body {
     repeating-linear-gradient(90deg, rgba(194, 68, 95, 0.12) 0 22px, transparent 22px 44px);
 }
 
-/* Dark mode swaps the gingham for a pixel-art galaxy instead of just
-   turning it off - a soft nebula wash plus two star layers. Stars are
-   plain squares (no border-radius, no blur) laid out via the classic
-   box-shadow-dots trick, which is what keeps them crisp/pixelated
-   rather than reading as a soft photographic starfield. Two depth
-   layers rather than one: a dense dim layer that's just there, and a
-   sparser bright layer that twinkles - a single flat layer read as
-   static noise rather than a sky. Both pseudo-elements are
-   position:fixed (viewport-anchored, not part of page flow or grid
-   sizing) and behind everything by source order, same as the gingham
-   was - cards stay fully opaque on top, so this only actually shows
-   in the grid gaps and outer padding. */
+/* Dark mode swaps the gingham for a pixel-art galaxy scene instead
+   (see GalaxyBackground.tsx, rendered as an actual element rather than
+   through this body rule) - turned off here so the pink gingham doesn't
+   show through underneath/behind it. */
 :root[data-theme='dark'] body {
-  background-image: radial-gradient(ellipse 80% 60% at 20% 15%, rgba(212, 184, 240, 0.1), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 85% 80%, rgba(184, 154, 224, 0.08), transparent 55%);
+  background-image: none;
 }
 
-:root[data-theme='dark'] body::before,
-:root[data-theme='dark'] body::after {
-  content: '';
+/* Fixed and behind everything (z-index below .dashboard's own, see that
+   rule for why it needs one explicitly now), so it doesn't scroll with
+   content and only actually shows through the grid gaps and outer
+   padding, same as the gingham did. */
+.dashboard-galaxy {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  background: transparent;
-  pointer-events: none;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 0;
-}
-
-:root[data-theme='dark'] body::before {
-  box-shadow: 816px 1109px #cfc3e0, 2542px 678px #cfc3e0, 188px 143px #cfc3e0, 1600px 1483px #cfc3e0, 1746px 328px #cfc3e0, 2099px 338px #cfc3e0, 1876px 1407px #cfc3e0, 1334px 225px #cfc3e0, 1591px 1465px #cfc3e0, 172px 402px #cfc3e0, 1027px 1091px #cfc3e0, 1071px 536px #cfc3e0, 2414px 2px #cfc3e0, 660px 564px #cfc3e0, 146px 437px #cfc3e0, 2283px 321px #cfc3e0, 698px 534px #cfc3e0, 1662px 965px #cfc3e0, 2585px 1029px #cfc3e0, 558px 402px #cfc3e0, 1397px 793px #cfc3e0, 1063px 578px #cfc3e0, 576px 1377px #cfc3e0, 1338px 1222px #cfc3e0, 583px 420px #cfc3e0, 1756px 1088px #cfc3e0, 768px 276px #cfc3e0, 1291px 320px #cfc3e0, 1336px 1142px #cfc3e0, 1902px 413px #cfc3e0, 889px 1441px #cfc3e0, 500px 325px #cfc3e0, 2372px 432px #cfc3e0, 1117px 385px #cfc3e0, 963px 1190px #cfc3e0, 2007px 702px #cfc3e0, 216px 884px #cfc3e0, 2264px 76px #cfc3e0, 283px 648px #cfc3e0, 823px 1228px #cfc3e0, 2546px 918px #cfc3e0, 1414px 972px #cfc3e0, 2239px 410px #cfc3e0, 1648px 154px #cfc3e0, 1079px 1232px #cfc3e0, 2076px 1324px #cfc3e0, 2254px 658px #cfc3e0, 795px 98px #cfc3e0, 2264px 302px #cfc3e0, 713px 396px #cfc3e0, 1756px 634px #cfc3e0, 1733px 857px #cfc3e0, 1480px 117px #cfc3e0, 414px 1425px #cfc3e0, 2279px 682px #cfc3e0, 2412px 388px #cfc3e0, 1737px 121px #cfc3e0, 616px 152px #cfc3e0, 2460px 575px #cfc3e0, 378px 29px #cfc3e0, 1523px 211px #cfc3e0, 1799px 1304px #cfc3e0, 429px 915px #cfc3e0, 1738px 1064px #cfc3e0, 940px 900px #cfc3e0, 2000px 703px #cfc3e0, 318px 1091px #cfc3e0, 237px 623px #cfc3e0, 1518px 540px #cfc3e0, 957px 1063px #cfc3e0, 2473px 1456px #cfc3e0, 484px 256px #cfc3e0, 531px 1430px #cfc3e0, 1901px 1403px #cfc3e0, 2011px 340px #cfc3e0, 1780px 313px #cfc3e0, 1160px 475px #cfc3e0, 1782px 1295px #cfc3e0, 1737px 1426px #cfc3e0, 1482px 1006px #cfc3e0, 2463px 741px #cfc3e0, 535px 781px #cfc3e0, 2544px 1406px #cfc3e0, 410px 94px #cfc3e0, 935px 640px #cfc3e0, 1027px 1321px #cfc3e0, 2551px 614px #cfc3e0, 852px 990px #cfc3e0, 908px 60px #cfc3e0, 912px 1132px #cfc3e0, 39px 485px #cfc3e0, 347px 158px #cfc3e0, 2181px 1295px #cfc3e0, 1342px 263px #cfc3e0, 764px 1044px #cfc3e0, 11px 1055px #cfc3e0, 187px 1482px #cfc3e0, 711px 505px #cfc3e0, 1977px 1235px #cfc3e0, 1944px 1478px #cfc3e0, 1772px 642px #cfc3e0, 499px 68px #cfc3e0, 1915px 851px #cfc3e0, 2471px 1208px #cfc3e0, 675px 344px #cfc3e0, 1067px 33px #cfc3e0, 1864px 207px #cfc3e0, 1505px 80px #cfc3e0, 906px 1486px #cfc3e0, 2004px 818px #cfc3e0, 1935px 168px #cfc3e0, 1046px 251px #cfc3e0, 1980px 747px #cfc3e0, 1186px 960px #cfc3e0, 727px 814px #cfc3e0, 693px 1367px #cfc3e0, 2337px 57px #cfc3e0, 1753px 159px #cfc3e0, 2238px 1175px #cfc3e0, 1633px 635px #cfc3e0, 305px 493px #cfc3e0, 1570px 602px #cfc3e0, 601px 972px #cfc3e0, 1133px 1350px #cfc3e0, 2270px 1089px #cfc3e0, 514px 673px #cfc3e0, 694px 818px #cfc3e0, 2086px 323px #cfc3e0, 686px 29px #cfc3e0, 2443px 487px #cfc3e0, 946px 620px #cfc3e0, 79px 75px #cfc3e0, 740px 1408px #cfc3e0, 92px 1097px #cfc3e0, 1355px 357px #cfc3e0, 549px 570px #cfc3e0, 736px 548px #cfc3e0, 508px 1112px #cfc3e0, 1924px 967px #cfc3e0, 1025px 1307px #cfc3e0, 1909px 796px #cfc3e0, 1075px 431px #cfc3e0, 1659px 958px #cfc3e0, 1028px 177px #cfc3e0, 2393px 392px #cfc3e0, 1957px 1287px #cfc3e0, 1094px 1410px #cfc3e0, 122px 1360px #cfc3e0, 493px 621px #cfc3e0, 1684px 194px #cfc3e0, 1643px 681px #cfc3e0, 1163px 212px #cfc3e0, 2459px 1171px #cfc3e0, 2332px 517px #cfc3e0, 1374px 279px #cfc3e0, 2179px 429px #cfc3e0, 2340px 526px #cfc3e0, 1526px 20px #cfc3e0, 160px 1427px #cfc3e0, 2592px 55px #cfc3e0, 1680px 1121px #cfc3e0, 1556px 296px #cfc3e0, 1311px 1309px #cfc3e0, 397px 843px #cfc3e0, 765px 952px #cfc3e0, 1327px 223px #cfc3e0, 77px 1105px #cfc3e0, 2167px 992px #cfc3e0, 289px 562px #cfc3e0, 1185px 979px #cfc3e0, 1180px 620px #cfc3e0, 1010px 629px #cfc3e0, 365px 269px #cfc3e0, 1342px 1324px #cfc3e0, 1653px 678px #cfc3e0, 1187px 526px #cfc3e0, 2107px 164px #cfc3e0, 1139px 1187px #cfc3e0, 191px 706px #cfc3e0, 372px 774px #cfc3e0;
-  opacity: 0.35;
-}
-
-:root[data-theme='dark'] body::after {
-  box-shadow: 1927px 994px #f2ecfb, 449px 381px #f2ecfb, 1067px 913px #f2ecfb, 2512px 275px #f2ecfb, 2430px 1148px #f2ecfb, 1978px 979px #f2ecfb, 1627px 501px #f2ecfb, 527px 90px #f2ecfb, 804px 533px #f2ecfb, 504px 1124px #f2ecfb, 895px 428px #f2ecfb, 1042px 1405px #f2ecfb, 2308px 573px #f2ecfb, 1302px 1336px #f2ecfb, 1103px 1278px #f2ecfb, 1284px 223px #f2ecfb, 388px 1474px #f2ecfb, 296px 505px #f2ecfb, 2551px 412px #f2ecfb, 2358px 494px #f2ecfb, 437px 458px #f2ecfb, 1013px 237px #f2ecfb, 1823px 604px #f2ecfb, 2335px 819px #f2ecfb, 1726px 161px #f2ecfb, 2024px 46px #f2ecfb, 1927px 1288px #f2ecfb, 1879px 260px #f2ecfb, 839px 625px #f2ecfb, 1535px 125px #f2ecfb, 477px 126px #f2ecfb, 1024px 556px #f2ecfb, 2395px 259px #f2ecfb, 1458px 534px #f2ecfb, 841px 339px #f2ecfb, 2121px 695px #f2ecfb, 2209px 817px #f2ecfb, 323px 1335px #f2ecfb, 1338px 1278px #f2ecfb, 80px 561px #f2ecfb, 948px 486px #f2ecfb, 1587px 1377px #f2ecfb, 2056px 45px #f2ecfb, 1934px 650px #f2ecfb, 585px 1014px #f2ecfb, 698px 1020px #f2ecfb, 531px 552px #f2ecfb, 1065px 92px #f2ecfb, 1329px 1270px #f2ecfb, 71px 39px #f2ecfb, 2092px 488px #f2ecfb, 106px 323px #f2ecfb, 1253px 686px #f2ecfb, 2211px 69px #f2ecfb, 2300px 1071px #f2ecfb, 947px 1329px #f2ecfb, 399px 964px #f2ecfb, 570px 719px #f2ecfb, 95px 111px #f2ecfb, 1906px 198px #f2ecfb, 1244px 662px #f2ecfb, 1873px 891px #f2ecfb, 827px 1415px #f2ecfb, 163px 1208px #f2ecfb, 1750px 565px #f2ecfb, 1150px 1376px #f2ecfb, 818px 767px #f2ecfb, 2297px 499px #f2ecfb, 2398px 1305px #f2ecfb, 1655px 152px #f2ecfb;
-  width: 2px;
-  height: 2px;
-  animation: star-twinkle 3s ease-in-out infinite;
-}
-
-@keyframes star-twinkle {
-  0%, 100% {
-    opacity: 0.9;
-  }
-  50% {
-    opacity: 0.4;
-  }
+  pointer-events: none;
 }
 
 /* Dark mode overrides - dark background with purple accents */
