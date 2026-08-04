@@ -318,18 +318,27 @@ body {
   padding-bottom: 5px;
 }
 
+/* Every card gets the same keycap treatment as the buttons - hover only
+   (no :active; a card isn't a single clickable unit the way a button
+   is, same reasoning as .clock-key). box-shadow is paint-only, so this
+   never touches any card's actual layout size regardless of how
+   tightly its height budget is already tuned - the two are unrelated
+   in the box model. */
 .card {
   border-color: var(--color-line-strong) !important;
-  box-shadow: none !important;
   background: linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%) !important;
-  /* transform-only (no width/height/margin), so this never touches the
-     grid's own size calculations - purely a hover flourish. */
-  transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s ease;
+  transform: translateY(0);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  box-shadow:
+    0 8px 0 var(--color-line-strong),
+    0 12px 16px rgba(30, 15, 45, 0.2) !important;
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px -6px rgba(30, 15, 45, 0.25) !important;
+  transform: translateY(3px);
+  box-shadow:
+    0 5px 0 var(--color-line-strong),
+    0 7px 10px rgba(30, 15, 45, 0.16) !important;
 }
 
 /* Scrollbar styling */
