@@ -11,7 +11,7 @@ const UPCOMING_DAYS = 3
 
 function formatEventTime(event: CalendarEvent): string {
   if (event.allDay) return 'All day'
-  return event.start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  return event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 export function WeekCalendar() {
