@@ -23,7 +23,7 @@ function formatReceived(internalDate: number): string {
     date.getMonth() === now.getMonth() &&
     date.getDate() === now.getDate()
   return sameDay
-    ? date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
     : date.toLocaleDateString([], { month: 'short', day: 'numeric' })
 }
 
