@@ -17,6 +17,11 @@ import {
 
 type Origin = 'home' | 'work'
 
+// Display label only - 'work' stays the internal id (and the env var
+// stays VITE_WORK_STOP_CODES) since renaming those touches config
+// outside this component; this is just what shows on screen.
+const ORIGIN_LABELS: Record<Origin, string> = { home: 'Home', work: 'Town' }
+
 const REFRESH_INTERVAL_MS = 60 * 1000
 const MAX_DEPARTURES = 5
 
@@ -101,7 +106,7 @@ export function ReadingBusesWidget() {
                 origin === 'home' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
-              Home
+              {ORIGIN_LABELS.home}
             </button>
             <button
               onClick={() => setOrigin('work')}
@@ -109,12 +114,16 @@ export function ReadingBusesWidget() {
                 origin === 'work' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
-              Town
+              {ORIGIN_LABELS.work}
             </button>
           </div>
         )}
       </div>
-      {!hasOrigin && <p className="text-xs text-dim">Set VITE_{origin.toUpperCase()}_STOP_CODES.</p>}
+      {!hasOrigin && (
+        <p className="text-xs text-dim">
+          Set VITE_{origin.toUpperCase()}_STOP_CODES for {ORIGIN_LABELS[origin]}.
+        </p>
+      )}
       {hasOrigin && !ready && (
         <p className="text-xs text-dim">Set VITE_READING_BUSES_API_KEY (or label every stop).</p>
       )}
