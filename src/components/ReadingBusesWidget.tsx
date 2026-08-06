@@ -109,7 +109,7 @@ export function ReadingBusesWidget() {
                 origin === 'work' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
-              Work
+              Town
             </button>
           </div>
         )}
