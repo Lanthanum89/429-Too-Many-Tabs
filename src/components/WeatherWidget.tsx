@@ -3,15 +3,22 @@ import { Card } from './Card'
 import { getCoords, FALLBACK_LAT, FALLBACK_LON } from '../lib/geolocation'
 import { fetchWeather, type WeatherSnapshot } from '../lib/weather'
 import { fetchSunAndUv, getMoonPhase, getUvRiskLabel, type SunAndUv } from '../lib/sunAndMoon'
+import { useSwipe } from '../lib/useSwipe'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
+
+type View = 'now' | 'forecast'
 
 function formatTime(date: Date): string {
   return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
 }
 
-function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
-  const desc = weather.description.toLowerCase()
+function dayLabel(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString([], { weekday: 'short' })
+}
+
+function WeatherIcon({ description, isDay }: { description: string; isDay: boolean }) {
+  const desc = description.toLowerCase()
 
   if (desc.includes('thunder')) {
     return (
@@ -44,7 +51,7 @@ function WeatherIcon({ weather }: { weather: WeatherSnapshot }) {
       </svg>
     )
   }
-  if (!weather.isDay) {
+  if (!isDay) {
     return (
       <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z" />
@@ -110,7 +117,12 @@ export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null)
   const [sunAndUv, setSunAndUv] = useState<SunAndUv | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [view, setView] = useState<View>('now')
   const moon = getMoonPhase(new Date())
+  const swipe = useSwipe(
+    () => setView('forecast'),
+    () => setView('now'),
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -144,8 +156,34 @@ export function WeatherWidget() {
   }, [])
 
   return (
-    <Card className="flex flex-col items-start justify-start gap-2 text-accent-neon">
-      <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
+    <Card
+      className="flex flex-col items-start justify-start gap-2 text-accent-neon"
+      onTouchStart={swipe.onTouchStart}
+      onTouchEnd={swipe.onTouchEnd}
+    >
+      <div className="flex w-full items-center justify-between gap-2">
+        <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
+        {weather && weather.daily.length > 0 && (
+          <div className="key-sm-wrapper flex gap-1 text-[11px]">
+            <button
+              onClick={() => setView('now')}
+              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+                view === 'now' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
+              }`}
+            >
+              Now
+            </button>
+            <button
+              onClick={() => setView('forecast')}
+              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+                view === 'forecast' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
+              }`}
+            >
+              Forecast
+            </button>
+          </div>
+        )}
+      </div>
       {weather ? (
         <>
           <div className="mt-2 flex w-full flex-1 items-start gap-3">
@@ -153,7 +191,7 @@ export function WeatherWidget() {
               <div className="flex items-center gap-2">
                 <span className="relative inline-block animate-float">
                   <WeatherFx kind={weatherFxKind(weather)} />
-                  <WeatherIcon weather={weather} />
+                  <WeatherIcon description={weather.description} isDay={weather.isDay} />
                 </span>
                 <span className="font-clock text-6xl font-bold leading-none">{Math.round(weather.temperatureC)}°</span>
               </div>
@@ -165,7 +203,7 @@ export function WeatherWidget() {
                 </div>
               </div>
             </div>
-            {(weather.hourly.length > 0 || weather.tomorrow) && (
+            {view === 'now' && weather.hourly.length > 0 && (
               <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
                 {weather.hourly.map((h, i) => {
                   const hour = new Date(h.time).getHours()
@@ -177,15 +215,19 @@ export function WeatherWidget() {
                     </div>
                   )
                 })}
-                {weather.tomorrow && (
-                  <div className="flex items-center gap-2 border-t border-line pt-1.5 text-sm">
-                    <span className="w-16 text-dim">Tomorrow</span>
+              </div>
+            )}
+            {view === 'forecast' && weather.daily.length > 0 && (
+              <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
+                {weather.daily.map((d, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <span className="w-16 text-dim">{dayLabel(d.date)}</span>
                     <span className="font-clock w-16 text-right font-semibold">
-                      {Math.round(weather.tomorrow.tempMaxC)}°/{Math.round(weather.tomorrow.tempMinC)}°
+                      {Math.round(d.tempMaxC)}°/{Math.round(d.tempMinC)}°
                     </span>
-                    <span className="w-16 text-right text-dim">{Math.round(weather.tomorrow.precipitationChance)}% rain</span>
+                    <span className="w-16 text-right text-dim">{Math.round(d.precipitationChance)}% rain</span>
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
+import { useSwipe } from '../lib/useSwipe'
 import {
   fetchDeparturesForCodes,
   fetchStopInfo,
@@ -57,6 +58,10 @@ export function ReadingBusesWidget() {
   const needsKey = codes.some((_, i) => !labels[i])
   const canShowStopInfo = !needsKey || hasReadingBusesKey()
   const ready = liveMode || canShowStopInfo
+  const swipe = useSwipe(
+    () => hasWorkStops() && setOrigin('work'),
+    () => hasHomeStops() && setOrigin('home'),
+  )
 
   useEffect(() => {
     if (!hasOrigin || !ready) return undefined
@@ -95,7 +100,11 @@ export function ReadingBusesWidget() {
   }, [origin, hasOrigin, liveMode, ready])
 
   return (
-    <Card className="flex min-h-0 flex-1 flex-col gap-3">
+    <Card
+      className="flex min-h-0 flex-1 flex-col gap-3"
+      onTouchStart={swipe.onTouchStart}
+      onTouchEnd={swipe.onTouchEnd}
+    >
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Buses</h2>
         {hasHomeStops() && hasWorkStops() && (

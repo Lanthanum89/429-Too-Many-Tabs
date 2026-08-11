@@ -6,6 +6,7 @@ export interface HourlyForecast {
 }
 
 export interface DailyForecast {
+  date: string
   tempMaxC: number
   tempMinC: number
   weatherCode: number
@@ -19,7 +20,9 @@ export interface WeatherSnapshot {
   isDay: boolean
   location: string
   hourly: HourlyForecast[]
-  tomorrow: DailyForecast | null
+  // Upcoming days, starting tomorrow (today's already covered by the
+  // current conditions above).
+  daily: DailyForecast[]
 }
 
 // WMO weather codes, as returned by Open-Meteo's `weather_code` field.
@@ -100,6 +103,10 @@ async function getLocationName(lat: number, lon: number, fallbackName?: string):
   }
 }
 
+export function weatherCodeToDescription(code: number): string {
+  return WEATHER_DESCRIPTIONS[code] ?? 'Unknown'
+}
+
 // Open-Meteo needs no API key and allows direct browser CORS requests —
 // fits the fully-static, no-backend architecture the rest of 429 uses.
 export async function fetchWeather(lat: number, lon: number, fallbackLocationName?: string): Promise<WeatherSnapshot> {
@@ -110,7 +117,7 @@ export async function fetchWeather(lat: number, lon: number, fallbackLocationNam
     hourly: 'temperature_2m,weather_code,precipitation_probability',
     daily: 'temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max',
     timezone: 'auto',
-    forecast_days: '2',
+    forecast_days: '6',
   })
   const [weatherRes, location] = await Promise.all([
     fetch(`https://api.open-meteo.com/v1/forecast?${params}`),
@@ -136,24 +143,25 @@ export async function fetchWeather(lat: number, lon: number, fallbackLocationNam
       precipitationChance: data.hourly?.precipitation_probability?.[currentHour + i] ?? 0,
     }))
 
-  // forecast_days:2 gives today (index 0) and tomorrow (index 1).
-  const tomorrow: DailyForecast | null =
-    data.daily?.temperature_2m_max?.[1] !== undefined
-      ? {
-          tempMaxC: data.daily.temperature_2m_max[1],
-          tempMinC: data.daily?.temperature_2m_min?.[1] ?? 0,
-          weatherCode: data.daily?.weather_code?.[1] ?? 0,
-          precipitationChance: data.daily?.precipitation_probability_max?.[1] ?? 0,
-        }
-      : null
+  // forecast_days:6 gives today (index 0) through 5 days ahead - skip
+  // today since the current conditions above already cover it.
+  const daily: DailyForecast[] = (data.daily?.time ?? [])
+    .slice(1)
+    .map((date, i) => ({
+      date,
+      tempMaxC: data.daily?.temperature_2m_max?.[i + 1] ?? 0,
+      tempMinC: data.daily?.temperature_2m_min?.[i + 1] ?? 0,
+      weatherCode: data.daily?.weather_code?.[i + 1] ?? 0,
+      precipitationChance: data.daily?.precipitation_probability_max?.[i + 1] ?? 0,
+    }))
 
   return {
     temperatureC: current.temperature_2m ?? 0,
     feelsLikeC: current.apparent_temperature ?? current.temperature_2m ?? 0,
-    description: WEATHER_DESCRIPTIONS[weatherCode] ?? 'Unknown',
+    description: weatherCodeToDescription(weatherCode),
     isDay: current.is_day !== 0,
     location,
     hourly,
-    tomorrow,
+    daily,
   }
 }
