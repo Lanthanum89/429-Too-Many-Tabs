@@ -11,26 +11,13 @@ export interface RecentEvent {
   createdAt: string
 }
 
-export interface DayActivity {
-  count: number
-  isToday: boolean
-}
-
 export interface GithubActivity {
-  commitsToday: number
-  lastRepo: string | null
   publicRepos: number
   followers: number
   recentEvents: RecentEvent[]
-  // Last 14 days of push-commit counts, oldest first, for the heatmap
-  // strip - and the streak derived from the same data (consecutive days
-  // up to and including today with at least one commit).
-  dailyCommits: DayActivity[]
-  streakDays: number
 }
 
-const HEATMAP_DAYS = 14
-const DAY_MS = 24 * 60 * 60 * 1000
+const MAX_EVENTS = 8
 
 interface GithubEvent {
   id: string
@@ -56,44 +43,9 @@ function pushCommitCount(event: GithubEvent): number {
   return event.payload?.distinct_size ?? event.payload?.size ?? event.payload?.commits?.length ?? 0
 }
 
-function dailyCommitCounts(pushEvents: GithubEvent[]): DayActivity[] {
-  const startOfToday = new Date()
-  startOfToday.setHours(0, 0, 0, 0)
-  const days: DayActivity[] = Array.from({ length: HEATMAP_DAYS }, (_, i) => ({
-    count: 0,
-    isToday: i === HEATMAP_DAYS - 1,
-  }))
-  const oldestDayStart = startOfToday.getTime() - (HEATMAP_DAYS - 1) * DAY_MS
-  for (const event of pushEvents) {
-    const eventTime = new Date(event.created_at).getTime()
-    if (eventTime < oldestDayStart) continue
-    const dayIndex = Math.floor((eventTime - oldestDayStart) / DAY_MS)
-    if (dayIndex >= 0 && dayIndex < days.length) days[dayIndex].count += pushCommitCount(event)
-  }
-  return days
-}
-
-// Consecutive days with at least one commit, counting back from today -
-// stops at the first gap, or at the edge of however much history the
-// events feed actually covers (so it can't overcount past what's known).
-function computeStreak(days: DayActivity[]): number {
-  let streak = 0
-  for (let i = days.length - 1; i >= 0; i--) {
-    if (days[i].count === 0) break
-    streak++
-  }
-  return streak
-}
-
 interface GithubProfile {
   public_repos?: number
   followers?: number
-}
-
-function isToday(iso: string): boolean {
-  const d = new Date(iso)
-  const now = new Date()
-  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()
 }
 
 function repoShortName(fullName: string | undefined): string | null {
@@ -109,7 +61,11 @@ function summarizeEvent(event: GithubEvent): string | null {
   const commits = pushCommitCount(event)
   switch (event.type) {
     case 'PushEvent':
-      return `Pushed ${commits} commit${commits === 1 ? '' : 's'}`
+      // GitHub often reports 0 here for pushes it's already seen part of
+      // (rebased/force-pushed history, merge commits) even though real
+      // work happened - "Pushed" alone reads as activity either way,
+      // rather than a misleading "Pushed 0 commits".
+      return commits > 0 ? `Pushed ${commits} commit${commits === 1 ? '' : 's'}` : 'Pushed'
     case 'WatchEvent':
       return 'Starred'
     case 'ForkEvent':
@@ -135,9 +91,7 @@ function summarizeEvent(event: GithubEvent): string | null {
 
 // GitHub's public events feed (no auth needed for public activity) plus
 // the public profile endpoint for repo/follower counts - both free, both
-// CORS-friendly for direct browser fetches. A true contribution streak
-// would need computing across full history, which this ~90-day events
-// feed doesn't cover, so that's left out.
+// CORS-friendly for direct browser fetches.
 export async function fetchGithubActivity(): Promise<GithubActivity> {
   const [eventsRes, profileRes] = await Promise.all([
     fetch(`https://api.github.com/users/${USERNAME}/events/public`),
@@ -146,31 +100,21 @@ export async function fetchGithubActivity(): Promise<GithubActivity> {
   if (!eventsRes.ok) throw new Error(`GitHub API error: ${eventsRes.status}`)
 
   const events = (await eventsRes.json()) as GithubEvent[]
-  const pushEvents = events.filter((e) => e.type === 'PushEvent')
-
-  const commitsToday = pushEvents.filter((e) => isToday(e.created_at)).reduce((sum, e) => sum + pushCommitCount(e), 0)
-
-  const lastRepo = repoShortName(pushEvents[0]?.repo?.name)
 
   const recentEvents: RecentEvent[] = []
   for (const event of events) {
     const summary = summarizeEvent(event)
     if (!summary) continue
     recentEvents.push({ id: event.id, summary, repo: repoShortName(event.repo?.name) ?? 'unknown repo', createdAt: event.created_at })
-    if (recentEvents.length >= 5) break
+    if (recentEvents.length >= MAX_EVENTS) break
   }
 
   const profile = profileRes.ok ? ((await profileRes.json()) as GithubProfile) : {}
-  const dailyCommits = dailyCommitCounts(pushEvents)
 
   return {
-    commitsToday,
-    lastRepo,
     publicRepos: profile.public_repos ?? 0,
     followers: profile.followers ?? 0,
     recentEvents,
-    dailyCommits,
-    streakDays: computeStreak(dailyCommits),
   }
 }
 

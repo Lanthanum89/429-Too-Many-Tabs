@@ -6,3 +6,6 @@ dist-ssr
 .DS_Store
 *.log
 *.tsbuildinfo
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
