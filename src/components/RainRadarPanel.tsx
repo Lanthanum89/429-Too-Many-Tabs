@@ -21,6 +21,12 @@ L.Icon.Default.mergeOptions({
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000
 
+// CARTO's raster basemap tiles (basemaps.cartocdn.com) now require a free
+// API key - request one at carto.com/basemaps/apikey (5M tiles/month fair
+// use limit, no card needed). Without it the tile server serves an "API
+// key required" placeholder image instead of the actual map.
+const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY
+
 export function RainRadarPanel({
   lat,
   lon,
@@ -47,16 +53,19 @@ export function RainRadarPanel({
     })
     mapRef.current = map
 
-    // CartoDB's free, no-key, CC BY 3.0 basemaps read far closer to the
-    // app's theme than default OSM tiles - dark_all for dark mode,
-    // light_all for light mode; className hooks into index.css for the
-    // lilac tint filter.
-    const basemapStyle = theme === 'dark' ? 'dark_all' : 'light_all'
-    L.tileLayer(`https://{s}.basemaps.cartocdn.com/${basemapStyle}/{z}/{x}/{y}{r}.png`, {
-      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
-      className: 'map-tiles-themed',
-    }).addTo(map)
+    // CartoDB's CC BY 3.0 basemaps read far closer to the app's theme than
+    // default OSM tiles - dark_all for dark mode, light_all for light mode;
+    // className hooks into index.css for the lilac tint filter. These now
+    // require a free API key (see CARTO_API_KEY above) - without one the
+    // tile server serves an "API key required" placeholder image instead.
+    if (CARTO_API_KEY) {
+      const basemapStyle = theme === 'dark' ? 'dark_all' : 'light_all'
+      L.tileLayer(`https://{s}.basemaps.cartocdn.com/${basemapStyle}/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`, {
+        attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        className: 'map-tiles-themed',
+      }).addTo(map)
+    }
 
     L.marker([lat, lon]).addTo(map)
 
@@ -108,8 +117,13 @@ export function RainRadarPanel({
   return (
     <div className="relative h-full w-full overflow-hidden rounded-lg">
       <div ref={containerRef} className="h-full w-full" />
+      {!CARTO_API_KEY && (
+        <p className="absolute bottom-1 left-1 rounded bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">
+          Set VITE_CARTO_API_KEY to show the map
+        </p>
+      )}
       {error && (
-        <p className="absolute bottom-1 left-1 rounded bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">{error}</p>
+        <p className="absolute bottom-1 right-1 rounded bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">{error}</p>
       )}
     </div>
   )
