@@ -21,11 +21,47 @@ L.Icon.Default.mergeOptions({
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000
 
-// CARTO's raster basemap tiles (basemaps.cartocdn.com) now require a free
-// API key - request one at carto.com/basemaps/apikey (5M tiles/month fair
-// use limit, no card needed). Without it the tile server serves an "API
-// key required" placeholder image instead of the actual map.
-const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY
+// Basemap tiles. RainViewer's radar overlay is keyless already - only the
+// map underneath ever needed a key (CARTO started requiring one for
+// basemaps.cartocdn.com), so both providers below are token-free and
+// nothing about this widget ships a credential in the bundle. Switch
+// BASEMAP if a provider changes its terms; nothing else needs touching.
+type BasemapProvider = 'esri' | 'osm'
+
+const BASEMAP: BasemapProvider = 'esri'
+
+interface BasemapConfig {
+  url: (theme: 'light' | 'dark') => string
+  attribution: string
+  // True when the provider only serves light tiles, so dark mode has to be
+  // faked by inverting them (see .map-tiles-darken in index.css).
+  darkenInCss: boolean
+}
+
+const BASEMAPS: Record<BasemapProvider, BasemapConfig> = {
+  // Esri's greyscale Canvas basemaps ship real dark and light variants, so
+  // dark mode stays genuinely dark and only the app's hue tint is applied -
+  // the same arrangement CARTO's dark_all/light_all gave us. Note the
+  // {z}/{y}/{x} order: Esri's REST tile scheme is row-major, not Leaflet's
+  // usual {z}/{x}/{y}, and getting it wrong silently serves the wrong tiles.
+  esri: {
+    url: (theme) =>
+      `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_${
+        theme === 'dark' ? 'Dark' : 'Light'
+      }_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    attribution: 'Tiles &copy; <a href="https://www.esri.com">Esri</a>',
+    darkenInCss: false,
+  },
+  // OpenStreetMap's standard tiles are the most dependably keyless option
+  // going, but they're only served light, so dark mode inverts them. Their
+  // tile usage policy is aimed at light/personal use, which this dashboard
+  // is - it's a donated resource, so no aggressive refresh loops.
+  osm: {
+    url: () => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    darkenInCss: true,
+  },
+}
 
 export function RainRadarPanel({
   lat,
@@ -53,19 +89,13 @@ export function RainRadarPanel({
     })
     mapRef.current = map
 
-    // CartoDB's CC BY 3.0 basemaps read far closer to the app's theme than
-    // default OSM tiles - dark_all for dark mode, light_all for light mode;
-    // className hooks into index.css for the lilac tint filter. These now
-    // require a free API key (see CARTO_API_KEY above) - without one the
-    // tile server serves an "API key required" placeholder image instead.
-    if (CARTO_API_KEY) {
-      const basemapStyle = theme === 'dark' ? 'dark_all' : 'light_all'
-      L.tileLayer(`https://{s}.basemaps.cartocdn.com/${basemapStyle}/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`, {
-        attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        className: 'map-tiles-themed',
-      }).addTo(map)
-    }
+    // className hooks into index.css for the lilac tint filter, plus the
+    // dark-mode inversion when the provider only serves light tiles.
+    const basemap = BASEMAPS[BASEMAP]
+    L.tileLayer(basemap.url(theme), {
+      attribution: basemap.attribution,
+      className: basemap.darkenInCss ? 'map-tiles-themed map-tiles-darken' : 'map-tiles-themed',
+    }).addTo(map)
 
     L.marker([lat, lon]).addTo(map)
 
@@ -117,13 +147,8 @@ export function RainRadarPanel({
   return (
     <div className="relative h-full w-full overflow-hidden rounded-lg">
       <div ref={containerRef} className="h-full w-full" />
-      {!CARTO_API_KEY && (
-        <p className="absolute bottom-1 left-1 rounded bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">
-          Set VITE_CARTO_API_KEY to show the map
-        </p>
-      )}
       {error && (
-        <p className="absolute bottom-1 right-1 rounded bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">{error}</p>
+        <p className="absolute bottom-1 left-1 rounded bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">{error}</p>
       )}
     </div>
   )

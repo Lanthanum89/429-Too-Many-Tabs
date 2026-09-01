@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Clock } from './components/Clock'
 import { BinaryClock } from './components/BinaryClock'
 import { WeatherWidget } from './components/WeatherWidget'
@@ -11,73 +11,6 @@ import { CountdownWidget } from './components/CountdownWidget'
 import { GithubWidget } from './components/GithubWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
 import { GalaxyBackground } from './components/GalaxyBackground'
-import { Modal } from './components/Modal'
-
-type WidgetKey =
-  | 'clock'
-  | 'calendar'
-  | 'buses'
-  | 'spotify'
-  | 'binary'
-  | 'weather'
-  | 'countdown'
-  | 'github'
-  | 'email'
-  | 'guardian'
-  | 'radar'
-
-const WIDGET_LABELS: Record<WidgetKey, string> = {
-  clock: 'Clock',
-  calendar: 'Calendar',
-  buses: 'Reading Buses',
-  spotify: 'Spotify',
-  binary: 'Binary Clock',
-  weather: 'Weather',
-  countdown: 'Countdown',
-  github: 'GitHub',
-  email: 'Email',
-  guardian: 'Guardian Headlines',
-  radar: 'Rain Radar',
-}
-
-function ExpandIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-// Wraps a grid-item div (its own className carries the grid-area, so it
-// keeps that unchanged) with a small corner button that opens the same
-// widget larger in a blurred-backdrop Modal - always visible rather than
-// hover-revealed, since this app's primary target is a touch tablet with
-// no hover state.
-function ExpandableTile({
-  widgetKey,
-  className,
-  onExpand,
-  children,
-}: {
-  widgetKey: WidgetKey
-  className: string
-  onExpand: (key: WidgetKey) => void
-  children: ReactNode
-}) {
-  return (
-    <div className={`${className} relative`}>
-      {children}
-      <button
-        onClick={() => onExpand(widgetKey)}
-        className="theme-toggle absolute right-2 top-2 z-10 bg-surface/80"
-        aria-label={`Expand ${WIDGET_LABELS[widgetKey]}`}
-        title={`Expand ${WIDGET_LABELS[widgetKey]}`}
-      >
-        <ExpandIcon />
-      </button>
-    </div>
-  )
-}
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -105,34 +38,6 @@ function App() {
     return saved || 'light'
   })
   const [refreshing, setRefreshing] = useState(false)
-  const [expanded, setExpanded] = useState<WidgetKey | null>(null)
-
-  function renderWidget(key: WidgetKey) {
-    switch (key) {
-      case 'clock':
-        return <Clock />
-      case 'calendar':
-        return <WeekCalendar />
-      case 'buses':
-        return <ReadingBusesWidget />
-      case 'spotify':
-        return <SpotifyWidget />
-      case 'binary':
-        return <BinaryClock />
-      case 'weather':
-        return <WeatherWidget />
-      case 'countdown':
-        return <CountdownWidget />
-      case 'github':
-        return <GithubWidget />
-      case 'email':
-        return <EmailWidget />
-      case 'guardian':
-        return <GuardianWidget />
-      case 'radar':
-        return <RadarWidget theme={theme} />
-    }
-  }
 
   function handleRefresh() {
     setRefreshing(true)
@@ -219,44 +124,43 @@ function App() {
         </div>
       </header>
 
-      <ExpandableTile widgetKey="clock" className="dashboard-clock" onExpand={setExpanded}>
+      <div className="dashboard-clock">
         <Clock />
-      </ExpandableTile>
-      <ExpandableTile widgetKey="calendar" className="dashboard-calendar" onExpand={setExpanded}>
+      </div>
+      <div className="dashboard-calendar">
         <WeekCalendar />
-      </ExpandableTile>
-      <ExpandableTile widgetKey="buses" className="dashboard-commits" onExpand={setExpanded}>
+      </div>
+      <div className="dashboard-commits">
         <ReadingBusesWidget />
-      </ExpandableTile>
+      </div>
       <div className="dashboard-leftstack">
         <div className="dashboard-spotify-binary-row">
-          <ExpandableTile widgetKey="spotify" className="dashboard-spotify" onExpand={setExpanded}>
+          <div className="dashboard-spotify">
             <SpotifyWidget />
-          </ExpandableTile>
-          <ExpandableTile widgetKey="binary" className="dashboard-binary" onExpand={setExpanded}>
+          </div>
+          <div className="dashboard-binary">
             <BinaryClock />
-          </ExpandableTile>
+          </div>
         </div>
-        <ExpandableTile widgetKey="weather" className="dashboard-weather" onExpand={setExpanded}>
+        <div className="dashboard-weather">
           <WeatherWidget />
-        </ExpandableTile>
-        <ExpandableTile widgetKey="countdown" className="dashboard-countdown" onExpand={setExpanded}>
+        </div>
+        <div className="dashboard-countdown">
           <CountdownWidget />
-        </ExpandableTile>
-        <ExpandableTile widgetKey="github" className="dashboard-github" onExpand={setExpanded}>
+        </div>
+        <div className="dashboard-github">
           <GithubWidget />
-        </ExpandableTile>
+        </div>
       </div>
-      <ExpandableTile widgetKey="email" className="dashboard-email" onExpand={setExpanded}>
+      <div className="dashboard-email">
         <EmailWidget />
-      </ExpandableTile>
-      <ExpandableTile widgetKey="guardian" className="dashboard-guardian" onExpand={setExpanded}>
+      </div>
+      <div className="dashboard-guardian">
         <GuardianWidget />
-      </ExpandableTile>
-      <ExpandableTile widgetKey="radar" className="dashboard-radar" onExpand={setExpanded}>
+      </div>
+      <div className="dashboard-radar">
         <RadarWidget theme={theme} />
-      </ExpandableTile>
-      {expanded && <Modal onClose={() => setExpanded(null)}>{renderWidget(expanded)}</Modal>}
+      </div>
     </div>
   )
 }
