@@ -11,6 +11,7 @@ import { CountdownWidget } from './components/CountdownWidget'
 import { GithubWidget } from './components/GithubWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
 import { GalaxyBackground } from './components/GalaxyBackground'
+import { isTheme, nextTheme, type Theme } from './lib/theme'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -33,9 +34,9 @@ function getISOWeek(date: Date): number {
 }
 
 function App() {
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('theme') as 'light' | 'dark' | null
-    return saved || 'light'
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem('theme')
+    return isTheme(saved) ? saved : 'light'
   })
   const [refreshing, setRefreshing] = useState(false)
 
@@ -51,8 +52,9 @@ function App() {
     localStorage.setItem('theme', theme)
   }, [theme])
 
+  const upcoming = nextTheme(theme)
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light')
+    setTheme(upcoming)
   }
 
   const today = new Date()
@@ -99,12 +101,21 @@ function App() {
             <button
               onClick={toggleTheme}
               className="theme-toggle key-sm"
-              aria-label="Toggle dark mode"
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              aria-label={`Switch theme (currently ${theme})`}
+              title={`Switch to ${upcoming} theme`}
             >
+              {/* The icon shows what you'll GET, not what you're on - the
+                  moon while in light, the split circle (mono) while in dark,
+                  the sun while in mono - so one glance says where the next
+                  press lands. */}
               {theme === 'light' ? (
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              ) : theme === 'dark' ? (
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" />
                 </svg>
               ) : (
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">

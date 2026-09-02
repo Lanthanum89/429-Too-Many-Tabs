@@ -4,6 +4,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import { fetchLatestRadarFrame } from '../lib/rainRadar'
+import type { Theme } from '../lib/theme'
 
 // Icon.Default._getIconUrl() unconditionally prepends an auto-detected
 // "imagePath" (read from leaflet.css's own background-image url()) in
@@ -31,7 +32,7 @@ type BasemapProvider = 'esri' | 'osm'
 const BASEMAP: BasemapProvider = 'esri'
 
 interface BasemapConfig {
-  url: (theme: 'light' | 'dark') => string
+  url: (theme: Theme) => string
   attribution: string
   // True when the provider only serves light tiles, so dark mode has to be
   // faked by inverting them (see .map-tiles-darken in index.css).
@@ -41,7 +42,9 @@ interface BasemapConfig {
 const BASEMAPS: Record<BasemapProvider, BasemapConfig> = {
   // Esri's greyscale Canvas basemaps ship real dark and light variants, so
   // dark mode stays genuinely dark and only the app's hue tint is applied -
-  // the same arrangement CARTO's dark_all/light_all gave us. Note the
+  // the same arrangement CARTO's dark_all/light_all gave us. Mono takes the
+  // light variant too and drops the hue tint in CSS instead (see
+  // .map-tiles-themed under [data-theme='mono']), so the map stays grey. Note the
   // {z}/{y}/{x} order: Esri's REST tile scheme is row-major, not Leaflet's
   // usual {z}/{x}/{y}, and getting it wrong silently serves the wrong tiles.
   esri: {
@@ -70,7 +73,7 @@ export function RainRadarPanel({
 }: {
   lat: number
   lon: number
-  theme: 'light' | 'dark'
+  theme: Theme
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<L.Map | null>(null)

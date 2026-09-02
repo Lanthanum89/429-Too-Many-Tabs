@@ -245,7 +245,7 @@ export function SpotifyWidget() {
               <img
                 src={nowPlaying.albumArtUrl}
                 alt=""
-                className={`h-16 w-16 shrink-0 rounded-full object-cover shadow-lg ${
+                className={`album-art h-16 w-16 shrink-0 rounded-full object-cover shadow-lg ${
                   nowPlaying.isPlaying ? 'animate-vinyl-spin' : ''
                 }`}
               />

@@ -10,11 +10,21 @@ tablet in landscape it's laid out to fit entirely within one screen, no scrollin
 portrait (phone or tablet) just stacks everything and scrolls normally — see
 [Layout](#layout) below.
 
-Visual style is dark lilac, matching the [SoundTracks](https://github.com/Lanthanum89/spotify-stats-app)
-app: near-black background, lilac accent (`src/index.css`'s `@theme` block — `void`,
-`surface`, `line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`), with
-Sora for body text and section headings and IBM Plex Mono for the clock's big digits
-and small technical labels (the date caption, binary-clock digit labels). All fonts are
+There are three themes, cycled by the single toggle in the header (light → dark →
+mono) and remembered in `localStorage`:
+
+| Theme | Look | Fonts |
+| --- | --- | --- |
+| `light` | Strawberry: creamy pink base, berry-red accents, gingham background | Baloo 2 titles, Fredoka numerals, Sora body |
+| `dark` | Near-black with lilac accents and a pixel-art galaxy background | as above |
+| `mono` | Black and white: white cards on light grey, hairline rules, no accent hue, decoration switched off | Playfair Display for the greeting, card titles and numerals; Inter for everything else |
+
+Each one is a block of CSS custom properties in `src/index.css` (`void`, `surface`,
+`line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`, plus the clock and
+flip-clock tokens) — light lives in the `@theme` block, dark and mono in
+`:root[data-theme='…']` overrides. Mono also switches off the things a palette swap
+can't reach: the gingham/galaxy backgrounds, the keycap bevels on cards and buttons,
+the doodle mascots, and colour in the album art and map tiles. All fonts are
 self-hosted via `@fontsource` rather than a CDN link, so they're bundled into the build
 and precached by the service worker — no external font request needed once installed.
 The clock defaults to 24-hour time (`hour12: false`).
