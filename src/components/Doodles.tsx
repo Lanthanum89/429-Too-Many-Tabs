@@ -4,10 +4,15 @@
 // faces). Fixed colors rather than theme tokens on purpose: these read as
 // printed stickers, not chrome that should recolor with light/dark mode.
 // aria-hidden since they're purely decorative, never load-bearing content.
+// Every one carries a `doodle` class as well as whatever sizing className the
+// caller passes, which is the single hook the mono theme uses to hide the lot
+// (see [data-theme^='mono'] .doodle in index.css, which covers both the light
+// and dark mono variants) - a pink strawberry has no business in a strictly
+// black-and-white layout.
 
 export function Strawberry({ className = '' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
+    <svg viewBox="0 0 100 100" className={`doodle ${className}`} aria-hidden="true">
       <g transform="translate(50 28) rotate(0)">
         <ellipse cx="0" cy="-4" rx="9" ry="5" fill="#8fbf7a" transform="rotate(-40)" />
         <ellipse cx="0" cy="-4" rx="9" ry="5" fill="#8fbf7a" transform="rotate(-15)" />
@@ -40,7 +45,7 @@ export function Strawberry({ className = '' }: { className?: string }) {
 
 export function Teddy({ className = '' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
+    <svg viewBox="0 0 100 100" className={`doodle ${className}`} aria-hidden="true">
       <circle cx="24" cy="24" r="13" fill="#e0b89a" />
       <circle cx="76" cy="24" r="13" fill="#e0b89a" />
       <circle cx="24" cy="24" r="6.5" fill="#f2d9c4" />

@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { Card } from './Card'
 import { RainRadarPanel } from './RainRadarPanel'
 import { getCoords, type Coords } from '../lib/geolocation'
+import type { Theme } from '../lib/theme'
 
-export function RadarWidget({ theme }: { theme: 'light' | 'dark' }) {
+export function RadarWidget({ theme }: { theme: Theme }) {
   const [coords, setCoords] = useState<Coords | null>(null)
 
   useEffect(() => {
