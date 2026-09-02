@@ -6,8 +6,9 @@
 // aria-hidden since they're purely decorative, never load-bearing content.
 // Every one carries a `doodle` class as well as whatever sizing className the
 // caller passes, which is the single hook the mono theme uses to hide the lot
-// (see [data-theme='mono'] .doodle in index.css) - a pink strawberry has no
-// business in a strictly black-and-white layout.
+// (see [data-theme^='mono'] .doodle in index.css, which covers both the light
+// and dark mono variants) - a pink strawberry has no business in a strictly
+// black-and-white layout.
 
 export function Strawberry({ className = '' }: { className?: string }) {
   return (

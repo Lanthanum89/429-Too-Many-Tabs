@@ -52,9 +52,13 @@ function App() {
     localStorage.setItem('theme', theme)
   }, [theme])
 
+  // `upcoming` is for the label and icon only - the handler passes nextTheme
+  // itself as the functional updater rather than closing over this render's
+  // value, so the cycling logic lives in exactly one place and two presses
+  // landing in the same batch can't both step off the same stale theme.
   const upcoming = nextTheme(theme)
   const toggleTheme = () => {
-    setTheme(upcoming)
+    setTheme(nextTheme)
   }
 
   const today = new Date()
