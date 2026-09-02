@@ -104,10 +104,10 @@ function App() {
               aria-label={`Switch theme (currently ${theme})`}
               title={`Switch to ${upcoming} theme`}
             >
-              {/* The icon shows what you'll GET, not what you're on - the
-                  moon while in light, the split circle (mono) while in dark,
-                  the sun while in mono - so one glance says where the next
-                  press lands. */}
+              {/* The icon shows what you'll GET, not what you're on - so one
+                  glance says where the next press lands. In order round the
+                  cycle: a moon (-> dark), a half-filled circle (-> mono), a
+                  filled circle (-> mono-dark), a sun (-> light). */}
               {theme === 'light' ? (
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
@@ -116,6 +116,10 @@ function App() {
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="9" />
                   <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" />
+                </svg>
+              ) : theme === 'mono' ? (
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="9" fill="currentColor" />
                 </svg>
               ) : (
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">

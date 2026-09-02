@@ -238,14 +238,38 @@ body {
   --color-clock-sec: #e8d5f5;
 }
 
-/* Mono: a strictly black-and-white, print-inspired theme - white cards on a
-   light grey ground, hairline rules, one near-black ink, no accent hue at
-   all. Every "personality" element the other two themes lean on (gingham,
-   galaxy, keycap bevels, the doodles) is switched off further down rather
-   than recoloured, because greyscale whimsy still reads as whimsy.
-   The three clock units keep their separation as a light/mid/dark grey
-   ramp instead of three hues, so the binary clock stays legible without
+/* Mono: a strictly black-and-white, print-inspired theme, in a light and a
+   dark variant ('mono' and 'mono-dark' - the two are exact inversions of
+   each other, not two separate designs). Every "personality" element the
+   other two themes lean on (gingham, galaxy, keycap bevels, the doodles) is
+   switched off further down rather than recoloured, because greyscale
+   whimsy still reads as whimsy.
+
+   Everything shared by both variants - the fonts here, and every structural
+   override at the bottom of this file - is selected with [data-theme^='mono']
+   so it applies to either without the rule list being written twice. The two
+   blocks below then carry nothing but colour.
+
+   The three clock units keep their separation as a light/mid/dark grey ramp
+   instead of three hues, so the binary clock stays legible in both without
    introducing colour. */
+:root[data-theme^='mono'] {
+  /* Inter everywhere by default (--font-mono is what every card title and
+     small uppercase label actually resolves to, despite the name), with
+     Playfair reserved for the few display slots that are called out
+     individually below - the greeting, card titles, and the big numerals.
+     Applying Playfair through --font-mono instead would have dragged it
+     onto every 10px letterspaced label, which is where a high-contrast
+     serif falls apart. */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Inter', system-ui, sans-serif;
+  --font-clock: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  /* Not a Tailwind theme token (mono-scoped plain custom property) - only
+     the handful of rules at the bottom of this file consume it. */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+/* Light variant: white cards on a light grey ground, near-black ink. */
 :root[data-theme='mono'] {
   --color-void: #f2f2f2;
   --color-surface: #ffffff;
@@ -275,20 +299,45 @@ body {
   --color-flip-bg: #111111;
   --color-flip-bg-2: #111111;
   --color-flip-text: #ffffff;
+}
 
-  /* Inter everywhere by default (--font-mono is what every card title and
-     small uppercase label actually resolves to, despite the name), with
-     Playfair reserved for the few display slots that are called out
-     individually below - the greeting, card titles, and the big numerals.
-     Applying Playfair through --font-mono instead would have dragged it
-     onto every 10px letterspaced label, which is where a high-contrast
-     serif falls apart. */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'Inter', system-ui, sans-serif;
-  --font-clock: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  /* Not a Tailwind theme token (mono-scoped plain custom property) - only
-     the handful of rules at the bottom of this file consume it. */
-  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+/* Dark variant: the same theme with the ink and paper swapped - dark grey
+   cards on near-black, near-white ink. Not a re-tinted version of the app's
+   existing 'dark' theme: that one is lilac-on-purple-black with a galaxy
+   behind it, this is strictly neutral and keeps every bit of decoration
+   switched off, same as its light twin. */
+:root[data-theme='mono-dark'] {
+  --color-void: #0b0b0b;
+  --color-surface: #191919;
+  --color-surface-2: #191919;
+  /* A touch lighter relative to the surface than the light variant's
+     hairline is to white - the same contrast ratio reads as invisible
+     against a dark ground, where borders are the only thing separating
+     one card from the next (a black drop shadow does nothing here). */
+  --color-line: #343434;
+  --color-line-strong: #f5f5f5;
+  --color-ink: #f4f4f4;
+  --color-muted: #b4b4b4;
+  --color-dim: #7d7d7d;
+  --color-accent: #ffffff;
+  --color-accent-bright: #d6d6d6;
+  --color-accent-neon: #ffffff;
+  --color-danger: #ffffff;
+
+  /* Ramp runs the other way here (bright = lit), so a lit dot is always the
+     one drawing the eye regardless of variant. */
+  --color-clock-hour: #f4f4f4;
+  --color-clock-min: #9e9e9e;
+  /* Not darker than this: the off dots' own border sits at --color-line
+     (#343434), and a lit "seconds" dot has to stay clearly ahead of it. */
+  --color-clock-sec: #6b6b6b;
+
+  /* Inverted along with everything else: white leaves, black numerals.
+     Keeping the light variant's black leaves would have made the clock
+     disappear into the card it sits on. */
+  --color-flip-bg: #f4f4f4;
+  --color-flip-bg-2: #f4f4f4;
+  --color-flip-text: #0b0b0b;
 }
 
 /* Transform is left to .key-sm (applied alongside this in JSX) now - a
@@ -1133,7 +1182,8 @@ button:hover:not(:disabled) {
    tiles - see BASEMAPS in RainRadarPanel.tsx. This has the same specificity
    as the .map-tiles-themed rule above and both match the same element, so it
    has to stay below it to win. */
-:root[data-theme='dark'] .map-tiles-darken {
+:root[data-theme='dark'] .map-tiles-darken,
+:root[data-theme='mono-dark'] .map-tiles-darken {
   filter: invert(1) hue-rotate(180deg) brightness(0.85) saturate(1.2);
 }
 
@@ -1162,21 +1212,23 @@ button:hover:not(:disabled) {
    one place - and so anything using !important further up (.card mainly)
    is safely beaten on both specificity and source order.
 
-   The theme's tokens live in the :root[data-theme='mono'] block near the
-   top; everything below is the decoration that a palette swap alone
-   can't reach.
+   [data-theme^='mono'] deliberately matches both variants: none of this is
+   about light or dark, it's about the decoration a palette swap alone can't
+   reach. The variants' own colour tokens live near the top of the file. The
+   handful of rules that genuinely differ between them (drop shadows, the
+   map, the scrollbar) are called out individually at the end.
    --------------------------------------------------------------------- */
 
 /* No gingham. The galaxy is already dark-only (it's a React element, not a
    background), so there's nothing to switch off for that one. */
-:root[data-theme='mono'] body {
+:root[data-theme^='mono'] body {
   background-image: none;
 }
 
 /* Flat cards: hairline border, small radius, and a shadow that suggests
    paper lifted off a desk rather than a keycap facet. The base .card rule
    sets border/background/box-shadow with !important, hence matching it. */
-:root[data-theme='mono'] .card {
+:root[data-theme^='mono'] .card {
   border-color: var(--color-line) !important;
   background: var(--color-surface) !important;
   border-radius: 0.25rem;
@@ -1188,7 +1240,7 @@ button:hover:not(:disabled) {
 /* Hover reads as the card lifting slightly, not sinking into a bevel - so
    the diagonal translate goes entirely and only the shadow and border
    change. */
-:root[data-theme='mono'] .card:hover {
+:root[data-theme^='mono'] .card:hover {
   transform: translate(0, 0);
   border-color: var(--color-dim) !important;
   box-shadow:
@@ -1199,21 +1251,21 @@ button:hover:not(:disabled) {
 /* Keycaps off: no stacked step shadow, no travel on hover. A 1px sink on
    :active is kept purely so buttons still confirm a press - without it
    the media controls and bus route cards feel dead. */
-:root[data-theme='mono'] .key,
-:root[data-theme='mono'] .key-sm,
-:root[data-theme='mono'] .clock-key {
+:root[data-theme^='mono'] .key,
+:root[data-theme^='mono'] .key-sm,
+:root[data-theme^='mono'] .clock-key {
   box-shadow: none;
 }
 
-:root[data-theme='mono'] .key:hover,
-:root[data-theme='mono'] .key-sm:hover,
-:root[data-theme='mono'] .clock-key:hover {
+:root[data-theme^='mono'] .key:hover,
+:root[data-theme^='mono'] .key-sm:hover,
+:root[data-theme^='mono'] .clock-key:hover {
   transform: translate(0, 0);
   box-shadow: none;
 }
 
-:root[data-theme='mono'] .key:active,
-:root[data-theme='mono'] .key-sm:active {
+:root[data-theme^='mono'] .key:active,
+:root[data-theme^='mono'] .key-sm:active {
   transform: translateY(1px);
   box-shadow: none;
 }
@@ -1221,19 +1273,19 @@ button:hover:not(:disabled) {
 /* Those wrappers exist only to reserve room for the keycap shadow, which
    no longer renders here - left in place they'd just be stray bottom
    padding pushing the header chrome out of alignment. */
-:root[data-theme='mono'] .key-wrapper,
-:root[data-theme='mono'] .key-sm-wrapper {
+:root[data-theme^='mono'] .key-wrapper,
+:root[data-theme^='mono'] .key-sm-wrapper {
   padding-bottom: 0;
 }
 
 /* Split-flap leaves: flat black, square-ish corners, no plastic sheen. */
-:root[data-theme='mono'] .flip-digit {
+:root[data-theme^='mono'] .flip-digit {
   border-radius: 0.25rem;
   --key-shadow-color: transparent;
 }
 
-:root[data-theme='mono'] .flip-front,
-:root[data-theme='mono'] .flip-back {
+:root[data-theme^='mono'] .flip-front,
+:root[data-theme^='mono'] .flip-back {
   background: var(--color-flip-bg);
   border-radius: 0.25rem;
   box-shadow: none;
@@ -1241,17 +1293,17 @@ button:hover:not(:disabled) {
 
 /* Playfair's display slots. Everything else stays Inter (see --font-mono
    in the token block for why this is done by rule rather than by token). */
-:root[data-theme='mono'] .dashboard > header h1,
-:root[data-theme='mono'] .card h2 {
+:root[data-theme^='mono'] .dashboard > header h1,
+:root[data-theme^='mono'] .card h2 {
   font-family: var(--font-display);
 }
 
-:root[data-theme='mono'] .dashboard > header {
+:root[data-theme^='mono'] .dashboard > header {
   border-bottom-width: 1px;
   border-radius: 0;
 }
 
-:root[data-theme='mono'] .dashboard > header h1 {
+:root[data-theme^='mono'] .dashboard > header h1 {
   font-weight: 600;
   letter-spacing: -0.015em;
 }
@@ -1259,7 +1311,7 @@ button:hover:not(:disabled) {
 /* The base .card h2 rule forces 1.25rem, which is a lot of uppercase serif
    repeated across ten cards - dialled back and letterspaced so the titles
    read as section labels rather than headlines. */
-:root[data-theme='mono'] .card h2 {
+:root[data-theme^='mono'] .card h2 {
   font-size: 0.9375rem !important;
   letter-spacing: 0.01em;
 }
@@ -1267,14 +1319,14 @@ button:hover:not(:disabled) {
 /* The mascots are fixed-colour by design (see Doodles.tsx), so hiding is
    the only honest option here - they sit in empty states beside their own
    explanatory text, which carries the message on its own. */
-:root[data-theme='mono'] .doodle {
+:root[data-theme^='mono'] .doodle {
   display: none;
 }
 
 /* A dark radial pulse behind the sun icon reads as a smudge once it isn't
    a warm glow. The falling rain/snow marks keep working in black, so only
    this one goes. */
-:root[data-theme='mono'] .weather-fx-sun-glow {
+:root[data-theme^='mono'] .weather-fx-sun-glow {
   display: none;
 }
 
@@ -1282,26 +1334,26 @@ button:hover:not(:disabled) {
    map. Both are content rather than chrome, so this is the one deliberate
    overreach in the theme - delete these two rules to let them stay in
    colour. */
-:root[data-theme='mono'] .album-art {
+:root[data-theme^='mono'] .album-art {
   filter: grayscale(1) contrast(1.05);
 }
 
-:root[data-theme='mono'] .map-tiles-themed {
+:root[data-theme^='mono'] .map-tiles-themed {
   filter: grayscale(1) contrast(1.05);
 }
 
-:root[data-theme='mono'] .leaflet-marker-icon {
+:root[data-theme^='mono'] .leaflet-marker-icon {
   filter: grayscale(1) brightness(0.4) contrast(1.4);
 }
 
 /* Base thumb is a fixed lilac rgba, not a token, so it needs its own
    override rather than following the palette. */
-:root[data-theme='mono'] ::-webkit-scrollbar-thumb {
+:root[data-theme^='mono'] ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.22);
   border-radius: 0;
 }
 
-:root[data-theme='mono'] ::-webkit-scrollbar-thumb:hover {
+:root[data-theme^='mono'] ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.38);
 }
 
@@ -1310,6 +1362,39 @@ button:hover:not(:disabled) {
    (light grey by design, since the three units are separated by a grey ramp
    rather than by hue). Selecting the utility class directly is what keeps
    this off the lit dots, which use border-clock-* instead. */
-:root[data-theme='mono'] .dashboard-binary .border-line-strong {
+:root[data-theme^='mono'] .dashboard-binary .border-line-strong {
   border-color: var(--color-line);
+}
+
+/* --- The few places the two mono variants genuinely differ ------------ */
+
+/* A black drop shadow is invisible on a near-black page, so the dark
+   variant leans on the card being lighter than the ground it sits on plus
+   its own border, and keeps only enough shadow to seat it. Hover brightens
+   the border rather than deepening a shadow nobody can see. */
+:root[data-theme='mono-dark'] .card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+:root[data-theme='mono-dark'] .card:hover {
+  border-color: var(--color-dim) !important;
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Same reason the light variant needed its own: the base thumb is a fixed
+   lilac rgba, and the light variant's black would vanish here. */
+:root[data-theme='mono-dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+:root[data-theme='mono-dark'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+/* Esri serves a genuine dark Canvas basemap, which RainRadarPanel now asks
+   for in this variant (see BASEMAPS there) - so the tiles only need
+   desaturating, same as the light variant. The marker is the exception: it
+   has to be lightened rather than darkened to show up against them. */
+:root[data-theme='mono-dark'] .leaflet-marker-icon {
+  filter: grayscale(1) brightness(1.8) contrast(1.1);
 }
