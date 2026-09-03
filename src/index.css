@@ -450,38 +450,53 @@ body {
   padding-bottom: 5px;
 }
 
-/* Every card gets the same keycap treatment as the buttons - hover only
-   (no :active; a card isn't a single clickable unit the way a button
-   is, same reasoning as .clock-key). box-shadow is paint-only, so this
-   never touches any card's actual layout size regardless of how
-   tightly its height budget is already tuned - the two are unrelated
-   in the box model. */
+/* Cards are flat in every theme: a soft shadow that seats them on the page,
+   nothing that reads as a bevel or a facet. They used to carry the same
+   stacked-step keycap treatment as the buttons (offset shadows on the
+   bottom and right, the card sliding diagonally into them on hover), which
+   the mono themes then had to switch off - now the flat version is the base
+   and no theme overrides the shape of it, only its depth.
+
+   The buttons themselves (.key/.key-sm/.clock-key) keep their keycaps
+   outside the mono themes: those are things you actually press, where the
+   travel is feedback rather than decoration.
+
+   box-shadow is paint-only, so none of this touches any card's layout size
+   regardless of how tightly its height budget is tuned - the two are
+   unrelated in the box model. */
 .card {
   border-color: var(--color-line-strong) !important;
   background: linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%) !important;
   transform: translate(0, 0);
-  transition: transform 120ms ease, box-shadow 120ms ease;
-  /* Bottom + right steps (rather than bottom alone) is what actually
-     reads as a pressable button facet, not just an underline. Trimmed
-     down from the first pass (was 8px) - at full thickness the shadow
-     was eating almost the entire 10px grid gap, so adjacent cards read
-     as touching instead of separated. */
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease;
   box-shadow:
-    5px 0 0 var(--color-line-strong),
-    0 5px 0 var(--color-line-strong),
-    0 7px 10px rgba(30, 15, 45, 0.18) !important;
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Lifts rather than sinks: the card stays put and only its shadow deepens.
+   The old diagonal translate was there to sell "sinking into its own
+   bevel", which no longer exists. */
 .card:hover {
-  /* Moves diagonally toward the shadow's own corner (down-right), not
-     straight down - the shadow shrinking on both axes at once is what
-     sells "sinking into its own bevel" instead of just "getting
-     shorter underneath." */
-  transform: translate(2px, 3px);
+  transform: translate(0, 0);
   box-shadow:
-    3px 0 0 var(--color-line-strong),
-    0 3px 0 var(--color-line-strong),
-    0 4px 6px rgba(30, 15, 45, 0.14) !important;
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 6px 16px -4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* A black shadow does nothing on a near-black page, so the dark themes lean
+   on the card being lighter than the ground it sits on, plus their own
+   border, and keep only enough shadow to seat it. Grouped rather than left
+   to each theme: 'dark' and 'mono-dark' have the same problem for the same
+   reason. */
+:root[data-theme='dark'] .card,
+:root[data-theme='mono-dark'] .card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+:root[data-theme='dark'] .card:hover,
+:root[data-theme='mono-dark'] .card:hover {
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Scrollbar styling */
@@ -1225,27 +1240,20 @@ button:hover:not(:disabled) {
   background-image: none;
 }
 
-/* Flat cards: hairline border, small radius, and a shadow that suggests
-   paper lifted off a desk rather than a keycap facet. The base .card rule
-   sets border/background/box-shadow with !important, hence matching it. */
+/* The flat card shape and its shadows now live in the base .card rule, which
+   every theme shares - all that is left here is what's specific to mono: a
+   hairline border in place of the strong one, a flat fill in place of the
+   gradient, and a tighter radius. */
 :root[data-theme^='mono'] .card {
   border-color: var(--color-line) !important;
   background: var(--color-surface) !important;
   border-radius: 0.25rem;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Hover reads as the card lifting slightly, not sinking into a bevel - so
-   the diagonal translate goes entirely and only the shadow and border
-   change. */
+/* The hairline is faint enough that the border is worth moving on hover
+   here, where the other themes leave theirs alone. */
 :root[data-theme^='mono'] .card:hover {
-  transform: translate(0, 0);
   border-color: var(--color-dim) !important;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.06),
-    0 6px 16px -4px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Keycaps off: no stacked step shadow, no travel on hover. A 1px sink on
@@ -1367,19 +1375,6 @@ button:hover:not(:disabled) {
 }
 
 /* --- The few places the two mono variants genuinely differ ------------ */
-
-/* A black drop shadow is invisible on a near-black page, so the dark
-   variant leans on the card being lighter than the ground it sits on plus
-   its own border, and keeps only enough shadow to seat it. Hover brightens
-   the border rather than deepening a shadow nobody can see. */
-:root[data-theme='mono-dark'] .card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-}
-
-:root[data-theme='mono-dark'] .card:hover {
-  border-color: var(--color-dim) !important;
-  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6) !important;
-}
 
 /* Same reason the light variant needed its own: the base thumb is a fixed
    lilac rgba, and the light variant's black would vanish here. */
