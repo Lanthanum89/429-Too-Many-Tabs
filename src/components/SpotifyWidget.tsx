@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
-import { Teddy } from './Doodles'
+import { NoteIcon } from './Icons'
 import {
   connectSpotify,
   fetchCurrentlyPlaying,
@@ -281,7 +281,7 @@ export function SpotifyWidget() {
               </div>
             </div>
           </div>
-          <div className="key-wrapper flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <button
               onClick={handleShuffle}
               disabled={controlPending}
@@ -342,7 +342,7 @@ export function SpotifyWidget() {
         </>
       ) : (
         <>
-          <Teddy className="h-10 w-10" />
+          <NoteIcon className="h-8 w-8 text-dim" />
           <p className="text-sm text-dim">Nothing playing.</p>
         </>
       )}

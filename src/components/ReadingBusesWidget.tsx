@@ -108,7 +108,7 @@ export function ReadingBusesWidget() {
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Buses</h2>
         {hasHomeStops() && hasWorkStops() && (
-          <div className="key-sm-wrapper flex gap-1 text-[11px]">
+          <div className="flex gap-1 text-[11px]">
             <button
               onClick={() => setOrigin('home')}
               className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${

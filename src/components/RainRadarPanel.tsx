@@ -126,6 +126,10 @@ export function RainRadarPanel({
         if (radarLayerRef.current) mapRef.current.removeLayer(radarLayerRef.current)
         radarLayerRef.current = L.tileLayer(frame.tileUrlTemplate, {
           opacity: 0.6,
+          // RainViewer colour-codes rain by intensity; this class is what
+          // desaturates it in index.css so the map stays neutral like the
+          // rest of the interface (intensity then reads as darkness).
+          className: 'map-radar-tiles',
           // RainViewer only generates radar tiles natively up to zoom 7 -
           // without this, zooming past that requests tiles that don't
           // exist and gets back a "Zoom Level Not Supported" placeholder

@@ -10,8 +10,7 @@ import { RadarWidget } from './components/RadarWidget'
 import { CountdownWidget } from './components/CountdownWidget'
 import { GithubWidget } from './components/GithubWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
-import { GalaxyBackground } from './components/GalaxyBackground'
-import { isTheme, nextTheme, type Theme } from './lib/theme'
+import { nextTheme, readStoredTheme, THEME_COLORS, type Theme } from './lib/theme'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -34,10 +33,7 @@ function getISOWeek(date: Date): number {
 }
 
 function App() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme')
-    return isTheme(saved) ? saved : 'light'
-  })
+  const [theme, setTheme] = useState<Theme>(() => readStoredTheme(localStorage.getItem('theme')))
   const [refreshing, setRefreshing] = useState(false)
 
   function handleRefresh() {
@@ -50,6 +46,10 @@ function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
+    // Keeps the browser's own chrome (Android's address bar, the installed
+    // PWA's title bar) in step with the page instead of pinned to whatever
+    // single colour index.html ships with.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme])
   }, [theme])
 
   // `upcoming` is for the label and icon only - the handler passes nextTheme
@@ -67,7 +67,6 @@ function App() {
   const week = getISOWeek(today)
   return (
     <div className="dashboard p-4 sm:p-6">
-      {theme === 'dark' && <GalaxyBackground />}
       <header>
         <div className="flex items-center justify-between gap-4 w-full">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
@@ -81,7 +80,7 @@ function App() {
               WEEK {week}
             </p>
           </div>
-          <div className="key-sm-wrapper flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={handleRefresh}
               disabled={refreshing}
@@ -108,22 +107,12 @@ function App() {
               aria-label={`Switch theme (currently ${theme})`}
               title={`Switch to ${upcoming} theme`}
             >
-              {/* The icon shows what you'll GET, not what you're on - so one
-                  glance says where the next press lands. In order round the
-                  cycle: a moon (-> dark), a half-filled circle (-> mono), a
-                  filled circle (-> mono-dark), a sun (-> light). */}
+              {/* The icon shows what you'll GET, not what you're on - a moon
+                  while in light, a sun while in dark - so one glance says
+                  where the next press lands. */}
               {theme === 'light' ? (
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-              ) : theme === 'dark' ? (
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" />
-                </svg>
-              ) : theme === 'mono' ? (
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="9" fill="currentColor" />
                 </svg>
               ) : (
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">

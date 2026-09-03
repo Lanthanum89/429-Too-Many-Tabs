@@ -10,27 +10,36 @@ tablet in landscape it's laid out to fit entirely within one screen, no scrollin
 portrait (phone or tablet) just stacks everything and scrolls normally — see
 [Layout](#layout) below.
 
-There are four themes, cycled by the single toggle in the header (light → dark → mono
-→ mono-dark) and remembered in `localStorage`. The toggle's icon shows what the next
-press gives you, not what you're currently on:
+The interface is greyscale throughout — e-ink rather than dashboard. Two variants,
+flipped by the single toggle in the header and remembered in `localStorage`; the
+toggle's icon shows what the next press gives you, not what you're currently on:
 
-| Theme | Look | Fonts |
-| --- | --- | --- |
-| `light` | Strawberry: creamy pink base, berry-red accents, gingham background | Baloo 2 titles, Fredoka numerals, Sora body |
-| `dark` | Near-black with lilac accents and a pixel-art galaxy background | as above |
-| `mono` | Black and white: white cards on light grey, hairline rules, no accent hue, decoration switched off | Playfair Display for the greeting, card titles and numerals; Inter for everything else |
-| `mono-dark` | The same theme inverted: dark grey cards on near-black, near-white ink | as `mono` |
+| Theme | Look |
+| --- | --- |
+| `light` | White cards on light grey, hairline rules, near-black ink |
+| `dark` | The same interface inverted: dark grey cards on near-black, near-white ink |
 
-Each one is a block of CSS custom properties in `src/index.css` (`void`, `surface`,
+Type is Literata for the display slots (the greeting, card titles, and every large
+numeral — flip clock, temperature, countdown) and Inter for the interface itself,
+including the small letterspaced labels where a serif gets fussy. Literata is a
+screen-reading serif rather than a display face, so it stays comfortable at the sizes
+these actually run at. Both are self-hosted via `@fontsource` rather than a CDN link,
+so they're bundled into the build and precached by the service worker — no external
+font request needed once installed.
+
+The palette is a block of CSS custom properties in `src/index.css` (`void`, `surface`,
 `line`, `ink`, `muted`, `dim`, `accent`, `accent-bright`, `danger`, plus the clock and
-flip-clock tokens) — light lives in the `@theme` block, the other three in
-`:root[data-theme='…']` overrides. The two mono variants differ only in palette: every
-structural rule they share is selected with `:root[data-theme^='mono']` and written
-once. Between them they switch off the things a palette swap can't reach: the
-gingham/galaxy backgrounds, the keycap bevels on cards and buttons, the doodle
-mascots, and colour in the album art and map tiles. All fonts are
-self-hosted via `@fontsource` rather than a CDN link, so they're bundled into the build
-and precached by the service worker — no external font request needed once installed.
+flip-clock tokens): light lives in the `@theme` block, dark in a single
+`:root[data-theme='dark']` override that carries nothing but colour. Everything
+structural is unconditional.
+
+Nothing in the interface carries a hue, and the few things that arrive already coloured
+are desaturated in CSS: Spotify album art, the map basemap and marker, and the radar
+overlay. The radar one is a deliberate trade — RainViewer colour-codes rain by
+intensity, so greyscaling costs some separation between drizzle and downpour, with
+intensity still reading as darkness. Every icon in the app is a stroked outline on
+`currentColor`, so icons need no theme-aware code at all.
+
 The clock defaults to 24-hour time (`hour12: false`).
 
 ## Widgets
