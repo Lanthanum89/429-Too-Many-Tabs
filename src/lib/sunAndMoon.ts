@@ -39,15 +39,18 @@ export function getUvRiskLabel(uv: number): string {
   return 'Extreme'
 }
 
-const MOON_PHASES = [
-  { name: 'New Moon', emoji: '🌑' },
-  { name: 'Waxing Crescent', emoji: '🌒' },
-  { name: 'First Quarter', emoji: '🌓' },
-  { name: 'Waxing Gibbous', emoji: '🌔' },
-  { name: 'Full Moon', emoji: '🌕' },
-  { name: 'Waning Gibbous', emoji: '🌖' },
-  { name: 'Last Quarter', emoji: '🌗' },
-  { name: 'Waning Crescent', emoji: '🌘' },
+// Names only. The glyph used to come from here too (the moon emoji, which
+// every platform renders in full colour and which no CSS filter can reach
+// through a font) - MoonPhaseIcon draws the disc instead, from `phase`.
+const MOON_PHASE_NAMES = [
+  'New Moon',
+  'Waxing Crescent',
+  'First Quarter',
+  'Waxing Gibbous',
+  'Full Moon',
+  'Waning Gibbous',
+  'Last Quarter',
+  'Waning Crescent',
 ]
 
 const SYNODIC_MONTH_DAYS = 29.530588853
@@ -59,14 +62,18 @@ const KNOWN_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14, 0)
 
 export interface MoonPhase {
   name: string
-  emoji: string
+  /** Position through the synodic cycle: 0 and 1 are new, 0.5 is full. */
+  phase: number
   illumination: number
 }
 
 export function getMoonPhase(date: Date): MoonPhase {
   const daysSince = (date.getTime() - KNOWN_NEW_MOON) / 86400000
   const phase = (((daysSince % SYNODIC_MONTH_DAYS) + SYNODIC_MONTH_DAYS) % SYNODIC_MONTH_DAYS) / SYNODIC_MONTH_DAYS
+  // The name is the nearest of the eight conventional phases; `phase` itself
+  // stays continuous, because the drawn disc can show where between two names
+  // the moon actually is where a name has to round to one of eight.
   const index = Math.round(phase * 8) % 8
   const illumination = Math.round(((1 - Math.cos(phase * 2 * Math.PI)) / 2) * 100)
-  return { ...MOON_PHASES[index], illumination }
+  return { name: MOON_PHASE_NAMES[index], phase, illumination }
 }
