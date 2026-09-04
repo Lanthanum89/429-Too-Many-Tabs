@@ -14,16 +14,17 @@ export function isTheme(value: string | null): value is Theme {
 // greyscale 'mono'/'mono-dark' pair. The greyscale pair is now the only one,
 // under the plain names - so anyone whose browser still has a 'mono' value
 // saved lands on the variant they actually chose rather than being bounced
-// back to light. Safe to delete once nobody is carrying a stale value; it
-// costs one object either way.
-const RETIRED: Record<string, Theme> = {
-  mono: 'light',
-  'mono-dark': 'dark',
-}
-
+// back to light. Safe to delete once nobody is carrying a stale value.
+//
+// Compared literally rather than looked up in an object: the argument comes
+// from localStorage, so it is whatever anyone has typed into devtools, and a
+// `value in table` test answers true for every key inherited from
+// Object.prototype - 'toString' would have passed it and returned a function
+// where a Theme was promised.
 export function readStoredTheme(value: string | null): Theme {
   if (isTheme(value)) return value
-  if (value !== null && value in RETIRED) return RETIRED[value]
+  if (value === 'mono') return 'light'
+  if (value === 'mono-dark') return 'dark'
   return 'light'
 }
 

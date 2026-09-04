@@ -257,44 +257,47 @@ body {
   transform: translateY(1px);
 }
 
-/* Flat cards: a hairline border, a tight radius, and a soft shadow that
-   seats the card on the page rather than a bevel or a facet. The Card
-   component's own utility classes set a heavier border and a 16px radius,
-   hence overriding both here.
+/* Flat cards: a tight radius and a soft shadow that seats the card on the
+   page rather than a bevel or a facet.
+
+   Card.tsx already carries `border border-line bg-surface`utilities, which
+   resolve to exactly what this rule would have set, so the border colour and
+   background are left to it rather than restated here. What is overridden is
+   its `rounded-2xl` (16px, too soft for this) and its `shadow-lg`. Tailwind
+   utilities live in a layer and this rule does not, so unlayered wins on the
+   cascade without needing !important for either.
 
    box-shadow is paint-only, so none of this touches any card's layout size
    regardless of how tightly its height budget is tuned - the two are
    unrelated in the box model. */
 .card {
-  border-color: var(--color-line) !important;
-  background: var(--color-surface) !important;
   border-radius: 0.25rem;
   transform: translate(0, 0);
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.05),
-    0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* Lifts rather than sinks: the card stays put, its shadow deepens and the
    hairline steps up (faint enough here to be worth moving). */
 .card:hover {
   transform: translate(0, 0);
-  border-color: var(--color-dim) !important;
+  border-color: var(--color-dim);
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.06),
-    0 6px 16px -4px rgba(0, 0, 0, 0.1) !important;
+    0 6px 16px -4px rgba(0, 0, 0, 0.1);
 }
 
 /* A black shadow does nothing on a near-black page, so the dark variant
    leans on the card being lighter than the ground it sits on plus its own
    border, and keeps only enough shadow to seat it. */
 :root[data-theme='dark'] .card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 :root[data-theme='dark'] .card:hover {
-  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6);
 }
 
 /* Scrollbar styling */
