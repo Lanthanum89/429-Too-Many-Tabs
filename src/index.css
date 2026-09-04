@@ -1097,3 +1097,30 @@ button:hover:not(:disabled) {
 .dashboard-binary .border-line-strong {
   border-color: var(--color-line);
 }
+
+/* MoonPhaseIcon's two regions (see the component for the geometry). On the
+   light ground the shadowed part carries the ink and the lit part is left as
+   the card beneath it, the way an almanac prints a phase; on the dark ground
+   that would read as a negative, so the two swap. currentColor on whichever
+   region is inked keeps the disc the same weight as the row of metadata it
+   sits in, rather than punching a hole of full-strength ink through it. */
+.moon-shadow {
+  fill: currentColor;
+}
+
+.moon-lit {
+  fill: var(--color-surface);
+}
+
+.moon-rim {
+  stroke: currentColor;
+  opacity: 0.55;
+}
+
+:root[data-theme='dark'] .moon-shadow {
+  fill: var(--color-surface);
+}
+
+:root[data-theme='dark'] .moon-lit {
+  fill: currentColor;
+}

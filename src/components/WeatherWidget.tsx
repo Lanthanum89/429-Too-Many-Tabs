@@ -3,6 +3,7 @@ import { Card } from './Card'
 import { getCoords, FALLBACK_LAT, FALLBACK_LON } from '../lib/geolocation'
 import { fetchWeather, type WeatherSnapshot } from '../lib/weather'
 import { fetchSunAndUv, getMoonPhase, getUvRiskLabel, type SunAndUv } from '../lib/sunAndMoon'
+import { MoonPhaseIcon } from './Icons'
 import { useSwipe } from '../lib/useSwipe'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
@@ -236,8 +237,9 @@ export function WeatherWidget() {
               <span>
                 {formatTime(sunAndUv.sunrise)} &middot; {formatTime(sunAndUv.sunset)}
               </span>
-              <span>
-                {moon.emoji} {moon.name}
+              <span className="inline-flex items-center gap-1.5">
+                <MoonPhaseIcon phase={moon.phase} className="h-3.5 w-3.5 shrink-0" />
+                {moon.name}
               </span>
               <span>
                 UV {Math.round(sunAndUv.uvIndexMax)} &middot; {getUvRiskLabel(sunAndUv.uvIndexMax)}
