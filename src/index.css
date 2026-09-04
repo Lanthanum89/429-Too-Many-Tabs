@@ -1084,9 +1084,20 @@ button:hover:not(:disabled) {
 }
 
 /* Album art is content rather than chrome, so desaturating it is the one
-   deliberate overreach here - delete this rule to let it stay in colour. */
+   deliberate overreach here - delete the filter to let it stay in colour.
+
+   Sized as a share of the row it shares with the track details rather than at
+   a fixed pixel size: the Spotify card is as narrow as ~240px in the desktop
+   grid and as wide as ~375px stacked on a phone, and one fixed size that
+   filled the wide case crushed "Playing from ..." to an ellipsis in the
+   narrow one. The clamp floor is the size the art used to be, so it never
+   gets smaller than it was, and the ceiling stops it swallowing the row on
+   the widest layout. */
 .album-art {
   filter: grayscale(1) contrast(1.05);
+  width: clamp(4rem, 30%, 7rem);
+  height: auto;
+  aspect-ratio: 1;
 }
 
 /* Binary clock's OFF dots carry `border-line-strong`, which is near-black

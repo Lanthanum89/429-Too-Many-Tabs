@@ -27,44 +27,6 @@ function formatDuration(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
-// Downsamples the album art to a tiny canvas and averages it, so the card
-// can glow with whatever color the cover actually is instead of a fixed
-// accent - purely decorative, so any failure (a host that doesn't send
-// CORS headers taints the canvas, a network hiccup) just means no glow
-// rather than a broken widget.
-function sampleAverageColor(url: string): Promise<string | null> {
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      try {
-        const size = 8
-        const canvas = document.createElement('canvas')
-        canvas.width = size
-        canvas.height = size
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return resolve(null)
-        ctx.drawImage(img, 0, 0, size, size)
-        const { data } = ctx.getImageData(0, 0, size, size)
-        let r = 0
-        let g = 0
-        let b = 0
-        const pixels = data.length / 4
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i]
-          g += data[i + 1]
-          b += data[i + 2]
-        }
-        resolve(`${Math.round(r / pixels)}, ${Math.round(g / pixels)}, ${Math.round(b / pixels)}`)
-      } catch {
-        resolve(null)
-      }
-    }
-    img.onerror = () => resolve(null)
-    img.src = url
-  })
-}
-
 export function SpotifyWidget() {
   // Only ever changes via a full page reload (the OAuth redirect round-trip),
   // so a plain read is enough — no state needed to react to it mid-session.
@@ -80,9 +42,6 @@ export function SpotifyWidget() {
   // reflects what was last toggled here, not necessarily the account's true
   // state if changed from another device in the meantime.
   const [shuffleOn, setShuffleOn] = useState(false)
-  // "r, g, b" (no wrapper) so it drops straight into an rgba(...) template
-  // at whatever alpha the box-shadow layers below need.
-  const [glowColor, setGlowColor] = useState<string | null>(null)
   const lastSyncRef = useRef(Date.now())
 
   async function poll() {
@@ -136,21 +95,6 @@ export function SpotifyWidget() {
 
     return () => clearInterval(id)
   }, [nowPlaying])
-
-  useEffect(() => {
-    const url = nowPlaying?.albumArtUrl
-    if (!url) {
-      setGlowColor(null)
-      return
-    }
-    let cancelled = false
-    sampleAverageColor(url).then((color) => {
-      if (!cancelled) setGlowColor(color)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [nowPlaying?.albumArtUrl])
 
   async function connect() {
     try {
@@ -222,14 +166,7 @@ export function SpotifyWidget() {
     : 0
 
   return (
-    <Card
-      className="flex flex-col items-center justify-center gap-2 text-center"
-      style={
-        glowColor && nowPlaying?.isPlaying
-          ? { boxShadow: `0 10px 32px -6px rgba(${glowColor}, 0.55), 0 3px 10px -2px rgba(${glowColor}, 0.35)` }
-          : undefined
-      }
-    >
+    <Card className="flex flex-col items-center justify-center gap-2 text-center">
       {!nowPlaying?.trackName && (
         <h2 className="font-mono text-sm tracking-wide text-muted uppercase">Spotify</h2>
       )}
@@ -245,7 +182,7 @@ export function SpotifyWidget() {
               <img
                 src={nowPlaying.albumArtUrl}
                 alt=""
-                className={`album-art h-16 w-16 shrink-0 rounded-full object-cover shadow-lg ${
+                className={`album-art shrink-0 rounded-full object-cover shadow-lg ${
                   nowPlaying.isPlaying ? 'animate-vinyl-spin' : ''
                 }`}
               />
