@@ -172,6 +172,18 @@ body,
   height: 100%;
 }
 
+/* Form controls carry a platform radius of their own - iOS Safari rounds
+   text and date inputs whatever the stylesheet says elsewhere - so squaring
+   the corners has to say so explicitly rather than relying on there being no
+   radius to begin with. Countdown's two inputs are the ones this actually
+   reaches today. */
+input,
+button,
+select,
+textarea {
+  border-radius: 0;
+}
+
 body {
   @apply bg-void text-ink;
   overscroll-behavior: none;

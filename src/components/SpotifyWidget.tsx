@@ -185,7 +185,7 @@ export function SpotifyWidget() {
                 // Square, and no longer spinning: the vinyl-record treatment
                 // needed a circle, and a rotating square just reads as broken.
                 // A cover is a cover, the way an e-reader shows one.
-                className="album-art shrink-0 object-cover" 
+                className="album-art shrink-0 object-cover"
               />
             )}
             <div className="min-w-0 flex-1 text-left">

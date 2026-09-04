@@ -15,7 +15,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`card rounded-none border border-line bg-surface p-6 shadow-lg ${className}`}
+      className={`card border border-line bg-surface p-6 ${className}`}
       style={style}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
