@@ -109,7 +109,7 @@ export function EmailWidget() {
             title={
               unreadCount === 0 ? 'No unread messages' : unreadOnly ? 'Show all messages' : 'Show only unread'
             }
-            className={`key-sm rounded-full border-2 px-2 py-0.5 text-xs font-semibold ${
+            className={`key-sm rounded-none border-2 px-2 py-0.5 text-xs font-semibold ${
               unreadCount === 0
                 ? 'border-line bg-transparent text-dim'
                 : unreadOnly
@@ -128,7 +128,7 @@ export function EmailWidget() {
             title={
               starredCount === 0 ? 'No starred messages' : starredOnly ? 'Show all messages' : 'Show only starred'
             }
-            className={`key-sm rounded-full border-2 px-2 py-0.5 text-xs font-semibold ${
+            className={`key-sm rounded-none border-2 px-2 py-0.5 text-xs font-semibold ${
               starredCount === 0
                 ? 'border-line bg-transparent text-dim'
                 : starredOnly
@@ -170,7 +170,7 @@ export function EmailWidget() {
                 href={gmailMessageUrl(message.id)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-full items-start gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-accent-neon/15 hover:text-accent-bright"
+                className="flex w-full items-start gap-2 rounded-none px-2 py-1.5 text-left hover:bg-accent-neon/15 hover:text-accent-bright"
               >
                 <svg
                   viewBox="0 0 24 24"

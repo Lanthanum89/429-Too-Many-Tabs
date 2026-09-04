@@ -27,44 +27,6 @@ function formatDuration(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
-// Downsamples the album art to a tiny canvas and averages it, so the card
-// can glow with whatever color the cover actually is instead of a fixed
-// accent - purely decorative, so any failure (a host that doesn't send
-// CORS headers taints the canvas, a network hiccup) just means no glow
-// rather than a broken widget.
-function sampleAverageColor(url: string): Promise<string | null> {
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      try {
-        const size = 8
-        const canvas = document.createElement('canvas')
-        canvas.width = size
-        canvas.height = size
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return resolve(null)
-        ctx.drawImage(img, 0, 0, size, size)
-        const { data } = ctx.getImageData(0, 0, size, size)
-        let r = 0
-        let g = 0
-        let b = 0
-        const pixels = data.length / 4
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i]
-          g += data[i + 1]
-          b += data[i + 2]
-        }
-        resolve(`${Math.round(r / pixels)}, ${Math.round(g / pixels)}, ${Math.round(b / pixels)}`)
-      } catch {
-        resolve(null)
-      }
-    }
-    img.onerror = () => resolve(null)
-    img.src = url
-  })
-}
-
 export function SpotifyWidget() {
   // Only ever changes via a full page reload (the OAuth redirect round-trip),
   // so a plain read is enough — no state needed to react to it mid-session.
@@ -80,9 +42,6 @@ export function SpotifyWidget() {
   // reflects what was last toggled here, not necessarily the account's true
   // state if changed from another device in the meantime.
   const [shuffleOn, setShuffleOn] = useState(false)
-  // "r, g, b" (no wrapper) so it drops straight into an rgba(...) template
-  // at whatever alpha the box-shadow layers below need.
-  const [glowColor, setGlowColor] = useState<string | null>(null)
   const lastSyncRef = useRef(Date.now())
 
   async function poll() {
@@ -136,21 +95,6 @@ export function SpotifyWidget() {
 
     return () => clearInterval(id)
   }, [nowPlaying])
-
-  useEffect(() => {
-    const url = nowPlaying?.albumArtUrl
-    if (!url) {
-      setGlowColor(null)
-      return
-    }
-    let cancelled = false
-    sampleAverageColor(url).then((color) => {
-      if (!cancelled) setGlowColor(color)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [nowPlaying?.albumArtUrl])
 
   async function connect() {
     try {
@@ -208,7 +152,7 @@ export function SpotifyWidget() {
         <h2 className="font-mono text-lg font-bold text-accent-neon">Spotify</h2>
         <button
           onClick={connect}
-          className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
+          className="rounded-none bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
         >
           Connect Spotify
         </button>
@@ -222,14 +166,7 @@ export function SpotifyWidget() {
     : 0
 
   return (
-    <Card
-      className="flex flex-col items-center justify-center gap-2 text-center"
-      style={
-        glowColor && nowPlaying?.isPlaying
-          ? { boxShadow: `0 10px 32px -6px rgba(${glowColor}, 0.55), 0 3px 10px -2px rgba(${glowColor}, 0.35)` }
-          : undefined
-      }
-    >
+    <Card className="flex flex-col items-center justify-center gap-2 text-center">
       {!nowPlaying?.trackName && (
         <h2 className="font-mono text-sm tracking-wide text-muted uppercase">Spotify</h2>
       )}
@@ -245,9 +182,10 @@ export function SpotifyWidget() {
               <img
                 src={nowPlaying.albumArtUrl}
                 alt=""
-                className={`album-art h-16 w-16 shrink-0 rounded-full object-cover shadow-lg ${
-                  nowPlaying.isPlaying ? 'animate-vinyl-spin' : ''
-                }`}
+                // Square, and no longer spinning: the vinyl-record treatment
+                // needed a circle, and a rotating square just reads as broken.
+                // A cover is a cover, the way an e-reader shows one.
+                className="album-art shrink-0 object-cover"
               />
             )}
             <div className="min-w-0 flex-1 text-left">
@@ -268,9 +206,9 @@ export function SpotifyWidget() {
                 <p className="truncate text-[11px] text-dim">Playing from: {nowPlaying.contextName}</p>
               )}
               <div className="mt-1 w-full">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+                <div className="h-1.5 w-full overflow-hidden rounded-none bg-line">
                   <div
-                    className="h-full rounded-full bg-accent transition-[width] duration-500 ease-linear"
+                    className="h-full rounded-none bg-accent transition-[width] duration-500 ease-linear"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -287,7 +225,7 @@ export function SpotifyWidget() {
               disabled={controlPending}
               aria-label={shuffleOn ? 'Disable shuffle' : 'Enable shuffle'}
               aria-pressed={shuffleOn}
-              className={`key-sm flex items-center justify-center rounded-full border-2 p-1 disabled:opacity-40 ${
+              className={`key-sm flex items-center justify-center rounded-none border-2 p-1 disabled:opacity-40 ${
                 shuffleOn
                   ? 'border-accent-bright bg-accent-bright text-void'
                   : 'border-line bg-transparent text-muted hover:text-accent-neon'
@@ -305,7 +243,7 @@ export function SpotifyWidget() {
               onClick={handlePrevious}
               disabled={controlPending}
               aria-label="Previous track"
-              className="key-sm flex h-7 w-7 items-center justify-center rounded-full border-2 border-line bg-transparent text-muted disabled:opacity-40"
+              className="key-sm flex h-7 w-7 items-center justify-center rounded-none border-2 border-line bg-transparent text-muted disabled:opacity-40"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
@@ -315,7 +253,7 @@ export function SpotifyWidget() {
               onClick={handlePlayPause}
               disabled={controlPending}
               aria-label={nowPlaying.isPlaying ? 'Pause' : 'Play'}
-              className="key flex h-9 w-9 items-center justify-center rounded-full bg-accent text-void disabled:opacity-40"
+              className="key flex h-9 w-9 items-center justify-center rounded-none bg-accent text-void disabled:opacity-40"
             >
               {nowPlaying.isPlaying ? (
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
@@ -331,7 +269,7 @@ export function SpotifyWidget() {
               onClick={handleNext}
               disabled={controlPending}
               aria-label="Next track"
-              className="key-sm flex h-7 w-7 items-center justify-center rounded-full border-2 border-line bg-transparent text-muted disabled:opacity-40"
+              className="key-sm flex h-7 w-7 items-center justify-center rounded-none border-2 border-line bg-transparent text-muted disabled:opacity-40"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z" />

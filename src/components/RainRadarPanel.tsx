@@ -153,10 +153,10 @@ export function RainRadarPanel({
   }, [lat, lon, theme])
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-lg">
+    <div className="relative h-full w-full overflow-hidden rounded-none">
       <div ref={containerRef} className="h-full w-full" />
       {error && (
-        <p className="absolute bottom-1 left-1 rounded bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">{error}</p>
+        <p className="absolute bottom-1 left-1 bg-void/80 px-1.5 py-0.5 text-[10px] text-danger">{error}</p>
       )}
     </div>
   )
