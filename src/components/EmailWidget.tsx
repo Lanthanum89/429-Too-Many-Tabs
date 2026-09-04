@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card } from './Card'
-import { Strawberry } from './Doodles'
+import { EnvelopeIcon } from './Icons'
 import {
   fetchAllStarredMessages,
   fetchInboxMessages,
@@ -99,7 +99,7 @@ export function EmailWidget() {
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="key-sm-wrapper flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Email</h2>
         {unreadCount !== null && (
           <button
@@ -152,7 +152,7 @@ export function EmailWidget() {
         <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto pr-2">
           {visibleMessages.length === 0 && (
             <li className="flex flex-1 flex-col items-center justify-center gap-2 py-6 text-center text-sm text-dim">
-              <Strawberry className="h-10 w-10" />
+              <EnvelopeIcon className="h-8 w-8 text-dim" />
               <span>
                 {unreadOnly && starredOnly
                   ? 'No unread starred messages loaded.'

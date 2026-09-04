@@ -65,7 +65,7 @@ export function CountdownWidget() {
       {config ? (
         <CountdownDisplay config={config} />
       ) : (
-        <div className="key-sm-wrapper flex min-h-0 flex-1 flex-wrap content-center items-center gap-2">
+        <div className="flex min-h-0 flex-1 flex-wrap content-center items-center gap-2">
           <input
             type="text"
             placeholder="Days until…"

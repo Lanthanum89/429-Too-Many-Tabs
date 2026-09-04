@@ -1,88 +1,70 @@
 @import 'tailwindcss';
 
-@import '@fontsource/sora/400.css';
-@import '@fontsource/sora/500.css';
-@import '@fontsource/sora/600.css';
-@import '@fontsource/baloo-2/600.css';
-@import '@fontsource/baloo-2/700.css';
-@import '@fontsource/baloo-2/800.css';
-@import '@fontsource/fredoka/600.css';
-@import '@fontsource/fredoka/700.css';
-
-/* Mono theme only (see [data-theme='mono'] below): Inter for body/UI and
-   Playfair Display for the headline, card titles and the big numerals.
-   Both were already dependencies but never imported, so nothing new is
-   added to the install - and every weight listed here is one the theme
-   actually uses, rather than pulling whole families in. */
+/* Inter for the interface, Literata for the display slots. Literata is a
+   screen-reading serif (it is what Google Play Books sets its text in), so
+   unlike a high-contrast display face it stays comfortable at the sizes the
+   greeting and card titles actually run at, and its numerals hold together
+   at clock size. Only the weights actually used are pulled in. */
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
-@import '@fontsource/playfair-display/600.css';
-@import '@fontsource/playfair-display/600-italic.css';
-@import '@fontsource/playfair-display/700.css';
+@import '@fontsource/literata/500.css';
+@import '@fontsource/literata/600.css';
+@import '@fontsource/literata/600-italic.css';
 
-/* Light mode: strawberry - creamy pink base, berry-red accents, with
-   green kept to the thin/subtle border lines only (a hint of leaf, not
-   a competing second brand color). Dark mode keeps the original lilac
-   scheme entirely via its own override block below - this only touches
-   the light (default, unscoped) values.
-   No terminal/mono fonts anywhere in this theme on purpose: Baloo 2
-   (bold, bubbly, rounded) for titles/labels, Fredoka (rounded, bold) for
-   the big numeral displays - flip clock, temperature, countdown - Sora
-   stays for body copy since it's already soft/geometric rather than
-   technical. */
+/* One palette, two variants: a light greyscale here (the unscoped default)
+   and a dark greyscale in the [data-theme='dark'] block below. No hue
+   anywhere - the whole interface is neutral, e-ink style, and the only
+   colour left on screen is content the app doesn't own (see the grayscale
+   filters near the bottom of this file, which take care of even that).
+
+   The three clock units keep their separation as a light/mid/dark grey
+   ramp rather than three hues, so the binary clock stays legible without
+   introducing colour. */
 @theme {
-  --color-void: #fdf1f0;
-  --color-surface: #fce4e3;
-  --color-surface-2: #f8d2d3;
-  --color-line: #a8c99a;
-  --color-line-strong: #c2445f;
-  --color-ink: #3d1220;
-  --color-muted: #8f4a52;
-  --color-dim: #b98a8e;
-  --color-accent: #e0435c;
-  --color-accent-bright: #ef5d74;
-  --color-accent-neon: #d4275a;
-  --color-danger: #c81e3a;
+  --color-void: #f2f2f2;
+  --color-surface: #ffffff;
+  /* Same value as --color-surface on purpose: .card's base rule paints a
+     gradient between the two, and a flat card is the point here. */
+  --color-surface-2: #ffffff;
+  --color-line: #e4e4e4;
+  --color-line-strong: #111111;
+  --color-ink: #0d0d0d;
+  --color-muted: #4d4d4d;
+  --color-dim: #8c8c8c;
+  --color-accent: #000000;
+  --color-accent-bright: #2b2b2b;
+  --color-accent-neon: #000000;
+  /* No red to fall back on, so errors carry on their wording rather than
+     their colour - deliberate, this interface is greyscale full stop. */
+  --color-danger: #000000;
 
-  /* Binary clock's three units get their own pastel hue so hours/mins/secs
-     are visually distinct at a glance instead of one flat color - kept
-     soft/pastel rather than the punchier accent-neon red. */
-  --color-clock-hour: #d4275a;
-  --color-clock-min: #ef8ba0;
-  --color-clock-sec: #93c47d;
+  --color-clock-hour: #111111;
+  --color-clock-min: #565656;
+  --color-clock-sec: #9c9c9c;
 
-  /* Fixed (not overridden per-theme) so the flip clock's cards read like
-     a physical split-flap display's dark plastic leaves regardless of
-     light/dark mode, rather than flipping to a light card in light mode. */
-  --color-flip-bg: #352c44;
-  --color-flip-bg-2: #2b2338;
-  --color-flip-text: #f2ecfb;
+  /* Flat black leaves with white numerals: monochrome, and closer to a real
+     split-flap board than the dark-plastic gradient this used to be. */
+  --color-flip-bg: #111111;
+  --color-flip-bg-2: #111111;
+  --color-flip-text: #ffffff;
 
-  --font-sans: 'Sora', system-ui, sans-serif;
-  /* Every card title/header already uses the `font-mono` utility, so
-     repointing this one token is enough to swap them all at once rather
-     than touching each component individually. Baloo 2 instead of
-     Quicksand: Quicksand's rounded terminals read as too plain/generic
-     for this - Baloo 2 is heavier and bouncier, with actual bubble-
-     letter character, which suits "strawberry whimsical" a lot better
-     while staying a legible UI sans (not a script face like the
-     Caveat attempt before it). */
-  --font-mono: 'Baloo 2', system-ui, sans-serif;
-  /* Was declared but never actually defined anywhere (the `font-clock`
-     utility class had nothing backing it, so anything using it silently
-     fell back to body text) - now it is, for the flip clock plus the
-     other big numeral displays (temperature, countdown) that were
-     reaching for it already. Fredoka's weights only go to 700, not 900 -
-     the handful of `font-black` usages on font-clock text were bumped
-     down to `font-bold` to match an actual loaded weight instead of
-     asking the browser to synthesize a heavier one. */
-  --font-clock: 'Fredoka', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  /* Named for the `font-mono` utility every card title and small label
+     already reaches for, not for anything monospaced - repointing this one
+     token is what swaps them all at once. Inter rather than Literata: a
+     serif at 10px with wide letterspacing gets fussy, so the display slots
+     are named individually further down instead. */
+  --font-mono: 'Inter', system-ui, sans-serif;
+  /* The big numeral displays: flip clock, temperature, countdown. */
+  --font-clock: 'Literata', Georgia, 'Times New Roman', serif;
+  /* Not a Tailwind theme token - consumed only by the handful of display
+     rules further down (the greeting and card titles). */
+  --font-display: 'Literata', Georgia, 'Times New Roman', serif;
 
-  /* A little playful overshoot-then-settle, instead of every hover/toggle
-     easing linearly like a spreadsheet. Used anywhere something should
-     feel like it has a bit of spring in it. */
+  /* A little overshoot-then-settle on the binary clock's dots, instead of
+     easing linearly like a spreadsheet. */
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Slow, steady spin for Spotify's album art while playing - a record
@@ -180,140 +162,22 @@ body,
   height: 100%;
 }
 
-/* Gingham/picnic-check background (the reference photo, recreated in CSS
-   rather than embedded as an image - the original had a site watermark
-   baked in) - two overlapping sets of translucent stripes, tinted with
-   the theme's own strawberry red instead of the reference's rust-orange
-   so it reads as part of this palette rather than a foreign one. Cards
-   sit fully opaque on top, so this only actually shows through in the
-   grid gaps and the dashboard's own outer padding - like a tablecloth
-   glimpsed at the seams. */
 body {
   @apply bg-void text-ink;
   overscroll-behavior: none;
   transition: background-color 0.3s ease, color 0.3s ease;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(194, 68, 95, 0.12) 0 22px, transparent 22px 44px),
-    repeating-linear-gradient(90deg, rgba(194, 68, 95, 0.12) 0 22px, transparent 22px 44px);
 }
 
-/* Dark mode swaps the gingham for a pixel-art galaxy scene instead
-   (see GalaxyBackground.tsx, rendered as an actual element rather than
-   through this body rule) - turned off here so the pink gingham doesn't
-   show through underneath/behind it. */
-:root[data-theme='dark'] body {
-  background-image: none;
-}
-
-/* Fixed and behind everything (z-index below .dashboard's own, see that
-   rule for why it needs one explicitly now), so it doesn't scroll with
-   content and only actually shows through the grid gaps and outer
-   padding, same as the gingham did. */
-.dashboard-galaxy {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* Dark mode overrides - dark background with purple accents */
-:root[data-theme="dark"] {
-  --color-void: #0b0a0f;
-  --color-surface: #131119;
-  --color-surface-2: #18151f;
-  --color-line: #292431;
-  --color-line-strong: #41384f;
-  --color-ink: #f0edf5;
-  --color-muted: #9790a3;
-  --color-dim: #676171;
-  --color-accent: #d4b8f0;
-  --color-accent-bright: #e0c8f5;
-  --color-accent-neon: #d4b8f0;
-  --color-danger: #d4b8f0;
-
-  --color-clock-hour: #d4b8f0;
-  --color-clock-min: #b89ae0;
-  --color-clock-sec: #e8d5f5;
-}
-
-/* Mono: a strictly black-and-white, print-inspired theme, in a light and a
-   dark variant ('mono' and 'mono-dark' - the two are exact inversions of
-   each other, not two separate designs). Every "personality" element the
-   other two themes lean on (gingham, galaxy, keycap bevels, the doodles) is
-   switched off further down rather than recoloured, because greyscale
-   whimsy still reads as whimsy.
-
-   Everything shared by both variants - the fonts here, and every structural
-   override at the bottom of this file - is selected with [data-theme^='mono']
-   so it applies to either without the rule list being written twice. The two
-   blocks below then carry nothing but colour.
-
-   The three clock units keep their separation as a light/mid/dark grey ramp
-   instead of three hues, so the binary clock stays legible in both without
-   introducing colour. */
-:root[data-theme^='mono'] {
-  /* Inter everywhere by default (--font-mono is what every card title and
-     small uppercase label actually resolves to, despite the name), with
-     Playfair reserved for the few display slots that are called out
-     individually below - the greeting, card titles, and the big numerals.
-     Applying Playfair through --font-mono instead would have dragged it
-     onto every 10px letterspaced label, which is where a high-contrast
-     serif falls apart. */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'Inter', system-ui, sans-serif;
-  --font-clock: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  /* Not a Tailwind theme token (mono-scoped plain custom property) - only
-     the handful of rules at the bottom of this file consume it. */
-  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
-}
-
-/* Light variant: white cards on a light grey ground, near-black ink. */
-:root[data-theme='mono'] {
-  --color-void: #f2f2f2;
-  --color-surface: #ffffff;
-  /* Same value as --color-surface on purpose: .card's base rule paints a
-     gradient between the two, and a flat card is the point here. */
-  --color-surface-2: #ffffff;
-  --color-line: #e4e4e4;
-  --color-line-strong: #111111;
-  --color-ink: #0d0d0d;
-  --color-muted: #4d4d4d;
-  --color-dim: #8c8c8c;
-  --color-accent: #000000;
-  --color-accent-bright: #2b2b2b;
-  --color-accent-neon: #000000;
-  /* No red to fall back on, so errors carry on the wording rather than the
-     colour - deliberate, given the brief was black and white full stop. */
-  --color-danger: #000000;
-
-  --color-clock-hour: #111111;
-  --color-clock-min: #565656;
-  --color-clock-sec: #9c9c9c;
-
-  /* The one place this theme overrides the otherwise fixed flip-clock
-     tokens: the other themes' dark-plastic purple would be the only
-     coloured surface left on the page. Flat black leaves with white
-     numerals is both monochrome and closer to a real split-flap board. */
-  --color-flip-bg: #111111;
-  --color-flip-bg-2: #111111;
-  --color-flip-text: #ffffff;
-}
-
-/* Dark variant: the same theme with the ink and paper swapped - dark grey
-   cards on near-black, near-white ink. Not a re-tinted version of the app's
-   existing 'dark' theme: that one is lilac-on-purple-black with a galaxy
-   behind it, this is strictly neutral and keeps every bit of decoration
-   switched off, same as its light twin. */
-:root[data-theme='mono-dark'] {
+/* Dark variant: the same interface with ink and paper swapped - dark grey
+   cards on near-black, near-white ink - rather than a second design. */
+:root[data-theme='dark'] {
   --color-void: #0b0b0b;
   --color-surface: #191919;
   --color-surface-2: #191919;
   /* A touch lighter relative to the surface than the light variant's
-     hairline is to white - the same contrast ratio reads as invisible
-     against a dark ground, where borders are the only thing separating
-     one card from the next (a black drop shadow does nothing here). */
+     hairline is to white: the same ratio reads as invisible against a dark
+     ground, where the border is the only thing separating one card from the
+     next (a black drop shadow does nothing here). */
   --color-line: #343434;
   --color-line-strong: #f5f5f5;
   --color-ink: #f4f4f4;
@@ -325,16 +189,14 @@ body {
   --color-danger: #ffffff;
 
   /* Ramp runs the other way here (bright = lit), so a lit dot is always the
-     one drawing the eye regardless of variant. */
+     one drawing the eye regardless of variant. Seconds is held clear of the
+     off dots' own border colour, --color-line. */
   --color-clock-hour: #f4f4f4;
   --color-clock-min: #9e9e9e;
-  /* Not darker than this: the off dots' own border sits at --color-line
-     (#343434), and a lit "seconds" dot has to stay clearly ahead of it. */
   --color-clock-sec: #6b6b6b;
 
   /* Inverted along with everything else: white leaves, black numerals.
-     Keeping the light variant's black leaves would have made the clock
-     disappear into the card it sits on. */
+     Black leaves would disappear into the card they sit on. */
   --color-flip-bg: #f4f4f4;
   --color-flip-bg-2: #f4f4f4;
   --color-flip-text: #0b0b0b;
@@ -362,24 +224,22 @@ body {
   color: var(--color-accent-neon);
 }
 
-/* Retro mechanical-keycap press: a thick "step" shadow that compresses
-   and the element sinks toward it on hover/press, like a physical
-   keyboard switch. --key-shadow-color defaults to the theme's own
-   border red (so it's already correct in dark mode too) - the flip
-   clock overrides it locally to its own fixed dark-plastic tone instead,
-   since that element doesn't recolor with the theme.
-   Two sizes: .key for anything roughly button-sized (media controls,
-   bus route cards), .key-sm for small chrome (toggles, filter pills) -
-   the full-size travel/shadow would dwarf a 24px pill. .clock-key is
-   its own thing: hover-only, no :active, because the flip-clock digits
-   are a *display*, not a control - a full pressed-button animation on
-   them would wrongly imply that clicking one does something.
-   Reserved for things that read as keys/buttons - never applied to
-   whole cards, which would flatten the page into one giant keyboard. */
+/* Buttons are flat: no stacked "keycap" step shadow, no travel on hover.
+   A 1px sink on :active is all that is kept, purely so a press still gets
+   confirmed - without it the media controls and bus route cards feel dead.
+   .clock-key has no :active on purpose: the flip-clock digits are a
+   *display*, not a control, and a pressed-button animation on them would
+   wrongly imply that clicking one does something.
+   Two sizes remain only because callers already name them: .key for
+   anything button-sized (media controls, bus route cards), .key-sm for
+   small chrome (toggles, filter pills). The .key-wrapper/.key-sm-wrapper
+   classes that used to reserve room for the resting shadow are gone with
+   it - there is no shadow left to leave room for. */
 .key,
 .key-sm,
 .clock-key {
   transform: translateY(0);
+  box-shadow: none;
   /* Folds color/border/background in here too (rather than leaving them
      to a separate transition-colors utility) - a plain `transition`
      shorthand overwrites the whole property list, so two separate rules
@@ -392,111 +252,52 @@ body {
     background-color 0.2s ease;
 }
 
-.key {
-  box-shadow:
-    0 6px 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 8px 10px rgba(0, 0, 0, 0.2);
-}
-.key:hover {
-  transform: translateY(2px);
-  box-shadow:
-    0 4px 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 5px 7px rgba(0, 0, 0, 0.16);
-}
-.key:active {
-  transform: translateY(6px);
-  box-shadow:
-    0 0 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 1px 2px rgba(0, 0, 0, 0.12);
-}
-
-.key-sm {
-  box-shadow:
-    0 3px 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 4px 5px rgba(0, 0, 0, 0.18);
-}
-.key-sm:hover {
-  transform: translateY(1px);
-  box-shadow:
-    0 2px 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 3px 4px rgba(0, 0, 0, 0.14);
-}
+.key:active,
 .key-sm:active {
-  transform: translateY(3px);
-  box-shadow:
-    0 0 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 1px 1px rgba(0, 0, 0, 0.1);
+  transform: translateY(1px);
 }
 
-.clock-key {
-  box-shadow:
-    0 8px 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 10px 12px rgba(0, 0, 0, 0.2);
-}
-.clock-key:hover {
-  transform: translateY(2px);
-  box-shadow:
-    0 6px 0 var(--key-shadow-color, var(--color-line-strong)),
-    0 8px 10px rgba(0, 0, 0, 0.16);
-}
+/* Flat cards: a tight radius and a soft shadow that seats the card on the
+   page rather than a bevel or a facet.
 
-/* Reserves room for the resting-state shadow (the tallest it gets) so
-   the thick lower edge doesn't overlap whatever sits below the key, or
-   get clipped by a parent that clips overflow. */
-.key-wrapper {
-  padding-bottom: 10px;
-}
-.key-sm-wrapper {
-  padding-bottom: 5px;
-}
-
-/* Cards are flat in every theme: a soft shadow that seats them on the page,
-   nothing that reads as a bevel or a facet. They used to carry the same
-   stacked-step keycap treatment as the buttons (offset shadows on the
-   bottom and right, the card sliding diagonally into them on hover), which
-   the mono themes then had to switch off - now the flat version is the base
-   and no theme overrides the shape of it, only its depth.
-
-   The buttons themselves (.key/.key-sm/.clock-key) keep their keycaps
-   outside the mono themes: those are things you actually press, where the
-   travel is feedback rather than decoration.
+   Card.tsx already carries `border border-line bg-surface`utilities, which
+   resolve to exactly what this rule would have set, so the border colour and
+   background are left to it rather than restated here. What is overridden is
+   its `rounded-2xl` (16px, too soft for this) and its `shadow-lg`. Tailwind
+   utilities live in a layer and this rule does not, so unlayered wins on the
+   cascade without needing !important for either.
 
    box-shadow is paint-only, so none of this touches any card's layout size
    regardless of how tightly its height budget is tuned - the two are
    unrelated in the box model. */
 .card {
-  border-color: var(--color-line-strong) !important;
-  background: linear-gradient(160deg, var(--color-surface) 0%, var(--color-surface-2) 100%) !important;
+  border-radius: 0.25rem;
   transform: translate(0, 0);
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.05),
-    0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-/* Lifts rather than sinks: the card stays put and only its shadow deepens.
-   The old diagonal translate was there to sell "sinking into its own
-   bevel", which no longer exists. */
+/* Lifts rather than sinks: the card stays put, its shadow deepens and the
+   hairline steps up (faint enough here to be worth moving). */
 .card:hover {
   transform: translate(0, 0);
+  border-color: var(--color-dim);
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.06),
-    0 6px 16px -4px rgba(0, 0, 0, 0.1) !important;
+    0 6px 16px -4px rgba(0, 0, 0, 0.1);
 }
 
-/* A black shadow does nothing on a near-black page, so the dark themes lean
-   on the card being lighter than the ground it sits on, plus their own
-   border, and keep only enough shadow to seat it. Grouped rather than left
-   to each theme: 'dark' and 'mono-dark' have the same problem for the same
-   reason. */
-:root[data-theme='dark'] .card,
-:root[data-theme='mono-dark'] .card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+/* A black shadow does nothing on a near-black page, so the dark variant
+   leans on the card being lighter than the ground it sits on plus its own
+   border, and keeps only enough shadow to seat it. */
+:root[data-theme='dark'] .card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-:root[data-theme='dark'] .card:hover,
-:root[data-theme='mono-dark'] .card:hover {
-  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6) !important;
+:root[data-theme='dark'] .card:hover {
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6);
 }
 
 /* Scrollbar styling */
@@ -510,12 +311,21 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(170, 150, 216, 0.4);
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(170, 150, 216, 0.6);
+  background: rgba(0, 0, 0, 0.38);
+}
+
+/* Black would vanish against a near-black page. */
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.38);
 }
 
 .card h2 {
@@ -1172,38 +982,39 @@ button:hover:not(:disabled) {
   }
 }
 
-/* Tints the basemap and Leaflet's default (blue, ~215° hue) marker
-   toward whichever accent hue the current theme actually uses, rather
-   than a single fixed rotation for both. Dark mode's accent lilac sits
-   at ~265° hue, so ~50° of rotation was enough there - light mode's new
-   strawberry accent sits at ~342° hue (pink-red), a much bigger swing
-   from blue, so it needs ~125° instead or the marker still reads
-   purple against the new pink/red palette. */
-.map-tiles-themed {
-  filter: hue-rotate(125deg) saturate(1.2);
+/* Everything on the map is desaturated: the basemap, Leaflet's default
+   (blue) marker, and the radar overlay itself. The radar's colour encodes
+   rain intensity rather than being decoration, so greyscaling it does cost
+   some separation between the bands - intensity still reads as darkness,
+   just with less of a gap between drizzle and downpour. Deliberate: a
+   single band of colour on an otherwise neutral page pulls the eye harder
+   than the information is worth here.
+
+   Esri serves a genuine dark Canvas basemap, which RainRadarPanel asks for
+   in the dark variant (see BASEMAPS there), so the tiles only ever need
+   desaturating - never inverting. */
+.map-tiles-themed,
+.map-radar-tiles {
+  filter: grayscale(1) contrast(1.05);
 }
 
 .leaflet-marker-icon {
-  filter: hue-rotate(125deg) saturate(1.3);
+  filter: grayscale(1) brightness(0.4) contrast(1.4);
 }
 
-:root[data-theme='dark'] .map-tiles-themed {
-  filter: hue-rotate(50deg) saturate(1.2);
+/* The marker has to be lightened rather than darkened to show up against
+   the dark basemap. */
+:root[data-theme='dark'] .leaflet-marker-icon {
+  filter: grayscale(1) brightness(1.8) contrast(1.1);
 }
 
 /* Basemaps that only ship light tiles (OpenStreetMap standard) get inverted
-   for dark mode, with a second hue-rotate to put the colours back the right
-   way round afterwards. Unused while BASEMAP is a provider serving real dark
-   tiles - see BASEMAPS in RainRadarPanel.tsx. This has the same specificity
-   as the .map-tiles-themed rule above and both match the same element, so it
-   has to stay below it to win. */
-:root[data-theme='dark'] .map-tiles-darken,
-:root[data-theme='mono-dark'] .map-tiles-darken {
-  filter: invert(1) hue-rotate(180deg) brightness(0.85) saturate(1.2);
-}
-
-:root[data-theme='dark'] .leaflet-marker-icon {
-  filter: hue-rotate(50deg) saturate(1.3);
+   for the dark variant. Unused while BASEMAP is a provider serving real
+   dark tiles - see BASEMAPS in RainRadarPanel.tsx. Same specificity as the
+   rule above and both match the same element, so it has to stay below it
+   to win. */
+:root[data-theme='dark'] .map-tiles-darken {
+  filter: grayscale(1) invert(1) brightness(0.85) contrast(1.05);
 }
 
 /* Leaflet's default light attribution/marker styling reads out of place
@@ -1220,176 +1031,69 @@ button:hover:not(:disabled) {
 }
 
 /* ---------------------------------------------------------------------
-   Mono theme structural overrides.
+   Display type and the last of the decoration.
 
    Kept together at the end of the file rather than scattered next to each
-   base rule, so the whole "what this theme switches off" story reads in
-   one place - and so anything using !important further up (.card mainly)
-   is safely beaten on both specificity and source order.
-
-   [data-theme^='mono'] deliberately matches both variants: none of this is
-   about light or dark, it's about the decoration a palette swap alone can't
-   reach. The variants' own colour tokens live near the top of the file. The
-   handful of rules that genuinely differ between them (drop shadows, the
-   map, the scrollbar) are called out individually at the end.
+   base rule, so the "what this interface deliberately does not do" story
+   reads in one place - and so anything using !important further up (.card
+   h2 mainly) is safely beaten on source order.
    --------------------------------------------------------------------- */
 
-/* No gingham. The galaxy is already dark-only (it's a React element, not a
-   background), so there's nothing to switch off for that one. */
-:root[data-theme^='mono'] body {
-  background-image: none;
+/* Literata's display slots. Everything else stays Inter - see --font-mono
+   in the token block for why this is done by rule rather than by token. */
+.dashboard > header h1,
+.card h2 {
+  font-family: var(--font-display);
 }
 
-/* The flat card shape and its shadows now live in the base .card rule, which
-   every theme shares - all that is left here is what's specific to mono: a
-   hairline border in place of the strong one, a flat fill in place of the
-   gradient, and a tighter radius. */
-:root[data-theme^='mono'] .card {
-  border-color: var(--color-line) !important;
-  background: var(--color-surface) !important;
+.dashboard > header {
+  border-bottom-width: 1px;
+  border-radius: 0;
+}
+
+.dashboard > header h1 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* The base .card h2 rule forces 1.25rem, which is a lot of serif repeated
+   across ten cards - dialled back so the titles read as section labels
+   rather than headlines. */
+.card h2 {
+  font-size: 0.9375rem !important;
+  letter-spacing: 0.01em;
+}
+
+/* Split-flap leaves: flat, square-ish corners, no plastic sheen. */
+.flip-digit {
   border-radius: 0.25rem;
 }
 
-/* The hairline is faint enough that the border is worth moving on hover
-   here, where the other themes leave theirs alone. */
-:root[data-theme^='mono'] .card:hover {
-  border-color: var(--color-dim) !important;
-}
-
-/* Keycaps off: no stacked step shadow, no travel on hover. A 1px sink on
-   :active is kept purely so buttons still confirm a press - without it
-   the media controls and bus route cards feel dead. */
-:root[data-theme^='mono'] .key,
-:root[data-theme^='mono'] .key-sm,
-:root[data-theme^='mono'] .clock-key {
-  box-shadow: none;
-}
-
-:root[data-theme^='mono'] .key:hover,
-:root[data-theme^='mono'] .key-sm:hover,
-:root[data-theme^='mono'] .clock-key:hover {
-  transform: translate(0, 0);
-  box-shadow: none;
-}
-
-:root[data-theme^='mono'] .key:active,
-:root[data-theme^='mono'] .key-sm:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-/* Those wrappers exist only to reserve room for the keycap shadow, which
-   no longer renders here - left in place they'd just be stray bottom
-   padding pushing the header chrome out of alignment. */
-:root[data-theme^='mono'] .key-wrapper,
-:root[data-theme^='mono'] .key-sm-wrapper {
-  padding-bottom: 0;
-}
-
-/* Split-flap leaves: flat black, square-ish corners, no plastic sheen. */
-:root[data-theme^='mono'] .flip-digit {
-  border-radius: 0.25rem;
-  --key-shadow-color: transparent;
-}
-
-:root[data-theme^='mono'] .flip-front,
-:root[data-theme^='mono'] .flip-back {
+.flip-front,
+.flip-back {
   background: var(--color-flip-bg);
   border-radius: 0.25rem;
   box-shadow: none;
 }
 
-/* Playfair's display slots. Everything else stays Inter (see --font-mono
-   in the token block for why this is done by rule rather than by token). */
-:root[data-theme^='mono'] .dashboard > header h1,
-:root[data-theme^='mono'] .card h2 {
-  font-family: var(--font-display);
-}
-
-:root[data-theme^='mono'] .dashboard > header {
-  border-bottom-width: 1px;
-  border-radius: 0;
-}
-
-:root[data-theme^='mono'] .dashboard > header h1 {
-  font-weight: 600;
-  letter-spacing: -0.015em;
-}
-
-/* The base .card h2 rule forces 1.25rem, which is a lot of uppercase serif
-   repeated across ten cards - dialled back and letterspaced so the titles
-   read as section labels rather than headlines. */
-:root[data-theme^='mono'] .card h2 {
-  font-size: 0.9375rem !important;
-  letter-spacing: 0.01em;
-}
-
-/* The mascots are fixed-colour by design (see Doodles.tsx), so hiding is
-   the only honest option here - they sit in empty states beside their own
-   explanatory text, which carries the message on its own. */
-:root[data-theme^='mono'] .doodle {
+/* A radial pulse behind the sun icon reads as a smudge once it isn't a warm
+   glow. The falling rain/snow marks still work in black, so only this one
+   goes. */
+.weather-fx-sun-glow {
   display: none;
 }
 
-/* A dark radial pulse behind the sun icon reads as a smudge once it isn't
-   a warm glow. The falling rain/snow marks keep working in black, so only
-   this one goes. */
-:root[data-theme^='mono'] .weather-fx-sun-glow {
-  display: none;
-}
-
-/* The two remaining sources of real colour on the page: album art and the
-   map. Both are content rather than chrome, so this is the one deliberate
-   overreach in the theme - delete these two rules to let them stay in
-   colour. */
-:root[data-theme^='mono'] .album-art {
+/* Album art is content rather than chrome, so desaturating it is the one
+   deliberate overreach here - delete this rule to let it stay in colour. */
+.album-art {
   filter: grayscale(1) contrast(1.05);
 }
 
-:root[data-theme^='mono'] .map-tiles-themed {
-  filter: grayscale(1) contrast(1.05);
-}
-
-:root[data-theme^='mono'] .leaflet-marker-icon {
-  filter: grayscale(1) brightness(0.4) contrast(1.4);
-}
-
-/* Base thumb is a fixed lilac rgba, not a token, so it needs its own
-   override rather than following the palette. */
-:root[data-theme^='mono'] ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.22);
-  border-radius: 0;
-}
-
-:root[data-theme^='mono'] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.38);
-}
-
-/* Binary clock's OFF dots carry `border-line-strong`, which in this theme is
-   near-black - so an off dot was outlining harder than a lit "seconds" dot
-   (light grey by design, since the three units are separated by a grey ramp
-   rather than by hue). Selecting the utility class directly is what keeps
-   this off the lit dots, which use border-clock-* instead. */
-:root[data-theme^='mono'] .dashboard-binary .border-line-strong {
+/* Binary clock's OFF dots carry `border-line-strong`, which is near-black
+   in the light variant - so an off dot was outlining harder than a lit
+   "seconds" dot (light grey by design, the three units being separated by a
+   grey ramp rather than by hue). Selecting the utility class directly is
+   what keeps this off the lit dots, which use border-clock-* instead. */
+.dashboard-binary .border-line-strong {
   border-color: var(--color-line);
-}
-
-/* --- The few places the two mono variants genuinely differ ------------ */
-
-/* Same reason the light variant needed its own: the base thumb is a fixed
-   lilac rgba, and the light variant's black would vanish here. */
-:root[data-theme='mono-dark'] ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-:root[data-theme='mono-dark'] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.38);
-}
-
-/* Esri serves a genuine dark Canvas basemap, which RainRadarPanel now asks
-   for in this variant (see BASEMAPS there) - so the tiles only need
-   desaturating, same as the light variant. The marker is the exception: it
-   has to be lightened rather than darkened to show up against them. */
-:root[data-theme='mono-dark'] .leaflet-marker-icon {
-  filter: grayscale(1) brightness(1.8) contrast(1.1);
 }

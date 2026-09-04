@@ -164,7 +164,7 @@ export function WeatherWidget() {
       <div className="flex w-full items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
         {weather && weather.daily.length > 0 && (
-          <div className="key-sm-wrapper flex gap-1 text-[11px]">
+          <div className="flex gap-1 text-[11px]">
             <button
               onClick={() => setView('now')}
               className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
