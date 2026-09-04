@@ -168,7 +168,7 @@ export function WeatherWidget() {
           <div className="flex gap-1 text-[11px]">
             <button
               onClick={() => setView('now')}
-              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
                 view === 'now' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
@@ -176,7 +176,7 @@ export function WeatherWidget() {
             </button>
             <button
               onClick={() => setView('forecast')}
-              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
                 view === 'forecast' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >

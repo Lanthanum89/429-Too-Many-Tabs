@@ -111,7 +111,7 @@ export function ReadingBusesWidget() {
           <div className="flex gap-1 text-[11px]">
             <button
               onClick={() => setOrigin('home')}
-              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
                 origin === 'home' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
@@ -119,7 +119,7 @@ export function ReadingBusesWidget() {
             </button>
             <button
               onClick={() => setOrigin('work')}
-              className={`key-sm rounded-full border-2 px-2.5 py-0.5 ${
+              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
                 origin === 'work' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
               }`}
             >
@@ -149,7 +149,7 @@ export function ReadingBusesWidget() {
                 href={liveDeparturesUrl(d.locationCode)}
                 target="_blank"
                 rel="noreferrer"
-                className="key-sm flex flex-col gap-0 rounded-lg border-2 border-line px-2.5 py-1.5 text-sm hover:bg-accent-neon/10"
+                className="key-sm flex flex-col gap-0 rounded-none border-2 border-line px-2.5 py-1.5 text-sm hover:bg-accent-neon/10"
               >
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-ink">
@@ -174,7 +174,7 @@ export function ReadingBusesWidget() {
                 href={liveDeparturesUrl(s.locationCode)}
                 target="_blank"
                 rel="noreferrer"
-                className="key-sm flex items-center justify-between gap-2 rounded-lg border-2 border-line px-2.5 py-1.5 text-sm text-ink hover:bg-accent-neon/10"
+                className="key-sm flex items-center justify-between gap-2 rounded-none border-2 border-line px-2.5 py-1.5 text-sm text-ink hover:bg-accent-neon/10"
               >
                 {s.description}
                 <ExternalLinkIcon />

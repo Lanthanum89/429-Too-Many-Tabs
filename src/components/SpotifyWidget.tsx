@@ -152,7 +152,7 @@ export function SpotifyWidget() {
         <h2 className="font-mono text-lg font-bold text-accent-neon">Spotify</h2>
         <button
           onClick={connect}
-          className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
+          className="rounded-none bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
         >
           Connect Spotify
         </button>
@@ -182,9 +182,10 @@ export function SpotifyWidget() {
               <img
                 src={nowPlaying.albumArtUrl}
                 alt=""
-                className={`album-art shrink-0 rounded-full object-cover shadow-lg ${
-                  nowPlaying.isPlaying ? 'animate-vinyl-spin' : ''
-                }`}
+                // Square, and no longer spinning: the vinyl-record treatment
+                // needed a circle, and a rotating square just reads as broken.
+                // A cover is a cover, the way an e-reader shows one.
+                className="album-art shrink-0 object-cover" 
               />
             )}
             <div className="min-w-0 flex-1 text-left">
@@ -205,9 +206,9 @@ export function SpotifyWidget() {
                 <p className="truncate text-[11px] text-dim">Playing from: {nowPlaying.contextName}</p>
               )}
               <div className="mt-1 w-full">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+                <div className="h-1.5 w-full overflow-hidden rounded-none bg-line">
                   <div
-                    className="h-full rounded-full bg-accent transition-[width] duration-500 ease-linear"
+                    className="h-full rounded-none bg-accent transition-[width] duration-500 ease-linear"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -224,7 +225,7 @@ export function SpotifyWidget() {
               disabled={controlPending}
               aria-label={shuffleOn ? 'Disable shuffle' : 'Enable shuffle'}
               aria-pressed={shuffleOn}
-              className={`key-sm flex items-center justify-center rounded-full border-2 p-1 disabled:opacity-40 ${
+              className={`key-sm flex items-center justify-center rounded-none border-2 p-1 disabled:opacity-40 ${
                 shuffleOn
                   ? 'border-accent-bright bg-accent-bright text-void'
                   : 'border-line bg-transparent text-muted hover:text-accent-neon'
@@ -242,7 +243,7 @@ export function SpotifyWidget() {
               onClick={handlePrevious}
               disabled={controlPending}
               aria-label="Previous track"
-              className="key-sm flex h-7 w-7 items-center justify-center rounded-full border-2 border-line bg-transparent text-muted disabled:opacity-40"
+              className="key-sm flex h-7 w-7 items-center justify-center rounded-none border-2 border-line bg-transparent text-muted disabled:opacity-40"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
@@ -252,7 +253,7 @@ export function SpotifyWidget() {
               onClick={handlePlayPause}
               disabled={controlPending}
               aria-label={nowPlaying.isPlaying ? 'Pause' : 'Play'}
-              className="key flex h-9 w-9 items-center justify-center rounded-full bg-accent text-void disabled:opacity-40"
+              className="key flex h-9 w-9 items-center justify-center rounded-none bg-accent text-void disabled:opacity-40"
             >
               {nowPlaying.isPlaying ? (
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
@@ -268,7 +269,7 @@ export function SpotifyWidget() {
               onClick={handleNext}
               disabled={controlPending}
               aria-label="Next track"
-              className="key-sm flex h-7 w-7 items-center justify-center rounded-full border-2 border-line bg-transparent text-muted disabled:opacity-40"
+              className="key-sm flex h-7 w-7 items-center justify-center rounded-none border-2 border-line bg-transparent text-muted disabled:opacity-40"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                 <path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z" />

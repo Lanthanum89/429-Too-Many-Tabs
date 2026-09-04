@@ -9,6 +9,8 @@
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
+@import '@fontsource/literata/400.css';
+@import '@fontsource/literata/400-italic.css';
 @import '@fontsource/literata/500.css';
 @import '@fontsource/literata/600.css';
 @import '@fontsource/literata/600-italic.css';
@@ -23,39 +25,58 @@
    ramp rather than three hues, so the binary clock stays legible without
    introducing colour. */
 @theme {
+  /* Five greys, and nothing between them. Every semantic token below maps
+     onto one of these steps rather than picking its own value, so
+     de-emphasis is a step down the scale instead of an arbitrary lightening
+     - the same discipline a display with a fixed set of grey levels imposes
+     on whatever is drawn to it. Paper and surface sit outside the ramp
+     because they are the ground, not marks on it. */
+  --color-grey-1: #111111;
+  --color-grey-2: #4d4d4d;
+  --color-grey-3: #8c8c8c;
+  --color-grey-4: #c9c9c9;
+  --color-grey-5: #e4e4e4;
+
   --color-void: #f2f2f2;
   --color-surface: #ffffff;
-  /* Same value as --color-surface on purpose: .card's base rule paints a
-     gradient between the two, and a flat card is the point here. */
+  /* Same value as --color-surface on purpose: .card's base rule used to
+     paint a gradient between the two, and a flat card is the point here. */
   --color-surface-2: #ffffff;
-  --color-line: #e4e4e4;
-  --color-line-strong: #111111;
-  --color-ink: #0d0d0d;
-  --color-muted: #4d4d4d;
-  --color-dim: #8c8c8c;
-  --color-accent: #000000;
-  --color-accent-bright: #2b2b2b;
-  --color-accent-neon: #000000;
+
+  --color-line: var(--color-grey-5);
+  --color-line-strong: var(--color-grey-1);
+  --color-ink: var(--color-grey-1);
+  --color-muted: var(--color-grey-2);
+  --color-dim: var(--color-grey-3);
+  --color-accent: var(--color-grey-1);
+  --color-accent-bright: var(--color-grey-2);
+  --color-accent-neon: var(--color-grey-1);
   /* No red to fall back on, so errors carry on their wording rather than
      their colour - deliberate, this interface is greyscale full stop. */
-  --color-danger: #000000;
+  --color-danger: var(--color-grey-1);
 
-  --color-clock-hour: #111111;
-  --color-clock-min: #565656;
-  --color-clock-sec: #9c9c9c;
+  /* The binary clock's three units, separated by three steps of the ramp
+     rather than by hue. */
+  --color-clock-hour: var(--color-grey-1);
+  --color-clock-min: var(--color-grey-2);
+  --color-clock-sec: var(--color-grey-3);
 
   /* Flat black leaves with white numerals: monochrome, and closer to a real
      split-flap board than the dark-plastic gradient this used to be. */
-  --color-flip-bg: #111111;
-  --color-flip-bg-2: #111111;
+  --color-flip-bg: var(--color-grey-1);
+  --color-flip-bg-2: var(--color-grey-1);
   --color-flip-text: #ffffff;
 
-  --font-sans: 'Inter', system-ui, sans-serif;
-  /* Named for the `font-mono` utility every card title and small label
-     already reaches for, not for anything monospaced - repointing this one
-     token is what swaps them all at once. Inter rather than Literata: a
-     serif at 10px with wide letterspacing gets fussy, so the display slots
-     are named individually further down instead. */
+  /* Literata reads the page, Inter labels it. A serif for body copy is what
+     separates an e-reader from a dashboard: headlines, calendar entries, bus
+     times and email subjects are all text to be read, so they get the
+     reading face. Inter is left holding only the small letterspaced
+     uppercase labels, which is exactly where a high-contrast serif at 10px
+     falls apart. */
+  --font-sans: 'Literata', Georgia, 'Times New Roman', serif;
+  /* Named for the `font-mono` utility every small label already reaches for,
+     not for anything monospaced - repointing this one token is what swaps
+     them all at once. */
   --font-mono: 'Inter', system-ui, sans-serif;
   /* The big numeral displays: flip clock, temperature, countdown. */
   --font-clock: 'Literata', Georgia, 'Times New Roman', serif;
@@ -67,21 +88,10 @@
      easing linearly like a spreadsheet. */
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Slow, steady spin for Spotify's album art while playing - a record
-     on a turntable, not a loading spinner, so it stays gentle (3s/turn)
-     rather than anything frantic. */
-  --animate-vinyl-spin: vinyl-spin 3s linear infinite;
-
   /* A small idle bob for the weather icon - just enough to feel alive
      without being distracting sitting next to a big static temperature
      number. */
   --animate-float: float 3.5s ease-in-out infinite;
-}
-
-@keyframes vinyl-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @keyframes float {
@@ -115,7 +125,7 @@
 
 .weather-fx-raindrop {
   height: 7px;
-  border-radius: 999px;
+  border-radius: 0;
   opacity: 0;
   animation: raindrop-fall 1.1s linear infinite;
 }
@@ -168,38 +178,66 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Paper grain. An e-ink panel is a physical surface with visible micro-noise
+   even when it is showing nothing, where a screen this flat reads as pure
+   digital white. Sits above everything (pointer-events:none, so it catches
+   nothing) rather than behind the cards, because it is the surface the whole
+   page is drawn on, not a texture under it.
+
+   Generated rather than shipped as an image: feTurbulence gives a tiling
+   fractal noise in a few hundred bytes, desaturated by feColorMatrix so it
+   cannot tint anything. Kept at a few percent - if it ever reads as JPEG
+   artefact rather than paper, this whole rule is the thing to delete. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Inverted so the specks lighten a dark page instead of darkening it, and a
+   touch stronger: the same amplitude reads as less against near-black. */
+:root[data-theme='dark'] body::after {
+  opacity: 0.055;
+  filter: invert(1);
+}
+
 /* Dark variant: the same interface with ink and paper swapped - dark grey
    cards on near-black, near-white ink - rather than a second design. */
 :root[data-theme='dark'] {
+  /* Same five steps, walked the other way. Only the ramp and the two ground
+     colours are redefined; every semantic token above already points at a
+     step, so they follow on their own. */
+  --color-grey-1: #f4f4f4;
+  --color-grey-2: #b4b4b4;
+  --color-grey-3: #7d7d7d;
+  --color-grey-4: #4a4a4a;
+  --color-grey-5: #343434;
+
   --color-void: #0b0b0b;
   --color-surface: #191919;
   --color-surface-2: #191919;
-  /* A touch lighter relative to the surface than the light variant's
-     hairline is to white: the same ratio reads as invisible against a dark
-     ground, where the border is the only thing separating one card from the
-     next (a black drop shadow does nothing here). */
-  --color-line: #343434;
-  --color-line-strong: #f5f5f5;
-  --color-ink: #f4f4f4;
-  --color-muted: #b4b4b4;
-  --color-dim: #7d7d7d;
-  --color-accent: #ffffff;
-  --color-accent-bright: #d6d6d6;
-  --color-accent-neon: #ffffff;
-  --color-danger: #ffffff;
-
-  /* Ramp runs the other way here (bright = lit), so a lit dot is always the
-     one drawing the eye regardless of variant. Seconds is held clear of the
-     off dots' own border colour, --color-line. */
-  --color-clock-hour: #f4f4f4;
-  --color-clock-min: #9e9e9e;
-  --color-clock-sec: #6b6b6b;
 
   /* Inverted along with everything else: white leaves, black numerals.
      Black leaves would disappear into the card they sit on. */
-  --color-flip-bg: #f4f4f4;
-  --color-flip-bg-2: #f4f4f4;
+  --color-flip-bg: var(--color-grey-1);
+  --color-flip-bg-2: var(--color-grey-1);
   --color-flip-text: #0b0b0b;
+
+  /* The one place chrome carries colour rather than content: the binary
+     clock's three units go back to three hues here instead of three steps of
+     grey. A grey ramp makes them tell apart by lightness alone, which is the
+     harder read of the two, and this is the widget whose whole job is being
+     read at a glance. Held to a similar lightness so no unit shouts over the
+     others, and only in the dark variant - the light one is paper, and paper
+     does not glow. The lilac is the old dark theme's accent, kept as a nod to
+     what this dashboard used to look like. */
+  --color-clock-hour: #c9a9f0;
+  --color-clock-min: #7ec8c0;
+  --color-clock-sec: #e0a76a;
 }
 
 /* Transform is left to .key-sm (applied alongside this in JSX) now - a
@@ -257,47 +295,27 @@ body {
   transform: translateY(1px);
 }
 
-/* Flat cards: a tight radius and a soft shadow that seats the card on the
-   page rather than a bevel or a facet.
+/* Flat cards: a hairline border and nothing else. A blurred drop shadow is
+   the last piece of SaaS-card vocabulary left once the corners are square -
+   a display holding a static image has no light source for a card to float
+   above, so the card is defined by its edge. Restoring the old look is one
+   box-shadow away if the page reads too flat without it.
 
-   Card.tsx already carries `border border-line bg-surface`utilities, which
-   resolve to exactly what this rule would have set, so the border colour and
-   background are left to it rather than restated here. What is overridden is
-   its `rounded-2xl` (16px, too soft for this) and its `shadow-lg`. Tailwind
-   utilities live in a layer and this rule does not, so unlayered wins on the
-   cascade without needing !important for either.
-
-   box-shadow is paint-only, so none of this touches any card's layout size
-   regardless of how tightly its height budget is tuned - the two are
-   unrelated in the box model. */
+   Card.tsx already carries `border border-line bg-surface` utilities, which
+   resolve to exactly what this rule would set, so those are left to it. What
+   is overridden is its `rounded-2xl` and its `shadow-lg`. Tailwind utilities
+   live in a layer and this rule does not, so unlayered wins the cascade
+   without needing !important. */
 .card {
-  border-radius: 0.25rem;
-  transform: translate(0, 0);
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: 0;
+  box-shadow: none;
+  transition: border-color 0.2s ease;
 }
 
-/* Lifts rather than sinks: the card stays put, its shadow deepens and the
-   hairline steps up (faint enough here to be worth moving). */
+/* Hover steps the hairline up the ramp rather than lifting the card: with no
+   depth to borrow from, a darkening edge is the honest affordance. */
 .card:hover {
-  transform: translate(0, 0);
-  border-color: var(--color-dim);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.06),
-    0 6px 16px -4px rgba(0, 0, 0, 0.1);
-}
-
-/* A black shadow does nothing on a near-black page, so the dark variant
-   leans on the card being lighter than the ground it sits on plus its own
-   border, and keeps only enough shadow to seat it. */
-:root[data-theme='dark'] .card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-:root[data-theme='dark'] .card:hover {
-  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.6);
+  border-color: var(--color-grey-4);
 }
 
 /* Scrollbar styling */
@@ -310,22 +328,15 @@ body {
   background: transparent;
 }
 
+/* Ramp steps rather than a translucent black, so the thumb is one of the
+   five greys in both variants instead of whatever is showing through it. */
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--color-grey-4);
   border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.38);
-}
-
-/* Black would vanish against a near-black page. */
-:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-:root[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.38);
+  background: var(--color-grey-3);
 }
 
 .card h2 {
@@ -408,7 +419,7 @@ button:hover:not(:disabled) {
   aspect-ratio: 0.62 / 1;
   position: relative;
   transform-style: preserve-3d;
-  border-radius: 0.5rem;
+  border-radius: 0;
   /* Fixed regardless of theme, matching --color-flip-bg/-bg-2 (also
      fixed) - these read as physical dark plastic keys, not chrome that
      should recolor with light/dark mode. */
@@ -440,7 +451,6 @@ button:hover:not(:disabled) {
   }
   50% {
     transform: rotateX(90deg) scale(1.06);
-    box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.4);
   }
   100% {
     transform: rotateX(180deg) scale(1);
@@ -465,9 +475,8 @@ button:hover:not(:disabled) {
   color: var(--color-flip-text);
   backface-visibility: hidden;
   line-height: 1;
-  border-radius: 0.5rem;
-  background: linear-gradient(160deg, var(--color-flip-bg) 0%, var(--color-flip-bg-2) 100%);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 0;
+  background: var(--color-flip-bg);
   overflow: hidden;
 }
 
@@ -541,7 +550,7 @@ button:hover:not(:disabled) {
   .dashboard > header {
     padding: 1rem 0.5rem 0.5rem 0.5rem;
     margin-bottom: 0.375rem;
-    border-radius: 0.25rem;
+    border-radius: 0;
   }
 
   .dashboard > header h1 {
@@ -580,7 +589,7 @@ button:hover:not(:disabled) {
   border-bottom: 2px solid var(--color-accent-neon);
   padding: 0.5rem 1rem 0.375rem 1rem;
   margin-bottom: 0.125rem;
-  border-radius: 0.5rem;
+  border-radius: 0;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -1023,7 +1032,7 @@ button:hover:not(:disabled) {
 .leaflet-control-attribution {
   background: var(--color-void) !important;
   color: var(--color-dim) !important;
-  border-radius: 0.25rem;
+  border-radius: 0;
 }
 
 .leaflet-control-attribution a {
@@ -1066,13 +1075,13 @@ button:hover:not(:disabled) {
 
 /* Split-flap leaves: flat, square-ish corners, no plastic sheen. */
 .flip-digit {
-  border-radius: 0.25rem;
+  border-radius: 0;
 }
 
 .flip-front,
 .flip-back {
   background: var(--color-flip-bg);
-  border-radius: 0.25rem;
+  border-radius: 0;
   box-shadow: none;
 }
 
@@ -1083,8 +1092,10 @@ button:hover:not(:disabled) {
   display: none;
 }
 
-/* Album art is content rather than chrome, so desaturating it is the one
-   deliberate overreach here - delete the filter to let it stay in colour.
+/* Album art is content rather than chrome. The light variant desaturates it
+   so the page reads as printed paper; the dark variant lets it keep its own
+   colour (see below), where a lit screen at night has every reason to show
+   a cover as it is.
 
    Sized as a share of the row it shares with the track details rather than at
    a fixed pixel size: the Spotify card is as narrow as ~240px in the desktop
@@ -1124,8 +1135,7 @@ button:hover:not(:disabled) {
 }
 
 .moon-rim {
-  stroke: currentColor;
-  opacity: 0.55;
+  stroke: var(--color-grey-4);
 }
 
 :root[data-theme='dark'] .moon-shadow {
@@ -1134,4 +1144,17 @@ button:hover:not(:disabled) {
 
 :root[data-theme='dark'] .moon-lit {
   fill: currentColor;
+}
+
+/* Colour comes back in the dark variant, for the two things that arrive with
+   colour of their own and lose something without it: a record sleeve, and the
+   radar's rain-intensity bands - which are data, not decoration, and separate
+   far better in colour than as steps of grey. The basemap underneath stays
+   desaturated, so the rain is the only coloured thing on the map rather than
+   competing with the streets.
+
+   The light variant keeps both grey on purpose: paper does not glow. */
+:root[data-theme='dark'] .album-art,
+:root[data-theme='dark'] .map-radar-tiles {
+  filter: none;
 }
