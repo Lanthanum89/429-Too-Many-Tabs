@@ -9,8 +9,6 @@
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
-@import '@fontsource/literata/400.css';
-@import '@fontsource/literata/400-italic.css';
 @import '@fontsource/literata/500.css';
 @import '@fontsource/literata/600.css';
 @import '@fontsource/literata/600-italic.css';
@@ -31,17 +29,23 @@
      - the same discipline a display with a fixed set of grey levels imposes
      on whatever is drawn to it. Paper and surface sit outside the ramp
      because they are the ground, not marks on it. */
-  --color-grey-1: #111111;
-  --color-grey-2: #4d4d4d;
-  --color-grey-3: #8c8c8c;
-  --color-grey-4: #c9c9c9;
-  --color-grey-5: #e4e4e4;
+  /* grey-1 stops short of true black on purpose: e-ink pigment is a dark
+     charcoal, not print-toner black, and #111 next to a bright white page
+     read as a screen doing high contrast rather than a page holding ink.
+     Paper and surface get the same treatment the other direction - a
+     warm-grey cast rather than clinical #fff, closer to the actual tone of
+     an e-reader's front light off. */
+  --color-grey-1: #2b2a28;
+  --color-grey-2: #56534e;
+  --color-grey-3: #8c8880;
+  --color-grey-4: #c7c3ba;
+  --color-grey-5: #e2ded4;
 
-  --color-void: #f2f2f2;
-  --color-surface: #ffffff;
+  --color-void: #eeece4;
+  --color-surface: #f8f7f1;
   /* Same value as --color-surface on purpose: .card's base rule used to
      paint a gradient between the two, and a flat card is the point here. */
-  --color-surface-2: #ffffff;
+  --color-surface-2: #f8f7f1;
 
   --color-line: var(--color-grey-5);
   --color-line-strong: var(--color-grey-1);
@@ -67,13 +71,15 @@
   --color-flip-bg-2: var(--color-grey-1);
   --color-flip-text: #ffffff;
 
-  /* Literata reads the page, Inter labels it. A serif for body copy is what
-     separates an e-reader from a dashboard: headlines, calendar entries, bus
-     times and email subjects are all text to be read, so they get the
-     reading face. Inter is left holding only the small letterspaced
-     uppercase labels, which is exactly where a high-contrast serif at 10px
-     falls apart. */
-  --font-sans: 'Literata', Georgia, 'Times New Roman', serif;
+  /* Inter reads the page, Literata announces it. Body copy went to Literata
+     for a while on the theory that a serif is what separates an e-reader
+     from a dashboard - but most of the body text here is not prose. It is
+     the weather's hourly rows, bus times, email subjects, a countdown: dense
+     columns meant to be scanned, and a reading face makes a table read like
+     a paragraph. The serif is worth having where it is a heading rather than
+     data, so it keeps the greeting, the card titles and the big numerals
+     (see --font-display and --font-clock) and gives everything else back. */
+  --font-sans: 'Inter', system-ui, sans-serif;
   /* Named for the `font-mono` utility every small label already reaches for,
      not for anything monospaced - repointing this one token is what swaps
      them all at once. */
