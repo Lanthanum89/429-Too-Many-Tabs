@@ -9,8 +9,6 @@
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
-@import '@fontsource/literata/400.css';
-@import '@fontsource/literata/400-italic.css';
 @import '@fontsource/literata/500.css';
 @import '@fontsource/literata/600.css';
 @import '@fontsource/literata/600-italic.css';
@@ -67,13 +65,15 @@
   --color-flip-bg-2: var(--color-grey-1);
   --color-flip-text: #ffffff;
 
-  /* Literata reads the page, Inter labels it. A serif for body copy is what
-     separates an e-reader from a dashboard: headlines, calendar entries, bus
-     times and email subjects are all text to be read, so they get the
-     reading face. Inter is left holding only the small letterspaced
-     uppercase labels, which is exactly where a high-contrast serif at 10px
-     falls apart. */
-  --font-sans: 'Literata', Georgia, 'Times New Roman', serif;
+  /* Inter reads the page, Literata announces it. Body copy went to Literata
+     for a while on the theory that a serif is what separates an e-reader
+     from a dashboard - but most of the body text here is not prose. It is
+     the weather's hourly rows, bus times, email subjects, a countdown: dense
+     columns meant to be scanned, and a reading face makes a table read like
+     a paragraph. The serif is worth having where it is a heading rather than
+     data, so it keeps the greeting, the card titles and the big numerals
+     (see --font-display and --font-clock) and gives everything else back. */
+  --font-sans: 'Inter', system-ui, sans-serif;
   /* Named for the `font-mono` utility every small label already reaches for,
      not for anything monospaced - repointing this one token is what swaps
      them all at once. */
