@@ -1083,6 +1083,14 @@ button:hover:not(:disabled) {
   letter-spacing: -0.015em;
 }
 
+/* Colour emoji glyphs (rendered by the font, not CSS colour) stand out
+   against the otherwise-greyscale light theme, so desaturate them there.
+   Left untouched in dark mode, where they already read fine against the
+   dark background. */
+[data-theme='light'] .email-emoji {
+  filter: grayscale(1);
+}
+
 /* The base .card h2 rule forces 1.25rem, which is a lot of serif repeated
    across ten cards - dialled back so the titles read as section labels
    rather than headlines. */

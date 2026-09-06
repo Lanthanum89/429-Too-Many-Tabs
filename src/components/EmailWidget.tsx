@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Card } from './Card'
 import { EnvelopeIcon } from './Icons'
 import {
@@ -10,6 +10,27 @@ import {
   sortInboxMessages,
   type InboxMessage,
 } from '../lib/gmail'
+
+// Matches emoji runs (including skin-tone modifiers, ZWJ joins, and the
+// U+FE0F variation selector) so they can be wrapped and desaturated in
+// light mode - see .email-emoji in index.css - without touching the rest
+// of the subject's text.
+const EMOJI_RUN = /[\p{Extended_Pictographic}‍\u{1F3FB}-\u{1F3FF}️]+/gu
+
+function renderSubject(subject: string) {
+  const parts = subject.split(EMOJI_RUN)
+  const emojis = subject.match(EMOJI_RUN) ?? []
+  const nodes: ReactNode[] = []
+  parts.forEach((part, i) => {
+    if (part) nodes.push(part)
+    if (i < emojis.length) nodes.push(
+      <span key={i} className="email-emoji">
+        {emojis[i]}
+      </span>,
+    )
+  })
+  return nodes
+}
 
 function gmailMessageUrl(id: string): string {
   return `https://mail.google.com/mail/u/0/#inbox/${id}`
@@ -195,7 +216,7 @@ export function EmailWidget() {
                     className={`block truncate text-sm ${message.unread ? 'font-semibold text-ink' : 'text-muted'}`}
                     title={message.subject}
                   >
-                    {message.subject}
+                    {renderSubject(message.subject)}
                   </span>
                 </span>
               </a>

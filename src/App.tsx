@@ -69,16 +69,18 @@ function App() {
     <div className="dashboard p-4 sm:p-6">
       <header>
         <div className="flex items-center justify-between gap-4 w-full">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 text-left">
+          <div className="flex flex-col gap-0.5 text-left">
             <h1 className="font-mono text-sm font-bold text-accent-neon leading-tight">
               {greeting}, <span className="italic">Laura</span>.
             </h1>
-            <p className="font-mono text-xs font-semibold tracking-wider text-muted leading-tight">
-              {dateStr.toUpperCase()}
-            </p>
-            <p className="font-mono text-xs font-semibold tracking-wider text-dim leading-tight">
-              WEEK {week}
-            </p>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
+              <p className="font-mono text-xs font-semibold tracking-wider text-muted leading-tight">
+                {dateStr.toUpperCase()}
+              </p>
+              <p className="font-mono text-xs font-semibold tracking-wider text-dim leading-tight">
+                WEEK {week}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button

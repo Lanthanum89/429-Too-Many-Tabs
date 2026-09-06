@@ -45,10 +45,9 @@ export function GuardianWidget() {
           <p className="text-sm text-dim">Loading…</p>
         )
       ) : (
-        // Capped to exactly 5 rows' worth of height (each row is a fixed
-        // 50.5px now that the title truncates to one line - see the span
-        // below) so the cutoff always lands clean between headlines
-        // instead of mid-title; anything past that scrolls into view.
+        // Container height stays capped at 253px regardless of how many
+        // lines a headline wraps to (see line-clamp-2 below), so a longer
+        // title just means fewer rows fit before the rest scrolls into view.
         <ul className="flex max-h-[253px] min-h-0 flex-col overflow-y-auto">
           {headlines.length === 0 && <li className="text-sm text-dim">No headlines.</li>}
           {headlines.map((item) => (
@@ -60,7 +59,7 @@ export function GuardianWidget() {
                 className="flex flex-col gap-0.5 rounded-none px-2 py-1.5 hover:bg-accent-neon/15 hover:text-accent-bright"
               >
                 <span className="truncate text-[11px] uppercase tracking-wide text-dim">{item.sectionName}</span>
-                <span className="truncate text-sm font-medium text-ink">{item.webTitle}</span>
+                <span className="line-clamp-2 text-sm font-medium text-ink">{item.webTitle}</span>
               </a>
             </li>
           ))}
