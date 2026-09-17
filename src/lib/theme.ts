@@ -39,8 +39,8 @@ export function isDarkTheme(theme: Theme): boolean {
 // the PWA's title bar), kept in step with the page rather than pinned to one
 // variant's background. Matches --color-void in index.css.
 export const THEME_COLORS: Record<Theme, string> = {
-  light: '#f2f2f2',
-  dark: '#0b0b0b',
+  light: '#ffffff',
+  dark: '#171419',
 }
 
 // Wraps back to the start, so the toggle keeps cycling forever.

@@ -1,94 +1,64 @@
 @import 'tailwindcss';
 
-/* Inter for the interface, Literata for the display slots. Literata is a
-   screen-reading serif (it is what Google Play Books sets its text in), so
-   unlike a high-contrast display face it stays comfortable at the sizes the
-   greeting and card titles actually run at, and its numerals hold together
-   at clock size. Only the weights actually used are pulled in. */
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/500.css';
-@import '@fontsource/inter/600.css';
-@import '@fontsource/inter/700.css';
-@import '@fontsource/literata/500.css';
-@import '@fontsource/literata/600.css';
-@import '@fontsource/literata/600-italic.css';
+/* Space Grotesk for headings and display numerals, JetBrains Mono for
+   everything that reads as data or chrome (labels, clock digits, buttons).
+   Same pairing sort-grid uses, self-hosted rather than pulled from Google
+   Fonts so the PWA still renders correctly offline. Only the weights
+   actually used are pulled in. */
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/600.css';
+@import '@fontsource/jetbrains-mono/700.css';
 
-/* One palette, two variants: a light greyscale here (the unscoped default)
-   and a dark greyscale in the [data-theme='dark'] block below. No hue
-   anywhere - the whole interface is neutral, e-ink style, and the only
-   colour left on screen is content the app doesn't own (see the grayscale
-   filters near the bottom of this file, which take care of even that).
-
-   The three clock units keep their separation as a light/mid/dark grey
-   ramp rather than three hues, so the binary clock stays legible without
-   introducing colour. */
+/* One palette, two variants: a light "sticker" theme here (the unscoped
+   default) and its dark counterpart in the [data-theme='dark'] block below -
+   same hot pink/lilac/baby-pink accents and thick ink borders in both, just
+   paper and ink swapped, matching sort-grid's palette rather than the
+   greyscale e-ink theme this dashboard used to carry. */
 @theme {
-  /* Five greys, and nothing between them. Every semantic token below maps
-     onto one of these steps rather than picking its own value, so
-     de-emphasis is a step down the scale instead of an arbitrary lightening
-     - the same discipline a display with a fixed set of grey levels imposes
-     on whatever is drawn to it. Paper and surface sit outside the ramp
-     because they are the ground, not marks on it. */
-  /* grey-1 stops short of true black on purpose: e-ink pigment is a dark
-     charcoal, not print-toner black, and #111 next to a bright white page
-     read as a screen doing high contrast rather than a page holding ink.
-     Paper and surface get the same treatment the other direction - a
-     warm-grey cast rather than clinical #fff, closer to the actual tone of
-     an e-reader's front light off. */
-  --color-grey-1: #2b2a28;
-  --color-grey-2: #56534e;
+  /* A small neutral ramp, kept only for the handful of places that want a
+     plain grey rather than an accent colour (scrollbar, the moon icon's
+     rim, a card's hover border) - everything else below is a named sticker
+     colour, not a step of this scale. */
   --color-grey-3: #8c8880;
   --color-grey-4: #c7c3ba;
-  --color-grey-5: #e2ded4;
 
-  --color-void: #eeece4;
-  --color-surface: #f8f7f1;
-  /* Same value as --color-surface on purpose: .card's base rule used to
-     paint a gradient between the two, and a flat card is the point here. */
-  --color-surface-2: #f8f7f1;
+  --color-void: #ffffff;
+  --color-surface: #fff7fa;
+  --color-surface-2: #fff7fa;
 
-  --color-line: var(--color-grey-5);
-  --color-line-strong: var(--color-grey-1);
-  --color-ink: var(--color-grey-1);
-  --color-muted: var(--color-grey-2);
-  --color-dim: var(--color-grey-3);
-  --color-accent: var(--color-grey-1);
-  --color-accent-bright: var(--color-grey-2);
-  --color-accent-neon: var(--color-grey-1);
-  /* No red to fall back on, so errors carry on their wording rather than
-     their colour - deliberate, this interface is greyscale full stop. */
-  --color-danger: var(--color-grey-1);
+  --color-line: #333333;
+  --color-line-strong: #333333;
+  --color-ink: #333333;
+  --color-muted: #6d6570;
+  --color-dim: #948a92;
+  --color-accent: #ff69b4;
+  --color-accent-bright: #c8a2c8;
+  --color-accent-neon: #ff69b4;
+  --color-danger: #d1435c;
 
-  /* The binary clock's three units, separated by three steps of the ramp
-     rather than by hue. */
-  --color-clock-hour: var(--color-grey-1);
-  --color-clock-min: var(--color-grey-2);
-  --color-clock-sec: var(--color-grey-3);
+  /* The binary clock's three units: lilac/hot pink/baby pink, same trio
+     sort-grid uses for its cars, rather than three steps of grey. */
+  --color-clock-hour: #c8a2c8;
+  --color-clock-min: #ff69b4;
+  --color-clock-sec: #fadadd;
 
-  /* Flat black leaves with white numerals: monochrome, and closer to a real
-     split-flap board than the dark-plastic gradient this used to be. */
-  --color-flip-bg: var(--color-grey-1);
-  --color-flip-bg-2: var(--color-grey-1);
-  --color-flip-text: #ffffff;
+  /* Ink leaves with cream numerals, fixed regardless of theme - a physical
+     plastic key, not chrome that should recolour with light/dark mode. */
+  --color-flip-bg: #333333;
+  --color-flip-bg-2: #333333;
+  --color-flip-text: #fff8fc;
 
-  /* Inter reads the page, Literata announces it. Body copy went to Literata
-     for a while on the theory that a serif is what separates an e-reader
-     from a dashboard - but most of the body text here is not prose. It is
-     the weather's hourly rows, bus times, email subjects, a countdown: dense
-     columns meant to be scanned, and a reading face makes a table read like
-     a paragraph. The serif is worth having where it is a heading rather than
-     data, so it keeps the greeting, the card titles and the big numerals
-     (see --font-display and --font-clock) and gives everything else back. */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  /* Named for the `font-mono` utility every small label already reaches for,
-     not for anything monospaced - repointing this one token is what swaps
-     them all at once. */
-  --font-mono: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  /* Named for the `font-mono` utility every small label already reaches for. */
+  --font-mono: 'JetBrains Mono', monospace;
   /* The big numeral displays: flip clock, temperature, countdown. */
-  --font-clock: 'Literata', Georgia, 'Times New Roman', serif;
+  --font-clock: 'JetBrains Mono', monospace;
   /* Not a Tailwind theme token - consumed only by the handful of display
      rules further down (the greeting and card titles). */
-  --font-display: 'Literata', Georgia, 'Times New Roman', serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
 
   /* A little overshoot-then-settle on the binary clock's dots, instead of
      easing linearly like a spreadsheet. */
@@ -178,16 +148,16 @@ body,
   height: 100%;
 }
 
-/* Form controls carry a platform radius of their own - iOS Safari rounds
-   text and date inputs whatever the stylesheet says elsewhere - so squaring
-   the corners has to say so explicitly rather than relying on there being no
-   radius to begin with. Countdown's two inputs are the ones this actually
-   reaches today. */
+/* iOS Safari rounds text/date inputs with a platform radius of its own
+   regardless of what the stylesheet says elsewhere, so the sticker radius
+   has to be set explicitly rather than relying on a browser default that
+   already happens to match. Countdown's two inputs are the ones this
+   actually reaches today. */
 input,
 button,
 select,
 textarea {
-  border-radius: 0;
+  border-radius: 8px;
 }
 
 body {
@@ -196,78 +166,39 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Paper grain. An e-ink panel is a physical surface with visible micro-noise
-   even when it is showing nothing, where a screen this flat reads as pure
-   digital white. Sits above everything (pointer-events:none, so it catches
-   nothing) rather than behind the cards, because it is the surface the whole
-   page is drawn on, not a texture under it.
-
-   Generated rather than shipped as an image: feTurbulence gives a tiling
-   fractal noise in a few hundred bytes, desaturated by feColorMatrix so it
-   cannot tint anything. Kept at a few percent - if it ever reads as JPEG
-   artefact rather than paper, this whole rule is the thing to delete. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Inverted so the specks lighten a dark page instead of darkening it, and a
-   touch stronger: the same amplitude reads as less against near-black. */
-:root[data-theme='dark'] body::after {
-  opacity: 0.055;
-  filter: invert(1);
-}
-
-/* Dark variant: the same interface with ink and paper swapped - dark grey
-   cards on near-black, near-white ink - rather than a second design. */
+/* Dark variant: the same interface with ink and paper swapped - dark
+   plum-grey cards on near-black, cream ink - rather than a second design.
+   The accent trio (hot pink/lilac/baby pink) stays identical in both
+   variants, same as sort-grid keeps its accents fixed across themes. */
 :root[data-theme='dark'] {
-  /* Same five steps, walked the other way. Only the ramp and the two ground
-     colours are redefined; every semantic token above already points at a
-     step, so they follow on their own. */
-  --color-grey-1: #f4f4f4;
-  --color-grey-2: #b4b4b4;
   --color-grey-3: #7d7d7d;
   --color-grey-4: #4a4a4a;
-  --color-grey-5: #343434;
 
-  --color-void: #0b0b0b;
-  --color-surface: #191919;
-  --color-surface-2: #191919;
+  --color-void: #171419;
+  --color-surface: #211d23;
+  --color-surface-2: #211d23;
 
-  /* Inverted along with everything else: white leaves, black numerals.
-     Black leaves would disappear into the card they sit on. */
-  --color-flip-bg: var(--color-grey-1);
-  --color-flip-bg-2: var(--color-grey-1);
-  --color-flip-text: #0b0b0b;
+  --color-line: #fff8fc;
+  --color-line-strong: #fff8fc;
+  --color-ink: #fff8fc;
+  --color-muted: #cbbfc9;
+  --color-dim: #a89aa6;
+  --color-danger: #ff6b81;
 
-  /* The one place chrome carries colour rather than content: the binary
-     clock's three units go back to three hues here instead of three steps of
-     grey. A grey ramp makes them tell apart by lightness alone, which is the
-     harder read of the two, and this is the widget whose whole job is being
-     read at a glance. Held to a similar lightness so no unit shouts over the
-     others, and only in the dark variant - the light one is paper, and paper
-     does not glow. The lilac is the old dark theme's accent, kept as a nod to
-     what this dashboard used to look like. */
-  --color-clock-hour: #c9a9f0;
-  --color-clock-min: #7ec8c0;
-  --color-clock-sec: #e0a76a;
+  --color-clock-sec: #ffd1de;
 }
 
-/* Transform is left to .key-sm (applied alongside this in JSX) now - a
-   keycap press and the old scale/rotate bounce would fight over the
-   same property, so this only owns the color/border feedback. */
+/* A square sticker button: thick ink border, small radius, and a hard
+   offset shadow it lifts into on hover - same affordance as sort-grid's
+   .icon-button. The shadow (not a translate alone) is what reads as a
+   press-able sticker rather than a flat toggle. */
 .theme-toggle {
-  background: none;
-  border: 1.5px solid var(--color-line-strong);
+  background: var(--color-surface);
+  border: 2px solid var(--color-line-strong);
+  border-radius: 8px;
   cursor: pointer;
-  padding: 0.25rem;
-  transition: border-color 0.3s ease, color 0.3s ease;
-  border-radius: 0;
+  padding: 0.4rem;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease, color 0.2s ease;
   color: var(--color-line-strong);
   display: flex;
   align-items: center;
@@ -278,24 +209,31 @@ body::after {
 .theme-toggle:hover {
   border-color: var(--color-accent-neon);
   color: var(--color-accent-neon);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 0 var(--color-line-strong);
 }
 
-/* Buttons are flat: no stacked "keycap" step shadow, no travel on hover.
-   A 1px sink on :active is all that is kept, purely so a press still gets
-   confirmed - without it the media controls and bus route cards feel dead.
-   .clock-key has no :active on purpose: the flip-clock digits are a
-   *display*, not a control, and a pressed-button animation on them would
-   wrongly imply that clicking one does something.
+.theme-toggle:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Sticker buttons: thick border, small radius, and a hard offset shadow on
+   hover rather than a blurred one - the same "lift into its own shadow"
+   affordance sort-grid uses for every clickable control. :active drops the
+   shadow and sinks the button back down, standing in for the press.
    Two sizes remain only because callers already name them: .key for
    anything button-sized (media controls, bus route cards), .key-sm for
-   small chrome (toggles, filter pills). The .key-wrapper/.key-sm-wrapper
-   classes that used to reserve room for the resting shadow are gone with
-   it - there is no shadow left to leave room for. */
+   small chrome (toggles, filter pills). .clock-key keeps the transition but
+   no hover/active state below - the flip-clock digits are a *display*, not
+   a control, and a pressed-button animation on them would wrongly imply
+   that clicking one does something. */
 .key,
 .key-sm,
 .clock-key {
   transform: translateY(0);
   box-shadow: none;
+  border-radius: 8px;
   /* Folds color/border/background in here too (rather than leaving them
      to a separate transition-colors utility) - a plain `transition`
      shorthand overwrites the whole property list, so two separate rules
@@ -308,32 +246,35 @@ body::after {
     background-color 0.2s ease;
 }
 
+.key:hover:not(:disabled),
+.key-sm:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 0 var(--color-line-strong);
+}
+
 .key:active,
 .key-sm:active {
   transform: translateY(1px);
-}
-
-/* Flat cards: a hairline border and nothing else. A blurred drop shadow is
-   the last piece of SaaS-card vocabulary left once the corners are square -
-   a display holding a static image has no light source for a card to float
-   above, so the card is defined by its edge. Restoring the old look is one
-   box-shadow away if the page reads too flat without it.
-
-   Card.tsx already carries `border border-line bg-surface` utilities, which
-   resolve to exactly what this rule would set, so those are left to it. What
-   is overridden is its `rounded-2xl` and its `shadow-lg`. Tailwind utilities
-   live in a layer and this rule does not, so unlayered wins the cascade
-   without needing !important. */
-.card {
-  border-radius: 0;
   box-shadow: none;
-  transition: border-color 0.2s ease;
 }
 
-/* Hover steps the hairline up the ramp rather than lifting the card: with no
-   depth to borrow from, a darkening edge is the honest affordance. */
+/* Sticker cards: thick ink border, rounded corners, and a hard offset
+   shadow rather than a blurred SaaS-card one - the shadow is drawn from the
+   same ink the border uses, so the card reads as cut from one flat sheet
+   rather than lit from above. Restyles what Card.tsx's `rounded-2xl` and
+   `shadow-lg` utility classes would otherwise set - those live in a layer,
+   this rule doesn't, so it wins the cascade without needing !important. */
+.card {
+  border-width: 2px;
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--color-line-strong);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease;
+}
+
+/* Hover lifts the card into its own shadow, same as the buttons. */
 .card:hover {
-  border-color: var(--color-grey-4);
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 var(--color-line-strong);
 }
 
 /* Scrollbar styling */
@@ -346,11 +287,9 @@ body::after {
   background: transparent;
 }
 
-/* Ramp steps rather than a translucent black, so the thumb is one of the
-   five greys in both variants instead of whatever is showing through it. */
 ::-webkit-scrollbar-thumb {
   background: var(--color-grey-4);
-  border-radius: 0;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -437,7 +376,7 @@ button:hover:not(:disabled) {
   aspect-ratio: 0.62 / 1;
   position: relative;
   transform-style: preserve-3d;
-  border-radius: 0;
+  border-radius: 6px;
   /* Fixed regardless of theme, matching --color-flip-bg/-bg-2 (also
      fixed) - these read as physical dark plastic keys, not chrome that
      should recolor with light/dark mode. */
@@ -493,7 +432,8 @@ button:hover:not(:disabled) {
   color: var(--color-flip-text);
   backface-visibility: hidden;
   line-height: 1;
-  border-radius: 0;
+  border-radius: 6px;
+  border: 2px solid var(--color-flip-bg);
   background: var(--color-flip-bg);
   overflow: hidden;
 }
@@ -1018,39 +958,27 @@ button:hover:not(:disabled) {
    than the information is worth here.
 
    Esri serves a genuine dark Canvas basemap, which RainRadarPanel asks for
-   in the dark variant (see BASEMAPS there), so the tiles only ever need
-   desaturating - never inverting. */
-.map-tiles-themed,
-.map-radar-tiles {
-  filter: grayscale(1) contrast(1.05);
-}
-
-.leaflet-marker-icon {
-  filter: grayscale(1) brightness(0.4) contrast(1.4);
-}
-
-/* The marker has to be lightened rather than darkened to show up against
-   the dark basemap. */
+   in the dark variant (see BASEMAPS there), so the tiles keep their own
+   colour rather than being desaturated - the rain-intensity bands are data,
+   not decoration, and separate far better in colour than as steps of grey. */
 :root[data-theme='dark'] .leaflet-marker-icon {
-  filter: grayscale(1) brightness(1.8) contrast(1.1);
+  filter: brightness(1.6);
 }
 
 /* Basemaps that only ship light tiles (OpenStreetMap standard) get inverted
    for the dark variant. Unused while BASEMAP is a provider serving real
-   dark tiles - see BASEMAPS in RainRadarPanel.tsx. Same specificity as the
-   rule above and both match the same element, so it has to stay below it
-   to win. */
+   dark tiles - see BASEMAPS in RainRadarPanel.tsx. */
 :root[data-theme='dark'] .map-tiles-darken {
-  filter: grayscale(1) invert(1) brightness(0.85) contrast(1.05);
+  filter: invert(1) brightness(0.85) contrast(1.05);
 }
 
 /* Leaflet's default light attribution/marker styling reads out of place
    against a themed map - restyled to match the app's card language
    instead of overriding piecemeal. */
 .leaflet-control-attribution {
-  background: var(--color-void) !important;
+  background: var(--color-surface) !important;
   color: var(--color-dim) !important;
-  border-radius: 0;
+  border-radius: 6px;
 }
 
 .leaflet-control-attribution a {
@@ -1066,62 +994,30 @@ button:hover:not(:disabled) {
    h2 mainly) is safely beaten on source order.
    --------------------------------------------------------------------- */
 
-/* Literata's display slots. Everything else stays Inter - see --font-mono
-   in the token block for why this is done by rule rather than by token. */
+/* Space Grotesk's display slots. Everything else stays JetBrains Mono - see
+   --font-mono in the token block for why this is done by rule rather than
+   by token. */
 .dashboard > header h1,
 .card h2 {
   font-family: var(--font-display);
 }
 
-.dashboard > header {
-  border-bottom-width: 1px;
-  border-radius: 0;
-}
-
 .dashboard > header h1 {
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* Colour emoji glyphs (rendered by the font, not CSS colour) stand out
-   against the otherwise-greyscale light theme, so desaturate them there.
-   Left untouched in dark mode, where they already read fine against the
-   dark background. */
-[data-theme='light'] .email-emoji {
-  filter: grayscale(1);
-}
-
-/* The base .card h2 rule forces 1.25rem, which is a lot of serif repeated
-   across ten cards - dialled back so the titles read as section labels
-   rather than headlines. */
+/* The base .card h2 rule forces 1.25rem, which is a lot of display weight
+   repeated across ten cards - dialled back so the titles read as section
+   labels rather than headlines. */
 .card h2 {
   font-size: 0.9375rem !important;
   letter-spacing: 0.01em;
 }
 
-/* Split-flap leaves: flat, square-ish corners, no plastic sheen. */
-.flip-digit {
-  border-radius: 0;
-}
-
-.flip-front,
-.flip-back {
-  background: var(--color-flip-bg);
-  border-radius: 0;
-  box-shadow: none;
-}
-
-/* A radial pulse behind the sun icon reads as a smudge once it isn't a warm
-   glow. The falling rain/snow marks still work in black, so only this one
-   goes. */
-.weather-fx-sun-glow {
-  display: none;
-}
-
-/* Album art is content rather than chrome. The light variant desaturates it
-   so the page reads as printed paper; the dark variant lets it keep its own
-   colour (see below), where a lit screen at night has every reason to show
-   a cover as it is.
+/* Album art keeps its own colour - a record sleeve is content, not chrome,
+   and this dashboard's palette no longer asks everything on screen to fall
+   in line with it.
 
    Sized as a share of the row it shares with the track details rather than at
    a fixed pixel size: the Spotify card is as narrow as ~240px in the desktop
@@ -1131,17 +1027,16 @@ button:hover:not(:disabled) {
    gets smaller than it was, and the ceiling stops it swallowing the row on
    the widest layout. */
 .album-art {
-  filter: grayscale(1) contrast(1.05);
   width: clamp(4rem, 30%, 7rem);
   height: auto;
   aspect-ratio: 1;
+  border-radius: 6px;
 }
 
 /* Binary clock's OFF dots carry `border-line-strong`, which is near-black
-   in the light variant - so an off dot was outlining harder than a lit
-   "seconds" dot (light grey by design, the three units being separated by a
-   grey ramp rather than by hue). Selecting the utility class directly is
-   what keeps this off the lit dots, which use border-clock-* instead. */
+   (or near-cream in dark mode) - so an off dot was outlining harder than a
+   lit "seconds" dot. Selecting the utility class directly is what keeps
+   this off the lit dots, which use border-clock-* instead. */
 .dashboard-binary .border-line-strong {
   border-color: var(--color-line);
 }
@@ -1170,17 +1065,4 @@ button:hover:not(:disabled) {
 
 :root[data-theme='dark'] .moon-lit {
   fill: currentColor;
-}
-
-/* Colour comes back in the dark variant, for the two things that arrive with
-   colour of their own and lose something without it: a record sleeve, and the
-   radar's rain-intensity bands - which are data, not decoration, and separate
-   far better in colour than as steps of grey. The basemap underneath stays
-   desaturated, so the rain is the only coloured thing on the map rather than
-   competing with the streets.
-
-   The light variant keeps both grey on purpose: paper does not glow. */
-:root[data-theme='dark'] .album-art,
-:root[data-theme='dark'] .map-radar-tiles {
-  filter: none;
 }
