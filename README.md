@@ -108,7 +108,7 @@ setup:
 1. **Settings → Pages → Source: GitHub Actions.**
 2. **Settings → Secrets and variables → Actions → New repository secret** — add both
    `VITE_GOOGLE_CLIENT_ID` and `VITE_SPOTIFY_CLIENT_ID` (same values as your local
-   `.env`; also used by the Android workflow, so you only need to set them once).
+   `.env`).
 3. Once it's deployed, add the resulting URL — a GitHub Pages project page, so
    `https://<user>.github.io` (just the origin, no path — see the Google Cloud Console's
    "Authorised JavaScript origins" field) — to the Google OAuth client's authorised
@@ -116,57 +116,19 @@ setup:
    and trailing slash) as a Spotify **Redirect URI**. Skip either and that widget's
    "Connect" button will fail or do nothing.
 
-`vite.config.ts` sets `base: '/429-Too-Many-Tabs/'` (for the normal `npm run build`) to
-match that project-page URL. If you ever rename the repo or deploy somewhere else (a
-custom domain, a user/org root page at `<user>.github.io`), update the non-Capacitor
-branch of that conditional to match — everything else (asset paths, the manifest's
-`start_url`/`scope`) derives from that one value.
+`vite.config.ts` sets `base: '/429-Too-Many-Tabs/'` to match that project-page URL. If
+you ever rename the repo or deploy somewhere else (a custom domain, a user/org root page
+at `<user>.github.io`), update that value to match — everything else (asset paths, the
+manifest's `start_url`/`scope`) derives from it.
 
-### Building an Android APK
-
-The app is also wrapped with [Capacitor](https://capacitorjs.com) (see `android/`), which
-bundles the built `dist/` straight into a native shell — no hosting required, the app
-just opens a local copy of the same code that runs in the browser.
-
-Capacitor serves that bundle from its own WebView origin (`https://localhost/` by
-default) rather than under `/429-Too-Many-Tabs/`, so it needs a *different* Vite `base`
-than the Pages build — `npm run build:capacitor` passes `--mode capacitor` for this,
-which `vite.config.ts` picks up to use `base: '/'` instead. **Always build the Android
-app with `build:capacitor`, never plain `build`** — the latter would 404 on all its own
-JS/CSS once installed, since none of the asset paths would match where Capacitor
-actually serves files from.
-
-A GitHub Actions workflow (`.github/workflows/build-android.yml`) builds a debug APK on
-every push to `main`, or on demand from the Actions tab (**Actions → Build Android APK →
-Run workflow**). It reuses the same `VITE_GOOGLE_CLIENT_ID` and `VITE_SPOTIFY_CLIENT_ID`
-repo secrets described above (see [note on secrets](#a-note-on-api-keys-and-secrets) below
-— both are client IDs, not confidential, safe to store this way). If you want Calendar,
-Email, or Spotify to actually work inside the installed APK (not just the web version),
-add `https://localhost` as a Google-authorised JavaScript origin and `https://localhost/`
-as a Spotify redirect URI too — that's the origin Capacitor's WebView runs at by default.
-
-Once the workflow run finishes, download the `429-too-many-tabs-debug-apk` artifact from the
-run's summary page, transfer the `.apk` to the phone, and install it (Android will need
-"install unknown apps" enabled for whatever app you used to open the file).
-
-This produces a **debug-signed** APK — fine for installing on your own device, but each
-CI run's debug key may differ, and it isn't set up for a Play Store release. If you want
-a stable signing identity across rebuilds (so updates install over the old copy instead
-of needing a fresh uninstall/reinstall), generate a release keystore, store it (and its
-passwords) as repo secrets, and add a `signingConfig` to `android/app/build.gradle` — not
-done here to avoid managing a keystore for a single-user personal app.
-
-This sandbox couldn't produce the `.apk` directly — building Android requires the
-Android SDK, which isn't reachable from here, only from GitHub's own runners.
-
-#### A note on API keys and secrets
+### A note on API keys and secrets
 
 `VITE_GOOGLE_CLIENT_ID` and `VITE_SPOTIFY_CLIENT_ID` are OAuth **client IDs**, not
 secrets — both providers' client IDs for public/browser-based clients are meant to be
 visible (already exposed in every request the respective auth flow makes) and are safe
-to bake into a client build. That's true whether the build is a hosted PWA, a wrapped
-APK, or in a private or public repo — repo visibility doesn't add any protection to a
-value that ends up compiled into the artifact you install.
+to bake into a client build. That's true whether the repo is private or public — repo
+visibility doesn't add any protection to a value that ends up compiled into the deployed
+bundle.
 
 The Spotify integration (see [below](#spotify)) deliberately uses Authorization Code +
 PKCE so it never needs a real client *secret* baked in — only the ID above. **Never put
@@ -175,11 +137,10 @@ it securely, and a GitHub Actions secret only stays confidential during the CI r
 moment a `VITE_`-prefixed value is baked into the built JS bundle, it ships in plaintext
 to every browser that loads the deployed site, secret or not. If any future integration
 does need a genuine secret (a confidential OAuth client secret, a rate-limited/paid API
-key), it must **not** go into client-side code at all — anyone holding the APK or the
-built JS bundle can extract it (an APK is just a zip file). That would need a small
-backend/serverless proxy to hold the secret server-side, which is a deliberate departure
-from this project's "no backend" design — worth doing only if a specific integration
-actually requires it.
+key), it must **not** go into client-side code at all — anyone can extract it straight
+from the built JS bundle. That would need a small backend/serverless proxy to hold the
+secret server-side, which is a deliberate departure from this project's "no backend"
+design — worth doing only if a specific integration actually requires it.
 
 ## Architecture
 
@@ -245,9 +206,6 @@ No registry, no per-mode sizing — just the one grid to update.
 - **PWA icons (`public/icon-192.png`/`icon-512.png`) are a generated placeholder**
   (three stacked bars in the accent colour) — good enough to satisfy installability,
   swap for a real design whenever you make one.
-- **The Android APK still uses Capacitor's default launcher icon**, not the PWA one
-  above. Swap the files under `android/app/src/main/res/mipmap-*` too if you want them
-  to match.
 - **Spotify apps start in "Development Mode"**, capped at 25 allow-listed users. Fine
   for personal use (see [Setup](#setup)); submitting for extension/quota review is only
   worth doing if this ever needs to work for accounts you don't control.
@@ -279,5 +237,4 @@ before the app renders). Access and refresh tokens are cached in `localStorage`;
 ## Stack
 
 React + TypeScript + Vite, Tailwind v4 via the `@tailwindcss/vite` plugin,
-`vite-plugin-pwa` for installability, Capacitor for the optional Android APK build. No
-state library, no router — it's a single page.
+`vite-plugin-pwa` for installability. No state library, no router — it's a single page.

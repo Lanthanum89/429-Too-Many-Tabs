@@ -5,13 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // GitHub Pages serves project pages from /<repo-name>/, not the domain root,
 // so every root-relative path (assets, manifest start_url/scope, the icon
-// link in index.html) has to be prefixed with this — EXCEPT the Capacitor
-// Android build, which serves the bundled app from its own WebView root
-// (https://localhost/) regardless of repo name, so it needs base: '/'.
-// `npm run build:capacitor` (used by build-android.yml) passes --mode
-// capacitor to select that.
+// link in index.html) has to be prefixed with this.
 export default defineConfig(({ mode }) => {
-  const base = mode === 'capacitor' ? '/' : '/429-Too-Many-Tabs/'
+  const base = '/429-Too-Many-Tabs/'
 
   return {
     base,
