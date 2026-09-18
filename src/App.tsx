@@ -87,8 +87,9 @@ function App() {
               onClick={handleRefresh}
               disabled={refreshing}
               className="theme-toggle key-sm"
-              aria-label="Refresh dashboard"
-              title="Refresh dashboard"
+              aria-label={refreshing ? 'Refreshing dashboard' : 'Refresh dashboard'}
+              title={refreshing ? 'Refreshing dashboard…' : 'Refresh dashboard'}
+              aria-busy={refreshing}
             >
               <svg
                 viewBox="0 0 24 24"
