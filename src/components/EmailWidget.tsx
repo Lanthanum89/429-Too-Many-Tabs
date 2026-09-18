@@ -15,6 +15,8 @@ import {
 // U+FE0F variation selector) so they can be wrapped and desaturated in
 // light mode - see .email-emoji in index.css - without touching the rest
 // of the subject's text.
+// The combined sequences are intentional: emoji can include joiners, modifiers and variation selectors.
+// eslint-disable-next-line no-misleading-character-class
 const EMOJI_RUN = /[\p{Extended_Pictographic}\u200D\u{1F3FB}-\u{1F3FF}\uFE0F]+/gu
 
 function renderSubject(subject: string) {
