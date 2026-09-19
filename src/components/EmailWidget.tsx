@@ -10,12 +10,17 @@ import {
   sortInboxMessages,
   type InboxMessage,
 } from '../lib/gmail'
+import { useRegisterRefresh } from '../lib/useRegisterRefresh'
+import { formatUpdated } from '../lib/formatUpdated'
+import { RefreshButton } from './RefreshButton'
 
 // Matches emoji runs (including skin-tone modifiers, ZWJ joins, and the
 // U+FE0F variation selector) so they can be wrapped and desaturated in
 // light mode - see .email-emoji in index.css - without touching the rest
 // of the subject's text.
-const EMOJI_RUN = /[\p{Extended_Pictographic}‍\u{1F3FB}-\u{1F3FF}️]+/gu
+// The combined sequences are intentional: emoji can include joiners, modifiers and variation selectors.
+// eslint-disable-next-line no-misleading-character-class
+const EMOJI_RUN = /[\p{Extended_Pictographic}\u200D\u{1F3FB}-\u{1F3FF}\uFE0F]+/gu
 
 function renderSubject(subject: string) {
   const parts = subject.split(EMOJI_RUN)
@@ -109,6 +114,10 @@ export function EmailWidget() {
     }
   }
 
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('email', connect, messages !== null)
+
+  // As in WeekCalendar: the mount effect calls `connect` directly since
+  // `messages` (and so `enabled`) isn't set yet. Later triggers use `refresh`.
   useEffect(() => {
     if (hasValidGmailToken()) connect()
   }, [])
@@ -159,6 +168,14 @@ export function EmailWidget() {
           >
             {starredCount} starred
           </button>
+        )}
+        {messages !== null && (
+          <div className="ml-auto flex items-center gap-2">
+            {lastUpdated && (
+              <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
+            )}
+            <RefreshButton onClick={refresh} refreshing={refreshing} label="Refresh Email" />
+          </div>
         )}
       </div>
       {messages === null ? (

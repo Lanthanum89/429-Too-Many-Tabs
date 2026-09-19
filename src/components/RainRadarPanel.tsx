@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import L from 'leaflet'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
@@ -67,15 +67,23 @@ const BASEMAPS: Record<BasemapProvider, BasemapConfig> = {
   },
 }
 
-export function RainRadarPanel({
-  lat,
-  lon,
-  theme,
-}: {
+export interface RainRadarPanelHandle {
+  refresh: () => Promise<void>
+}
+
+interface RainRadarPanelProps {
   lat: number
   lon: number
   theme: Theme
-}) {
+  // Fires after every successful tile load, whether it came from this
+  // panel's own mount/interval cycle or a manual refresh via the ref -- lets
+  // the parent's "last updated" display stay accurate for background polls
+  // too, without moving polling ownership itself out of this component.
+  onLoaded?: () => void
+}
+
+export const RainRadarPanel = forwardRef<RainRadarPanelHandle, RainRadarPanelProps>(
+  function RainRadarPanel({ lat, lon, theme, onLoaded }, ref) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const radarLayerRef = useRef<L.TileLayer | null>(null)
@@ -116,41 +124,58 @@ export function RainRadarPanel({
     }
   }, [lat, lon, theme])
 
-  useEffect(() => {
-    let cancelled = false
+  const mountedRef = useRef(true)
+  useEffect(
+    () => () => {
+      mountedRef.current = false
+    },
+    [],
+  )
 
-    async function loadRadar() {
-      try {
-        const frame = await fetchLatestRadarFrame()
-        if (cancelled || !mapRef.current) return
-        if (radarLayerRef.current) mapRef.current.removeLayer(radarLayerRef.current)
-        radarLayerRef.current = L.tileLayer(frame.tileUrlTemplate, {
-          opacity: 0.6,
-          // RainViewer colour-codes rain by intensity; this class is what
-          // desaturates it in index.css so the map stays neutral like the
-          // rest of the interface (intensity then reads as darkness).
-          className: 'map-radar-tiles',
-          // RainViewer only generates radar tiles natively up to zoom 7 -
-          // without this, zooming past that requests tiles that don't
-          // exist and gets back a "Zoom Level Not Supported" placeholder
-          // image instead of an upscaled tile.
-          maxNativeZoom: 7,
-          maxZoom: 12,
-          attribution: 'Weather data &copy; <a href="https://rainviewer.com">RainViewer</a>',
-        }).addTo(mapRef.current)
-        setError(null)
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load radar')
-      }
+  async function loadRadar() {
+    try {
+      const frame = await fetchLatestRadarFrame()
+      if (!mountedRef.current || !mapRef.current) return
+      if (radarLayerRef.current) mapRef.current.removeLayer(radarLayerRef.current)
+      radarLayerRef.current = L.tileLayer(frame.tileUrlTemplate, {
+        opacity: 0.6,
+        // RainViewer colour-codes rain by intensity; this class is what
+        // desaturates it in index.css so the map stays neutral like the
+        // rest of the interface (intensity then reads as darkness).
+        className: 'map-radar-tiles',
+        // RainViewer only generates radar tiles natively up to zoom 7 -
+        // without this, zooming past that requests tiles that don't
+        // exist and gets back a "Zoom Level Not Supported" placeholder
+        // image instead of an upscaled tile.
+        maxNativeZoom: 7,
+        maxZoom: 12,
+        attribution: 'Weather data &copy; <a href="https://rainviewer.com">RainViewer</a>',
+      }).addTo(mapRef.current)
+      setError(null)
+      onLoaded?.()
+    } catch (err) {
+      if (mountedRef.current) setError(err instanceof Error ? err.message : 'Failed to load radar')
     }
+  }
 
+  useEffect(() => {
+    // `loadRadar` isn't in the deps array on purpose: it's a plain function
+    // recreated every render (not useCallback-wrapped), so including it
+    // would tear down and recreate this interval on every render instead of
+    // once per lat/lon/theme change.
     loadRadar()
     const id = setInterval(loadRadar, REFRESH_INTERVAL_MS)
-    return () => {
-      cancelled = true
-      clearInterval(id)
-    }
+    return () => clearInterval(id)
   }, [lat, lon, theme])
+
+  // The map itself only exists once the effect above has run, so a refresh
+  // requested (via the ref) before that -- or after `error` shows the map
+  // failed to init -- has nothing to reload into; skip rather than throw.
+  useImperativeHandle(ref, () => ({
+    refresh: async () => {
+      if (mapRef.current) await loadRadar()
+    },
+  }))
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-none">
@@ -160,4 +185,4 @@ export function RainRadarPanel({
       )}
     </div>
   )
-}
+})

@@ -1,42 +1,60 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
 import { fetchTopHeadlines, hasGuardianKey, type GuardianHeadline } from '../lib/guardian'
+import { useRegisterRefresh } from '../lib/useRegisterRefresh'
+import { formatUpdated } from '../lib/formatUpdated'
+import { RefreshButton } from './RefreshButton'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
 
 export function GuardianWidget() {
   const [headlines, setHeadlines] = useState<GuardianHeadline[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const hasKey = hasGuardianKey()
+
+  const mountedRef = useRef(true)
+  useEffect(
+    () => () => {
+      mountedRef.current = false
+    },
+    [],
+  )
+
+  async function load() {
+    try {
+      const data = await fetchTopHeadlines()
+      if (mountedRef.current) {
+        setHeadlines(data)
+        setError(null)
+      }
+    } catch (err) {
+      if (mountedRef.current) setError(err instanceof Error ? err.message : 'Failed to load headlines')
+    }
+  }
+
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('guardian', load, hasKey)
 
   useEffect(() => {
-    if (!hasGuardianKey()) return undefined
-
-    let cancelled = false
-
-    async function load() {
-      try {
-        const data = await fetchTopHeadlines()
-        if (!cancelled) {
-          setHeadlines(data)
-          setError(null)
-        }
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load headlines')
-      }
-    }
-
-    load()
-    const id = setInterval(load, REFRESH_INTERVAL_MS)
-    return () => {
-      cancelled = true
-      clearInterval(id)
-    }
-  }, [])
+    if (!hasKey) return undefined
+    refresh()
+    const id = setInterval(refresh, REFRESH_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [hasKey, refresh])
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
-      <h2 className="font-mono text-lg font-bold text-accent-neon">Guardian Headlines</h2>
-      {!hasGuardianKey() ? (
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-mono text-lg font-bold text-accent-neon">Guardian Headlines</h2>
+        {hasKey && (
+          <div className="flex items-center gap-2">
+            {lastUpdated && (
+              <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
+            )}
+            <RefreshButton onClick={refresh} refreshing={refreshing} label="Refresh Guardian Headlines" />
+          </div>
+        )}
+      </div>
+      {!hasKey ? (
         <p className="text-xs text-dim">Set VITE_GUARDIAN_API_KEY to show headlines.</p>
       ) : headlines === null ? (
         error ? (

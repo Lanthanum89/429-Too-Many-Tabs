@@ -6,6 +6,9 @@ import {
   toDateKey,
   type CalendarEvent,
 } from '../lib/googleCalendar'
+import { useRegisterRefresh } from '../lib/useRegisterRefresh'
+import { formatUpdated } from '../lib/formatUpdated'
+import { RefreshButton } from './RefreshButton'
 
 const UPCOMING_DAYS = 3
 
@@ -33,6 +36,12 @@ export function WeekCalendar() {
     }
   }
 
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('calendar', connect, events !== null)
+
+  // Deliberately calls the plain `connect` here, not `refresh` -- this runs
+  // once on mount, before `events` (and so the hook's `enabled` flag) has
+  // ever been set. Every later trigger (button, global refresh) goes
+  // through `refresh` instead.
   useEffect(() => {
     if (hasValidCalendarToken()) connect()
   }, [])
@@ -72,7 +81,17 @@ export function WeekCalendar() {
 
   return (
     <Card className="flex flex-col gap-3">
-      <h2 className="font-mono text-lg font-bold text-accent-neon">Calendar</h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="font-mono text-lg font-bold text-accent-neon">Calendar</h2>
+        {events !== null && (
+          <div className="flex items-center gap-2">
+            {lastUpdated && (
+              <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
+            )}
+            <RefreshButton onClick={refresh} refreshing={refreshing} label="Refresh Calendar" />
+          </div>
+        )}
+      </div>
 
       {events === null ? (
         <button
