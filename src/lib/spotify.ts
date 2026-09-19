@@ -213,17 +213,32 @@ const EMPTY_PLAYBACK_STATE: NowPlaying = {
   shuffleState: false,
 }
 
+// item.type discriminates track vs podcast episode -- an episode has no
+// `artists`/`album` at all, so treating every item as a track crashed
+// (`.artists.map` on undefined) the first time a podcast was playing.
+interface TrackItem {
+  type: 'track'
+  name: string
+  duration_ms: number
+  artists: { name: string }[]
+  album: { images: { url: string }[] }
+  external_urls: { spotify: string }
+}
+
+interface EpisodeItem {
+  type: 'episode'
+  name: string
+  duration_ms: number
+  images: { url: string }[]
+  external_urls: { spotify: string }
+  show: { name: string }
+}
+
 interface PlayerStateResponse {
   is_playing: boolean
   progress_ms: number | null
   shuffle_state: boolean
-  item: {
-    name: string
-    duration_ms: number
-    artists: { name: string }[]
-    album: { images: { url: string }[] }
-    external_urls: { spotify: string }
-  } | null
+  item: TrackItem | EpisodeItem | null
   context: { uri: string; href: string } | null
 }
 
@@ -282,15 +297,16 @@ export async function fetchCurrentlyPlaying(): Promise<NowPlaying | null> {
 
   const data = (await res.json()) as PlayerStateResponse
   const contextName = await resolveContextName(token, data.context)
+  const item = data.item
 
   return {
     isPlaying: data.is_playing,
-    trackName: data.item?.name ?? null,
-    artistName: data.item?.artists.map((artist) => artist.name).join(', ') ?? null,
-    albumArtUrl: data.item?.album.images[0]?.url ?? null,
-    trackUrl: data.item?.external_urls.spotify ?? null,
+    trackName: item?.name ?? null,
+    artistName: item ? (item.type === 'episode' ? item.show.name : item.artists.map((a) => a.name).join(', ')) : null,
+    albumArtUrl: item ? (item.type === 'episode' ? (item.images[0]?.url ?? null) : (item.album.images[0]?.url ?? null)) : null,
+    trackUrl: item?.external_urls.spotify ?? null,
     progressMs: data.progress_ms ?? 0,
-    durationMs: data.item?.duration_ms ?? 0,
+    durationMs: item?.duration_ms ?? 0,
     contextName,
     shuffleState: data.shuffle_state,
   }
