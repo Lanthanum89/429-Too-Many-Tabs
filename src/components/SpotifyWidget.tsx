@@ -3,6 +3,7 @@ import { Card } from './Card'
 import { NoteIcon } from './Icons'
 import {
   connectSpotify,
+  disconnectSpotify,
   fetchCurrentlyPlaying,
   isConnected,
   pausePlayback,
@@ -11,8 +12,12 @@ import {
   setShuffle,
   skipToNext,
   skipToPrevious,
+  SpotifyScopeError,
   type NowPlaying,
 } from '../lib/spotify'
+import { useRegisterRefresh } from '../lib/useRegisterRefresh'
+import { formatUpdated } from '../lib/formatUpdated'
+import { RefreshButton } from './RefreshButton'
 
 const POLL_INTERVAL_MS = 15_000
 const TICK_INTERVAL_MS = 500
@@ -33,54 +38,47 @@ export function SpotifyWidget() {
   const connected = isConnected()
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [needsReconnect, setNeedsReconnect] = useState(false)
   const [controlError, setControlError] = useState<string | null>(null)
   const [controlPending, setControlPending] = useState(false)
   const [displayedProgressMs, setDisplayedProgressMs] = useState(0)
-  // Optimistic-only, not synced from Spotify: the currently-playing endpoint
-  // this widget polls doesn't include shuffle_state (only the heavier
-  // /me/player endpoint does, which needs a broader scope) - so this
-  // reflects what was last toggled here, not necessarily the account's true
-  // state if changed from another device in the meantime.
-  const [shuffleOn, setShuffleOn] = useState(false)
   const lastSyncRef = useRef(Date.now())
+
+  const mountedRef = useRef(true)
+  useEffect(
+    () => () => {
+      mountedRef.current = false
+    },
+    [],
+  )
 
   async function poll() {
     try {
       const data = await fetchCurrentlyPlaying()
+      if (!mountedRef.current) return
       setNowPlaying(data)
       setDisplayedProgressMs(data?.progressMs ?? 0)
       lastSyncRef.current = Date.now()
       setError(null)
+      setNeedsReconnect(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load Spotify')
+      if (!mountedRef.current) return
+      if (err instanceof SpotifyScopeError) {
+        setNeedsReconnect(true)
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to load Spotify')
+      }
     }
   }
 
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('spotify', poll, connected)
+
   useEffect(() => {
     if (!connected) return undefined
-
-    let cancelled = false
-
-    async function pollIfActive() {
-      try {
-        const data = await fetchCurrentlyPlaying()
-        if (cancelled) return
-        setNowPlaying(data)
-        setDisplayedProgressMs(data?.progressMs ?? 0)
-        lastSyncRef.current = Date.now()
-        setError(null)
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load Spotify')
-      }
-    }
-
-    pollIfActive()
-    const id = setInterval(pollIfActive, POLL_INTERVAL_MS)
-    return () => {
-      cancelled = true
-      clearInterval(id)
-    }
-  }, [connected])
+    refresh()
+    const id = setInterval(refresh, POLL_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [connected, refresh])
 
   // Ticks the displayed progress between polls so the bar moves smoothly
   // instead of jumping once every POLL_INTERVAL_MS; each new poll resyncs
@@ -104,15 +102,19 @@ export function SpotifyWidget() {
     }
   }
 
+  // Clears the old (scope-insufficient) connection and immediately starts a
+  // fresh OAuth round-trip requesting the current scope set — one click,
+  // no manual site-data clearing required.
+  async function reconnect() {
+    disconnectSpotify()
+    await connect()
+  }
+
   async function runControl(action: () => Promise<void>) {
     setControlPending(true)
     setControlError(null)
     try {
       await action()
-      // Optimistic UI updates instantly (below); this just resyncs the exact
-      // state once Spotify has actually applied the change.
-      await new Promise((resolve) => setTimeout(resolve, POST_CONTROL_REFRESH_DELAY_MS))
-      await poll()
     } catch (err) {
       if (err instanceof PlaybackControlError) {
         setControlError(err.message)
@@ -120,6 +122,11 @@ export function SpotifyWidget() {
         setControlError(err instanceof Error ? err.message : 'Playback control failed')
       }
     } finally {
+      // Resync with Spotify's real state whether the action succeeded or
+      // failed — a failed optimistic flip (shuffle, play/pause) would
+      // otherwise linger showing the wrong state indefinitely.
+      await new Promise((resolve) => setTimeout(resolve, POST_CONTROL_REFRESH_DELAY_MS))
+      await poll()
       setControlPending(false)
     }
   }
@@ -133,9 +140,10 @@ export function SpotifyWidget() {
   }
 
   function handleShuffle() {
-    const next = !shuffleOn
-    // Optimistic flip, same pattern as play/pause below.
-    setShuffleOn(next)
+    const next = !(nowPlaying?.shuffleState ?? false)
+    // Optimistic flip, same pattern as play/pause below; runControl's
+    // post-action poll() resyncs (or reverts) it against Spotify's real state.
+    setNowPlaying((prev) => (prev ? { ...prev, shuffleState: next } : prev))
     void runControl(() => setShuffle(next))
   }
 
@@ -165,8 +173,31 @@ export function SpotifyWidget() {
     ? Math.min(100, (displayedProgressMs / nowPlaying.durationMs) * 100)
     : 0
 
+  if (needsReconnect) {
+    return (
+      <Card className="flex flex-col items-center justify-center gap-2 text-center">
+        <h2 className="font-mono text-sm tracking-wide text-muted uppercase">Spotify</h2>
+        <p className="max-w-[22ch] text-xs text-dim">
+          Reconnect Spotify to enable accurate playback and shuffle controls.
+        </p>
+        <button
+          onClick={() => void reconnect()}
+          className="rounded-none bg-accent px-4 py-1.5 text-sm font-medium text-void hover:bg-accent-bright"
+        >
+          Reconnect Spotify
+        </button>
+      </Card>
+    )
+  }
+
   return (
     <Card className="flex flex-col items-center justify-center gap-2 text-center">
+      <div className="flex w-full items-center justify-end gap-2">
+        {lastUpdated && (
+          <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
+        )}
+        <RefreshButton onClick={refresh} refreshing={refreshing} label="Refresh Spotify" />
+      </div>
       {!nowPlaying?.trackName && (
         <h2 className="font-mono text-sm tracking-wide text-muted uppercase">Spotify</h2>
       )}
@@ -223,10 +254,10 @@ export function SpotifyWidget() {
             <button
               onClick={handleShuffle}
               disabled={controlPending}
-              aria-label={shuffleOn ? 'Disable shuffle' : 'Enable shuffle'}
-              aria-pressed={shuffleOn}
+              aria-label={nowPlaying.shuffleState ? 'Disable shuffle' : 'Enable shuffle'}
+              aria-pressed={nowPlaying.shuffleState}
               className={`key-sm flex h-9 w-9 items-center justify-center rounded-none border disabled:opacity-40 ${
-                shuffleOn
+                nowPlaying.shuffleState
                   ? 'border-accent bg-accent text-void'
                   : 'border-line bg-transparent text-muted hover:text-accent-neon'
               }`}

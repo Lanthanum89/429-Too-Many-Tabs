@@ -2,9 +2,15 @@
 // to build into a static bundle (see README's note on API keys/secrets).
 
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
-const SCOPE = 'user-read-currently-playing playlist-read-private user-modify-playback-state'
+// user-read-playback-state is what unlocks /v1/me/player's shuffle_state (and
+// device/context info) - user-read-currently-playing is kept alongside it
+// since it's the narrower scope the old currently-playing-only requests used,
+// and dropping it buys nothing now that the broader scope covers it too.
+const SCOPE =
+  'user-read-playback-state user-read-currently-playing playlist-read-private user-modify-playback-state'
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize'
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token'
+const REQUIRED_PLAYBACK_SCOPE = 'user-read-playback-state'
 
 const VERIFIER_KEY = 'life-dashboard:spotify-verifier'
 const TOKEN_KEY = 'life-dashboard:spotify-tokens'
@@ -13,6 +19,10 @@ interface StoredTokens {
   accessToken: string
   refreshToken: string
   expiresAt: number
+  // Space-separated, straight from Spotify's token response. Absent on
+  // tokens stored before this field existed - treated as "doesn't have the
+  // new scope" (see hasPlaybackStateScope), never as "unknown, assume fine".
+  grantedScopes?: string
 }
 
 // Vite's BASE_URL already matches vite.config.ts's `base`, so this resolves
@@ -47,6 +57,24 @@ function saveTokens(tokens: StoredTokens) {
 
 export function isConnected(): boolean {
   return loadTokens() !== null
+}
+
+// Client-side check so a token minted before this scope existed fails fast
+// with a clear "reconnect" prompt instead of a doomed API call - see
+// SpotifyScopeError below for the same check applied server-side too, in
+// case a token's scope metadata is missing or stale for some other reason.
+export function hasPlaybackStateScope(): boolean {
+  const tokens = loadTokens()
+  if (!tokens?.grantedScopes) return false
+  return tokens.grantedScopes.split(' ').includes(REQUIRED_PLAYBACK_SCOPE)
+}
+
+// Clears the stored connection so a fresh connectSpotify() call requests a
+// clean set of tokens under the current SCOPE, rather than the OAuth flow
+// silently reusing an old refresh token that can never carry a new scope.
+export function disconnectSpotify(): void {
+  window.localStorage.removeItem(TOKEN_KEY)
+  window.sessionStorage.removeItem(VERIFIER_KEY)
 }
 
 export async function connectSpotify(): Promise<void> {
@@ -96,15 +124,21 @@ export async function handleRedirect(): Promise<void> {
   })
   if (!res.ok) throw new Error(`Spotify token exchange failed: ${res.status}`)
 
-  const data = (await res.json()) as { access_token: string; refresh_token: string; expires_in: number }
+  const data = (await res.json()) as {
+    access_token: string
+    refresh_token: string
+    expires_in: number
+    scope?: string
+  }
   saveTokens({
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
     expiresAt: Date.now() + data.expires_in * 1000,
+    grantedScopes: data.scope,
   })
 }
 
-async function refreshAccessToken(refreshToken: string): Promise<StoredTokens> {
+async function refreshAccessToken(refreshToken: string, previousScopes: string | undefined): Promise<StoredTokens> {
   const body = new URLSearchParams({
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
@@ -122,12 +156,17 @@ async function refreshAccessToken(refreshToken: string): Promise<StoredTokens> {
     access_token: string
     refresh_token?: string
     expires_in: number
+    scope?: string
   }
   const tokens: StoredTokens = {
     accessToken: data.access_token,
     // Spotify doesn't always rotate the refresh token — keep the old one if so.
     refreshToken: data.refresh_token ?? refreshToken,
     expiresAt: Date.now() + data.expires_in * 1000,
+    // Refresh normally carries the original grant's scope forward unchanged;
+    // Spotify doesn't always echo it back on this endpoint, so fall back to
+    // what was already stored rather than losing it.
+    grantedScopes: data.scope ?? previousScopes,
   }
   saveTokens(tokens)
   return tokens
@@ -137,7 +176,7 @@ async function getAccessToken(): Promise<string | null> {
   const tokens = loadTokens()
   if (!tokens) return null
   if (tokens.expiresAt - 60_000 > Date.now()) return tokens.accessToken
-  return (await refreshAccessToken(tokens.refreshToken)).accessToken
+  return (await refreshAccessToken(tokens.refreshToken, tokens.grantedScopes)).accessToken
 }
 
 export interface NowPlaying {
@@ -149,11 +188,35 @@ export interface NowPlaying {
   progressMs: number
   durationMs: number
   contextName: string | null
+  shuffleState: boolean
 }
 
-interface CurrentlyPlayingResponse {
+// Thrown when the connected token was granted before user-read-playback-state
+// existed (or Spotify otherwise refuses the request as scope-insufficient).
+// Distinct from a generic Error so callers can show a reconnect prompt
+// instead of a plain "failed to load" message.
+export class SpotifyScopeError extends Error {
+  constructor() {
+    super('Reconnect Spotify to enable accurate playback and shuffle state.')
+  }
+}
+
+const EMPTY_PLAYBACK_STATE: NowPlaying = {
+  isPlaying: false,
+  trackName: null,
+  artistName: null,
+  albumArtUrl: null,
+  trackUrl: null,
+  progressMs: 0,
+  durationMs: 0,
+  contextName: null,
+  shuffleState: false,
+}
+
+interface PlayerStateResponse {
   is_playing: boolean
   progress_ms: number | null
+  shuffle_state: boolean
   item: {
     name: string
     duration_ms: number
@@ -171,7 +234,7 @@ let cachedContextName: string | null = null
 
 async function resolveContextName(
   token: string,
-  context: CurrentlyPlayingResponse['context'],
+  context: PlayerStateResponse['context'],
 ): Promise<string | null> {
   if (!context) {
     cachedContextUri = null
@@ -198,26 +261,26 @@ export async function fetchCurrentlyPlaying(): Promise<NowPlaying | null> {
   const token = await getAccessToken()
   if (!token) return null
 
-  const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+  // Fail fast, client-side, rather than let a token minted under the old
+  // scope hit the network for a request it can never succeed at — this is
+  // what catches every pre-migration cached token (grantedScopes is simply
+  // absent on those) and prompts reconnect immediately.
+  if (!hasPlaybackStateScope()) throw new SpotifyScopeError()
+
+  const res = await fetch('https://api.spotify.com/v1/me/player', {
     headers: { Authorization: `Bearer ${token}` },
   })
 
-  // 204 means nothing's playing right now — not an error.
-  if (res.status === 204) {
-    return {
-      isPlaying: false,
-      trackName: null,
-      artistName: null,
-      albumArtUrl: null,
-      trackUrl: null,
-      progressMs: 0,
-      durationMs: 0,
-      contextName: null,
-    }
-  }
+  // 204 means no active playback session at all right now — not an error.
+  if (res.status === 204) return EMPTY_PLAYBACK_STATE
+
+  // Defense in depth: the scope metadata said this token should work, but
+  // Spotify disagrees (e.g. the grant was revoked externally). Same
+  // reconnect path either way.
+  if (res.status === 403) throw new SpotifyScopeError()
   if (!res.ok) throw new Error(`Spotify API error: ${res.status}`)
 
-  const data = (await res.json()) as CurrentlyPlayingResponse
+  const data = (await res.json()) as PlayerStateResponse
   const contextName = await resolveContextName(token, data.context)
 
   return {
@@ -229,6 +292,7 @@ export async function fetchCurrentlyPlaying(): Promise<NowPlaying | null> {
     progressMs: data.progress_ms ?? 0,
     durationMs: data.item?.duration_ms ?? 0,
     contextName,
+    shuffleState: data.shuffle_state,
   }
 }
 
