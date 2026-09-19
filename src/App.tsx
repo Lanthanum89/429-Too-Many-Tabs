@@ -10,7 +10,10 @@ import { RadarWidget } from './components/RadarWidget'
 import { CountdownWidget } from './components/CountdownWidget'
 import { GithubWidget } from './components/GithubWidget'
 import { ReadingBusesWidget } from './components/ReadingBusesWidget'
+import { RefreshIcon } from './components/RefreshButton'
 import { nextTheme, readStoredTheme, THEME_COLORS, type Theme } from './lib/theme'
+import { useRefreshRegistry } from './lib/refresh'
+import { formatUpdated, useRelativeTimeTick } from './lib/formatUpdated'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -34,14 +37,8 @@ function getISOWeek(date: Date): number {
 
 function App() {
   const [theme, setTheme] = useState<Theme>(() => readStoredTheme(localStorage.getItem('theme')))
-  const [refreshing, setRefreshing] = useState(false)
-
-  function handleRefresh() {
-    setRefreshing(true)
-    // A reload this fast would otherwise skip right past the spin - give it
-    // a beat to actually be seen before the page tears down.
-    setTimeout(() => window.location.reload(), 500)
-  }
+  const { refreshAll, refreshingAll, lastCompletedAll } = useRefreshRegistry()
+  useRelativeTimeTick()
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -83,26 +80,20 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {lastCompletedAll && (
+              <span className="hidden font-mono text-[10px] text-dim sm:inline">
+                {formatUpdated(lastCompletedAll)}
+              </span>
+            )}
             <button
-              onClick={handleRefresh}
-              disabled={refreshing}
+              onClick={() => void refreshAll()}
+              disabled={refreshingAll}
               className="theme-toggle key-sm"
-              aria-label={refreshing ? 'Refreshing dashboard' : 'Refresh dashboard'}
-              title={refreshing ? 'Refreshing dashboard…' : 'Refresh dashboard'}
-              aria-busy={refreshing}
+              aria-label={refreshingAll ? 'Refreshing dashboard' : 'Refresh dashboard'}
+              title={refreshingAll ? 'Refreshing dashboard…' : 'Refresh dashboard'}
+              aria-busy={refreshingAll}
             >
-              <svg
-                viewBox="0 0 24 24"
-                width="14"
-                height="14"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className={refreshing ? 'animate-spin' : ''}
-              >
-                <path d="M21 12a9 9 0 1 1-2.64-6.36" strokeLinecap="round" />
-                <path d="M21 3v6h-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <RefreshIcon spinning={refreshingAll} />
             </button>
             <button
               onClick={toggleTheme}

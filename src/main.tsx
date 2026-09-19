@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import { handleRedirect } from './lib/spotify.ts'
+import { RefreshRegistryProvider } from './lib/refresh.tsx'
 import 'leaflet/dist/leaflet.css'
 import './index.css'
 
@@ -9,5 +10,9 @@ import './index.css'
 handleRedirect()
   .catch(() => {})
   .finally(() => {
-    createRoot(document.getElementById('root')!).render(<App />)
+    createRoot(document.getElementById('root')!).render(
+      <RefreshRegistryProvider>
+        <App />
+      </RefreshRegistryProvider>,
+    )
   })

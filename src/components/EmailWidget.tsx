@@ -10,6 +10,9 @@ import {
   sortInboxMessages,
   type InboxMessage,
 } from '../lib/gmail'
+import { useRegisterRefresh } from '../lib/useRegisterRefresh'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
+import { RefreshButton } from './RefreshButton'
 
 // Matches emoji runs (including skin-tone modifiers, ZWJ joins, and the
 // U+FE0F variation selector) so they can be wrapped and desaturated in
@@ -71,7 +74,7 @@ export function EmailWidget() {
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  async function connect() {
+  async function connect(): Promise<boolean> {
     setLoading(true)
     setError(null)
     try {
@@ -81,7 +84,7 @@ export function EmailWidget() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load email')
       setLoading(false)
-      return
+      return false
     }
     setLoading(false)
 
@@ -94,6 +97,7 @@ export function EmailWidget() {
     } catch {
       setUnreadCount(null)
     }
+    return true
   }
 
   async function loadMore() {
@@ -111,9 +115,20 @@ export function EmailWidget() {
     }
   }
 
+  // Gated on token presence, not `messages !== null` -- see WeekCalendar's
+  // identical fix for why: gating on fetch success left a widget with a
+  // valid token but a failed first fetch permanently unregistered, with no
+  // way to retry via either refresh control.
+  const hasToken = hasValidGmailToken()
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('email', connect, hasToken)
+  useRelativeTimeTick()
+
+  // Routes the initial load through the same wrapped `refresh` every other
+  // trigger uses, so a successful first load also updates lastUpdated
+  // (calling `connect` directly here bypassed that).
   useEffect(() => {
-    if (hasValidGmailToken()) connect()
-  }, [])
+    if (hasToken) refresh()
+  }, [hasToken, refresh])
 
   const starredCount = (messages ?? []).filter((message) => message.starred).length
   const visibleMessages = (messages ?? []).filter(
@@ -173,14 +188,22 @@ export function EmailWidget() {
             Clear filters
           </button>
         )}
+        {hasToken && (
+          <div className="ml-auto flex items-center gap-2">
+            {lastUpdated && (
+              <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
+            )}
+            <RefreshButton onClick={refresh} refreshing={refreshing} label="Refresh Email" />
+          </div>
+        )}
       </div>
       {messages === null ? (
         <button
-          onClick={connect}
-          disabled={loading}
+          onClick={() => void refresh()}
+          disabled={loading || refreshing}
           className="self-start border-2 border-accent-neon bg-transparent px-4 py-1.5 text-sm font-semibold text-accent-neon hover:bg-accent-neon hover:text-void disabled:opacity-50 transition-all"
         >
-          {loading ? 'Connecting…' : 'Connect Gmail'}
+          {loading || refreshing ? 'Connecting…' : 'Connect Gmail'}
         </button>
       ) : (
         <ul className="flex min-h-0 flex-1 flex-col divide-y divide-line overflow-y-auto pr-2">

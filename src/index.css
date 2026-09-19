@@ -258,22 +258,18 @@ body {
   box-shadow: none;
 }
 
-/* Sticker cards: thick ink border, rounded corners, and a hard offset
-   shadow rather than a blurred SaaS-card one - the shadow is drawn from the
-   same ink the border uses, so the card reads as cut from one flat sheet
-   rather than lit from above. Restyles what Card.tsx's `rounded-2xl` and
-   `shadow-lg` utility classes would otherwise set - those live in a layer,
-   this rule doesn't, so it wins the cascade without needing !important. */
+/* Flat container: thick ink border and rounded corners, but no offset
+   shadow or hover lift - that "sticker" affordance is reserved for buttons
+   (.key/.key-sm/.theme-toggle below), so a card doesn't visually imply the
+   whole thing is clickable the way a real control does. Restyles what
+   Card.tsx's `rounded-2xl` and `shadow-lg` utility classes would otherwise
+   set - those live in a layer, this rule doesn't, so it wins the cascade
+   without needing !important. */
 .card {
   border-width: 2px;
   border-radius: 12px;
-  box-shadow: 4px 4px 0 var(--color-line-strong);
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease;
+  transition: border-color 0.2s ease;
 }
-
-/* Cards are containers, not controls. Keep them visually stable so hover does
-   not imply the whole card is clickable; buttons and links retain the
-   physical lift/press affordance. */
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
@@ -877,13 +873,7 @@ button:hover:not(:disabled) {
      overflow lives on the *card* (below), not this wrapper, on purpose -
      each widget's own list already scrolls internally (min-h-0 flex-1
      overflow-y-auto on its ul), so this is just the same safety net
-     Clock's card already has for anything that somehow still runs long.
-     Putting it on the wrapper instead was clipping the hover lift: the
-     card is what actually translates on :hover, and a transformed child
-     moving 3px above its own overflow:auto *parent*'s box gets its top
-     edge (border included) clipped by that parent - the same underlying
-     "automatic minimum size" family of bug, just on the hover transform
-     instead of layout this time. */
+     Clock's card already has for anything that somehow still runs long. */
   .dashboard-calendar .card,
   .dashboard-email .card,
   .dashboard-commits .card,

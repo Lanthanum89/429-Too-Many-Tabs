@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
 import { useSwipe } from '../lib/useSwipe'
+import { useRegisterRefresh } from '../lib/useRegisterRefresh'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
+import { RefreshButton } from './RefreshButton'
 import {
   fetchDeparturesForCodes,
   fetchStopInfo,
@@ -63,41 +66,69 @@ export function ReadingBusesWidget() {
     () => hasHomeStops() && setOrigin('home'),
   )
 
+  const mountedRef = useRef(true)
+  useEffect(
+    () => () => {
+      mountedRef.current = false
+    },
+    [],
+  )
+
+  // Bumped on every origin switch so a response for a since-abandoned
+  // origin can never commit over the new one's state -- without this, a
+  // request still in flight for the old origin when the switch happens
+  // would land after the reset below and silently repaint the new origin's
+  // screen with the old origin's departures.
+  const generationRef = useRef(0)
+
+  async function load(): Promise<boolean> {
+    const generation = generationRef.current
+    try {
+      if (liveMode) {
+        const data = await fetchDeparturesForCodes(codes, labels)
+        if (!mountedRef.current || generation !== generationRef.current) return false
+        setDepartures(data)
+        setError(null)
+        return true
+      } else {
+        const data = await fetchStopInfo(codes, labels)
+        if (!mountedRef.current || generation !== generationRef.current) return false
+        setStopInfo(data)
+        setError(null)
+        return true
+      }
+    } catch (err) {
+      if (mountedRef.current && generation === generationRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to load')
+      }
+      return false
+    }
+  }
+
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('buses', load, hasOrigin && ready)
+  useRelativeTimeTick()
+
   useEffect(() => {
     if (!hasOrigin || !ready) return undefined
 
-    let cancelled = false
-
-    async function load() {
-      try {
-        if (liveMode) {
-          const data = await fetchDeparturesForCodes(codes, labels)
-          if (!cancelled) {
-            setDepartures(data)
-            setError(null)
-          }
-        } else {
-          const data = await fetchStopInfo(codes, labels)
-          if (!cancelled) {
-            setStopInfo(data)
-            setError(null)
-          }
-        }
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load')
-      }
-    }
-
+    // Origin switch, not a refresh -- clear stale content from the previous
+    // stop set instead of leaving it visible under the new one. Calls load()
+    // directly rather than the wrapped refresh: the registry's in-flight
+    // guard would otherwise collapse this into a still-running request for
+    // the OLD origin instead of starting a fresh one for the new origin, so
+    // this specific trigger deliberately bypasses it -- the trade-off is it
+    // doesn't feed the hook's own refreshing/lastUpdated, but the "Loading…"
+    // state below already covers the visible gap.
+    generationRef.current += 1
     setDepartures(null)
     setStopInfo(null)
     setError(null)
     load()
-    const id = liveMode ? setInterval(load, REFRESH_INTERVAL_MS) : undefined
+    const id = liveMode ? setInterval(refresh, REFRESH_INTERVAL_MS) : undefined
     return () => {
-      cancelled = true
       if (id) clearInterval(id)
     }
-  }, [origin, hasOrigin, liveMode, ready])
+  }, [origin, hasOrigin, liveMode, ready, refresh])
 
   return (
     <Card
@@ -107,26 +138,36 @@ export function ReadingBusesWidget() {
     >
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Buses</h2>
-        {hasHomeStops() && hasWorkStops() && (
-          <div className="flex gap-1 text-[11px]">
-            <button
-              onClick={() => setOrigin('home')}
-              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
-                origin === 'home' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
-              }`}
-            >
-              {ORIGIN_LABELS.home}
-            </button>
-            <button
-              onClick={() => setOrigin('work')}
-              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
-                origin === 'work' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
-              }`}
-            >
-              {ORIGIN_LABELS.work}
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {hasHomeStops() && hasWorkStops() && (
+            <div className="flex gap-1 text-[11px]">
+              <button
+                onClick={() => setOrigin('home')}
+                className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
+                  origin === 'home' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
+                }`}
+              >
+                {ORIGIN_LABELS.home}
+              </button>
+              <button
+                onClick={() => setOrigin('work')}
+                className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
+                  origin === 'work' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
+                }`}
+              >
+                {ORIGIN_LABELS.work}
+              </button>
+            </div>
+          )}
+          {hasOrigin && ready && (
+            <>
+              {lastUpdated && (
+                <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
+              )}
+              <RefreshButton onClick={refresh} refreshing={refreshing} label="Refresh Reading Buses" />
+            </>
+          )}
+        </div>
       </div>
       {!hasOrigin && (
         <p className="text-xs text-dim">

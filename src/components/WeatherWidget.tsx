@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
 import { getCoords, FALLBACK_LAT, FALLBACK_LON } from '../lib/geolocation'
 import { fetchWeather, type WeatherSnapshot } from '../lib/weather'
 import { fetchSunAndUv, getMoonPhase, getUvRiskLabel, type SunAndUv } from '../lib/sunAndMoon'
 import { MoonPhaseIcon } from './Icons'
 import { useSwipe } from '../lib/useSwipe'
+import { useRegisterRefresh } from '../lib/useRegisterRefresh'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
+import { RefreshButton } from './RefreshButton'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
 
@@ -125,36 +128,43 @@ export function WeatherWidget() {
     () => setView('now'),
   )
 
+  const mountedRef = useRef(true)
+  useEffect(
+    () => () => {
+      mountedRef.current = false
+    },
+    [],
+  )
+
+  async function load(): Promise<boolean> {
+    const { lat, lon } = await getCoords()
+    const isFallback = lat === FALLBACK_LAT && lon === FALLBACK_LON
+    // allSettled, not all — sun/UV is supplementary to the core weather
+    // display, so a failure there shouldn't blank out the temperature
+    // and forecast too.
+    const [weatherResult, sunResult] = await Promise.allSettled([
+      fetchWeather(lat, lon, isFallback ? 'London' : undefined),
+      fetchSunAndUv(lat, lon),
+    ])
+    if (!mountedRef.current) return false
+    if (sunResult.status === 'fulfilled') setSunAndUv(sunResult.value)
+    if (weatherResult.status === 'fulfilled') {
+      setWeather(weatherResult.value)
+      setError(null)
+      return true
+    }
+    setError(weatherResult.reason instanceof Error ? weatherResult.reason.message : 'Failed to load weather')
+    return false
+  }
+
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('weather', load)
+  useRelativeTimeTick()
+
   useEffect(() => {
-    let cancelled = false
-
-    async function load() {
-      const { lat, lon } = await getCoords()
-      const isFallback = lat === FALLBACK_LAT && lon === FALLBACK_LON
-      // allSettled, not all — sun/UV is supplementary to the core weather
-      // display, so a failure there shouldn't blank out the temperature
-      // and forecast too.
-      const [weatherResult, sunResult] = await Promise.allSettled([
-        fetchWeather(lat, lon, isFallback ? 'London' : undefined),
-        fetchSunAndUv(lat, lon),
-      ])
-      if (cancelled) return
-      if (weatherResult.status === 'fulfilled') {
-        setWeather(weatherResult.value)
-        setError(null)
-      } else {
-        setError(weatherResult.reason instanceof Error ? weatherResult.reason.message : 'Failed to load weather')
-      }
-      if (sunResult.status === 'fulfilled') setSunAndUv(sunResult.value)
-    }
-
-    load()
-    const id = setInterval(load, REFRESH_INTERVAL_MS)
-    return () => {
-      cancelled = true
-      clearInterval(id)
-    }
-  }, [])
+    refresh()
+    const id = setInterval(refresh, REFRESH_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [refresh])
 
   return (
     <Card
@@ -164,26 +174,32 @@ export function WeatherWidget() {
     >
       <div className="flex w-full items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Weather</h2>
-        {weather && weather.daily.length > 0 && (
-          <div className="flex gap-1 text-[11px]">
-            <button
-              onClick={() => setView('now')}
-              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
-                view === 'now' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
-              }`}
-            >
-              Now
-            </button>
-            <button
-              onClick={() => setView('forecast')}
-              className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
-                view === 'forecast' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
-              }`}
-            >
-              Forecast
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {weather && weather.daily.length > 0 && (
+            <div className="flex gap-1 text-[11px]">
+              <button
+                onClick={() => setView('now')}
+                className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
+                  view === 'now' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
+                }`}
+              >
+                Now
+              </button>
+              <button
+                onClick={() => setView('forecast')}
+                className={`key-sm rounded-none border-2 px-2.5 py-0.5 ${
+                  view === 'forecast' ? 'border-accent-neon bg-accent-neon text-void' : 'border-line text-dim hover:text-ink'
+                }`}
+              >
+                Forecast
+              </button>
+            </div>
+          )}
+          {lastUpdated && (
+            <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
+          )}
+          <RefreshButton onClick={refresh} refreshing={refreshing} label="Refresh weather" />
+        </div>
       </div>
       {weather ? (
         <>
