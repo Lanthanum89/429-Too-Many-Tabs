@@ -162,6 +162,17 @@ export function EmailWidget() {
             {starredCount} starred
           </button>
         )}
+        {(unreadOnly || starredOnly) && (
+          <button
+            onClick={() => {
+              setUnreadOnly(false)
+              setStarredOnly(false)
+            }}
+            className="key-sm rounded-none border-2 border-line px-2 py-0.5 text-xs font-semibold text-muted hover:border-accent-neon hover:text-accent-neon"
+          >
+            Clear filters
+          </button>
+        )}
       </div>
       {messages === null ? (
         <button
@@ -185,17 +196,6 @@ export function EmailWidget() {
                       ? 'No starred messages.'
                       : 'Inbox empty.'}
               </span>
-              {(unreadOnly || starredOnly) && (
-                <button
-                  onClick={() => {
-                    setUnreadOnly(false)
-                    setStarredOnly(false)
-                  }}
-                  className="key-sm border-2 border-accent-neon px-3 py-1 text-xs font-semibold text-accent-neon hover:bg-accent-neon hover:text-void"
-                >
-                  Clear filters
-                </button>
-              )}
             </li>
           )}
           {visibleMessages.map((message) => (
