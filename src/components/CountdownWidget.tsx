@@ -32,6 +32,7 @@ function daysBetween(from: Date, to: Date): number {
 
 export function CountdownWidget() {
   const [config, setConfig] = useState<CountdownConfig | null>(loadConfig)
+  const [editing, setEditing] = useState(() => loadConfig() === null)
   const [label, setLabel] = useState('')
   const [date, setDate] = useState('')
 
@@ -44,25 +45,30 @@ export function CountdownWidget() {
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
     setConfig(next)
+    setEditing(false)
   }
 
   function change() {
     setLabel(config?.label ?? '')
     setDate(config?.targetDate ?? '')
-    setConfig(null)
+    setEditing(true)
+  }
+
+  function cancelEdit() {
+    setEditing(false)
   }
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Countdown</h2>
-        {config && (
+        {config && !editing && (
           <button onClick={change} className="text-xs text-dim hover:text-accent-bright">
             Change
           </button>
         )}
       </div>
-      {config ? (
+      {config && !editing ? (
         <CountdownDisplay config={config} />
       ) : (
         <div className="flex min-h-0 flex-1 flex-wrap content-center items-center gap-2">
@@ -84,8 +90,16 @@ export function CountdownWidget() {
             disabled={!date}
             className="key-sm border-2 border-accent-neon bg-transparent px-3 py-1.5 text-sm font-semibold text-accent-neon hover:bg-accent-neon hover:text-void disabled:opacity-50"
           >
-            Set
+            Save
           </button>
+          {config && (
+            <button
+              onClick={cancelEdit}
+              className="key-sm border-2 border-line bg-transparent px-3 py-1.5 text-sm font-semibold text-muted hover:text-ink"
+            >
+              Cancel
+            </button>
+          )}
         </div>
       )}
     </Card>

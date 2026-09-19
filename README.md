@@ -136,8 +136,11 @@ URI you registered.
 
 `.github/workflows/deploy-pages.yml` builds and deploys automatically on every push to
 `main` (or on demand from **Actions → Deploy to GitHub Pages → Run workflow**).
+`.github/workflows/quality-checks.yml` runs `npm run lint` and `npm run build` on every
+push to a branch other than `main` and on every pull request, so a broken branch fails
+before it's ever merged rather than at deploy time.
 `.github/workflows/malware-scan.yml` runs a signature scan on every push/PR and on a
-daily schedule, independent of deployment. One-time setup for deployment:
+daily schedule, independent of both. One-time setup for deployment:
 
 1. **Settings → Pages → Source: GitHub Actions.**
 2. **Settings → Secrets and variables → Actions → New repository secret** — add both

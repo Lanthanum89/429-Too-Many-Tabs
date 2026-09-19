@@ -89,8 +89,8 @@ function App() {
               disabled={refreshingAll}
               className="theme-toggle key-sm"
               aria-label={refreshingAll ? 'Refreshing dashboard' : 'Refresh dashboard'}
+              title={refreshingAll ? 'Refreshing dashboard…' : 'Refresh dashboard'}
               aria-busy={refreshingAll}
-              title="Refresh dashboard"
             >
               <RefreshIcon spinning={refreshingAll} />
             </button>
