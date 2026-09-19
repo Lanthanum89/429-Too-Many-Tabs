@@ -16,7 +16,7 @@ import {
   type NowPlaying,
 } from '../lib/spotify'
 import { useRegisterRefresh } from '../lib/useRegisterRefresh'
-import { formatUpdated } from '../lib/formatUpdated'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
 import { RefreshButton } from './RefreshButton'
 
 const POLL_INTERVAL_MS = 15_000
@@ -52,26 +52,29 @@ export function SpotifyWidget() {
     [],
   )
 
-  async function poll() {
+  async function poll(): Promise<boolean> {
     try {
       const data = await fetchCurrentlyPlaying()
-      if (!mountedRef.current) return
+      if (!mountedRef.current) return false
       setNowPlaying(data)
       setDisplayedProgressMs(data?.progressMs ?? 0)
       lastSyncRef.current = Date.now()
       setError(null)
       setNeedsReconnect(false)
+      return true
     } catch (err) {
-      if (!mountedRef.current) return
+      if (!mountedRef.current) return false
       if (err instanceof SpotifyScopeError) {
         setNeedsReconnect(true)
       } else {
         setError(err instanceof Error ? err.message : 'Failed to load Spotify')
       }
+      return false
     }
   }
 
   const { refreshing, lastUpdated, refresh } = useRegisterRefresh('spotify', poll, connected)
+  useRelativeTimeTick()
 
   useEffect(() => {
     if (!connected) return undefined

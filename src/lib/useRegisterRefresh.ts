@@ -23,10 +23,19 @@ interface UseRegisterRefreshResult {
  * `fetchFn` is read through a ref that's refreshed every render, so callers
  * don't need to memoize it themselves -- passing a fresh closure each render
  * (capturing whatever local state it needs) is fine and won't go stale.
+ *
+ * `fetchFn` returns whether it actually succeeded, rather than being a bare
+ * `Promise<void>`: every widget's own loader already catches its fetch
+ * errors internally (to set its own error state) and resolves normally
+ * either way, so a void-returning contract gave this hook no way to tell a
+ * real success from a swallowed failure -- lastUpdated was being stamped
+ * even when nothing new actually loaded. Have the loader return `false` on
+ * failure (see any widget's `load` for the pattern) to keep the timestamp
+ * honest.
  */
 export function useRegisterRefresh(
   id: string,
-  fetchFn: () => Promise<void>,
+  fetchFn: () => Promise<boolean>,
   enabled: boolean = true,
 ): UseRegisterRefreshResult {
   const { register } = useRefreshRegistry()
@@ -36,22 +45,31 @@ export function useRegisterRefresh(
   const fetchFnRef = useRef(fetchFn)
   fetchFnRef.current = fetchFn
 
-  const inFlightRef = useRef(false)
+  // Holds the in-flight run's own promise, not just a boolean -- an
+  // overlapping call (the header's global refresh landing on a widget
+  // whose own interval is already mid-poll, say) returns this SAME promise
+  // rather than resolving immediately, so a caller relying on completion
+  // (Promise.allSettled in the registry) actually waits for the real
+  // request to finish instead of the global refresh reporting done, and
+  // clearing its spinner, before this widget has actually settled.
+  const inFlightRef = useRef<Promise<void> | null>(null)
 
-  const refresh = useCallback(async () => {
-    // Collapse overlapping calls (e.g. the widget's own button clicked while
-    // the global refresh is already mid-flight for it) into the one in
-    // progress, rather than firing a second concurrent request.
-    if (inFlightRef.current) return
-    inFlightRef.current = true
-    setRefreshing(true)
-    try {
-      await fetchFnRef.current()
-      setLastUpdated(new Date())
-    } finally {
-      inFlightRef.current = false
-      setRefreshing(false)
-    }
+  const refresh = useCallback((): Promise<void> => {
+    if (inFlightRef.current) return inFlightRef.current
+
+    const run = (async () => {
+      setRefreshing(true)
+      try {
+        const succeeded = await fetchFnRef.current()
+        if (succeeded) setLastUpdated(new Date())
+      } finally {
+        inFlightRef.current = null
+        setRefreshing(false)
+      }
+    })()
+
+    inFlightRef.current = run
+    return run
   }, [])
 
   useEffect(() => {

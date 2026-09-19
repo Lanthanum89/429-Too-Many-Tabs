@@ -6,7 +6,7 @@ import { fetchSunAndUv, getMoonPhase, getUvRiskLabel, type SunAndUv } from '../l
 import { MoonPhaseIcon } from './Icons'
 import { useSwipe } from '../lib/useSwipe'
 import { useRegisterRefresh } from '../lib/useRegisterRefresh'
-import { formatUpdated } from '../lib/formatUpdated'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
 import { RefreshButton } from './RefreshButton'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
@@ -136,7 +136,7 @@ export function WeatherWidget() {
     [],
   )
 
-  async function load() {
+  async function load(): Promise<boolean> {
     const { lat, lon } = await getCoords()
     const isFallback = lat === FALLBACK_LAT && lon === FALLBACK_LON
     // allSettled, not all — sun/UV is supplementary to the core weather
@@ -146,17 +146,19 @@ export function WeatherWidget() {
       fetchWeather(lat, lon, isFallback ? 'London' : undefined),
       fetchSunAndUv(lat, lon),
     ])
-    if (!mountedRef.current) return
+    if (!mountedRef.current) return false
+    if (sunResult.status === 'fulfilled') setSunAndUv(sunResult.value)
     if (weatherResult.status === 'fulfilled') {
       setWeather(weatherResult.value)
       setError(null)
-    } else {
-      setError(weatherResult.reason instanceof Error ? weatherResult.reason.message : 'Failed to load weather')
+      return true
     }
-    if (sunResult.status === 'fulfilled') setSunAndUv(sunResult.value)
+    setError(weatherResult.reason instanceof Error ? weatherResult.reason.message : 'Failed to load weather')
+    return false
   }
 
   const { refreshing, lastUpdated, refresh } = useRegisterRefresh('weather', load)
+  useRelativeTimeTick()
 
   useEffect(() => {
     refresh()

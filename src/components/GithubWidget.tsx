@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
 import { fetchGithubActivity, formatRelativeTime, type GithubActivity } from '../lib/github'
 import { useRegisterRefresh } from '../lib/useRegisterRefresh'
-import { formatUpdated } from '../lib/formatUpdated'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
 import { RefreshButton } from './RefreshButton'
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000
@@ -19,19 +19,21 @@ export function GithubWidget() {
     [],
   )
 
-  async function load() {
+  async function load(): Promise<boolean> {
     try {
       const data = await fetchGithubActivity()
-      if (mountedRef.current) {
-        setActivity(data)
-        setError(null)
-      }
+      if (!mountedRef.current) return false
+      setActivity(data)
+      setError(null)
+      return true
     } catch (err) {
       if (mountedRef.current) setError(err instanceof Error ? err.message : 'Failed to load GitHub activity')
+      return false
     }
   }
 
   const { refreshing, lastUpdated, refresh } = useRegisterRefresh('github', load)
+  useRelativeTimeTick()
 
   useEffect(() => {
     refresh()

@@ -13,7 +13,7 @@ import { ReadingBusesWidget } from './components/ReadingBusesWidget'
 import { RefreshIcon } from './components/RefreshButton'
 import { nextTheme, readStoredTheme, THEME_COLORS, type Theme } from './lib/theme'
 import { useRefreshRegistry } from './lib/refresh'
-import { formatUpdated } from './lib/formatUpdated'
+import { formatUpdated, useRelativeTimeTick } from './lib/formatUpdated'
 
 function getGreeting(hour: number): string {
   if (hour < 12) return 'Good morning'
@@ -38,6 +38,7 @@ function getISOWeek(date: Date): number {
 function App() {
   const [theme, setTheme] = useState<Theme>(() => readStoredTheme(localStorage.getItem('theme')))
   const { refreshAll, refreshingAll, lastCompletedAll } = useRefreshRegistry()
+  useRelativeTimeTick()
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)

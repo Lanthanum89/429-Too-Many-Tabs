@@ -7,7 +7,7 @@ import {
   type CalendarEvent,
 } from '../lib/googleCalendar'
 import { useRegisterRefresh } from '../lib/useRegisterRefresh'
-import { formatUpdated } from '../lib/formatUpdated'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
 import { RefreshButton } from './RefreshButton'
 
 const UPCOMING_DAYS = 3
@@ -24,27 +24,37 @@ export function WeekCalendar() {
 
   const today = useMemo(() => new Date(), [])
 
-  async function connect() {
+  async function connect(): Promise<boolean> {
     setLoading(true)
     setError(null)
     try {
       setEvents(await fetchUpcomingEvents(today, UPCOMING_DAYS))
+      return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load calendar')
+      return false
     } finally {
       setLoading(false)
     }
   }
 
-  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('calendar', connect, events !== null)
+  // Gated on whether there's a token to use, not on whether the last fetch
+  // actually produced events -- gating on `events !== null` meant a token
+  // that was valid but whose first fetch happened to fail left this widget
+  // unregistered forever: no per-widget button, and the header's "refresh
+  // everything" silently skipping it too, with no way back in except
+  // reloading the page.
+  const hasToken = hasValidCalendarToken()
+  const { refreshing, lastUpdated, refresh } = useRegisterRefresh('calendar', connect, hasToken)
+  useRelativeTimeTick()
 
-  // Deliberately calls the plain `connect` here, not `refresh` -- this runs
-  // once on mount, before `events` (and so the hook's `enabled` flag) has
-  // ever been set. Every later trigger (button, global refresh) goes
-  // through `refresh` instead.
+  // Runs the initial load through the same wrapped `refresh` every other
+  // trigger uses, rather than calling `connect` directly -- a direct call
+  // bypassed the hook's own lastUpdated tracking, so a successful first
+  // load never showed an "Updated" time until some later manual refresh.
   useEffect(() => {
-    if (hasValidCalendarToken()) connect()
-  }, [])
+    if (hasToken) refresh()
+  }, [hasToken, refresh])
 
   const eventsByDay = useMemo(() => {
     const map = new Map<string, CalendarEvent[]>()
@@ -83,7 +93,7 @@ export function WeekCalendar() {
     <Card className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Calendar</h2>
-        {events !== null && (
+        {hasToken && (
           <div className="flex items-center gap-2">
             {lastUpdated && (
               <span className="hidden font-mono text-[10px] text-dim sm:inline">{formatUpdated(lastUpdated)}</span>
@@ -95,11 +105,11 @@ export function WeekCalendar() {
 
       {events === null ? (
         <button
-          onClick={connect}
-          disabled={loading}
+          onClick={() => void refresh()}
+          disabled={loading || refreshing}
           className="self-start border-2 border-accent-neon bg-transparent px-4 py-2 text-sm font-semibold text-accent-neon hover:bg-accent-neon hover:text-void disabled:opacity-50 transition-all"
         >
-          {loading ? 'Connecting…' : 'Connect Google Calendar'}
+          {loading || refreshing ? 'Connecting…' : 'Connect Google Calendar'}
         </button>
       ) : (
         <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">

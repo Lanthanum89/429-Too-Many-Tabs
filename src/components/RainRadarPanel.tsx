@@ -68,7 +68,7 @@ const BASEMAPS: Record<BasemapProvider, BasemapConfig> = {
 }
 
 export interface RainRadarPanelHandle {
-  refresh: () => Promise<void>
+  refresh: () => Promise<boolean>
 }
 
 interface RainRadarPanelProps {
@@ -132,10 +132,18 @@ export const RainRadarPanel = forwardRef<RainRadarPanelHandle, RainRadarPanelPro
     [],
   )
 
-  async function loadRadar() {
+  // Bumped every time lat/lon/theme changes (see the effect below), so a
+  // request already in flight when that happens can't add its (now stale)
+  // frame to the newly (re)created map: mapRef.current is non-null again by
+  // the time it resolves -- pointing at the NEW map -- so a plain null
+  // check alone doesn't catch this the way it looks like it would.
+  const generationRef = useRef(0)
+
+  async function loadRadar(): Promise<boolean> {
+    const generation = generationRef.current
     try {
       const frame = await fetchLatestRadarFrame()
-      if (!mountedRef.current || !mapRef.current) return
+      if (!mountedRef.current || generation !== generationRef.current || !mapRef.current) return false
       if (radarLayerRef.current) mapRef.current.removeLayer(radarLayerRef.current)
       radarLayerRef.current = L.tileLayer(frame.tileUrlTemplate, {
         opacity: 0.6,
@@ -153,8 +161,12 @@ export const RainRadarPanel = forwardRef<RainRadarPanelHandle, RainRadarPanelPro
       }).addTo(mapRef.current)
       setError(null)
       onLoaded?.()
+      return true
     } catch (err) {
-      if (mountedRef.current) setError(err instanceof Error ? err.message : 'Failed to load radar')
+      if (mountedRef.current && generation === generationRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to load radar')
+      }
+      return false
     }
   }
 
@@ -163,6 +175,7 @@ export const RainRadarPanel = forwardRef<RainRadarPanelHandle, RainRadarPanelPro
     // recreated every render (not useCallback-wrapped), so including it
     // would tear down and recreate this interval on every render instead of
     // once per lat/lon/theme change.
+    generationRef.current += 1
     loadRadar()
     const id = setInterval(loadRadar, REFRESH_INTERVAL_MS)
     return () => clearInterval(id)
@@ -172,9 +185,7 @@ export const RainRadarPanel = forwardRef<RainRadarPanelHandle, RainRadarPanelPro
   // requested (via the ref) before that -- or after `error` shows the map
   // failed to init -- has nothing to reload into; skip rather than throw.
   useImperativeHandle(ref, () => ({
-    refresh: async () => {
-      if (mapRef.current) await loadRadar()
-    },
+    refresh: () => (mapRef.current ? loadRadar() : Promise.resolve(false)),
   }))
 
   return (

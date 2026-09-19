@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from './Card'
 import { useSwipe } from '../lib/useSwipe'
 import { useRegisterRefresh } from '../lib/useRegisterRefresh'
-import { formatUpdated } from '../lib/formatUpdated'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
 import { RefreshButton } from './RefreshButton'
 import {
   fetchDeparturesForCodes,
@@ -74,37 +74,56 @@ export function ReadingBusesWidget() {
     [],
   )
 
-  async function load() {
+  // Bumped on every origin switch so a response for a since-abandoned
+  // origin can never commit over the new one's state -- without this, a
+  // request still in flight for the old origin when the switch happens
+  // would land after the reset below and silently repaint the new origin's
+  // screen with the old origin's departures.
+  const generationRef = useRef(0)
+
+  async function load(): Promise<boolean> {
+    const generation = generationRef.current
     try {
       if (liveMode) {
         const data = await fetchDeparturesForCodes(codes, labels)
-        if (mountedRef.current) {
-          setDepartures(data)
-          setError(null)
-        }
+        if (!mountedRef.current || generation !== generationRef.current) return false
+        setDepartures(data)
+        setError(null)
+        return true
       } else {
         const data = await fetchStopInfo(codes, labels)
-        if (mountedRef.current) {
-          setStopInfo(data)
-          setError(null)
-        }
+        if (!mountedRef.current || generation !== generationRef.current) return false
+        setStopInfo(data)
+        setError(null)
+        return true
       }
     } catch (err) {
-      if (mountedRef.current) setError(err instanceof Error ? err.message : 'Failed to load')
+      if (mountedRef.current && generation === generationRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to load')
+      }
+      return false
     }
   }
 
   const { refreshing, lastUpdated, refresh } = useRegisterRefresh('buses', load, hasOrigin && ready)
+  useRelativeTimeTick()
 
   useEffect(() => {
     if (!hasOrigin || !ready) return undefined
 
     // Origin switch, not a refresh -- clear stale content from the previous
-    // stop set instead of leaving it visible under the new one.
+    // stop set instead of leaving it visible under the new one. Calls load()
+    // directly rather than the wrapped refresh: the registry's in-flight
+    // guard would otherwise collapse this into a still-running request for
+    // the OLD origin instead of starting a fresh one for the new origin, so
+    // this specific trigger deliberately bypasses it -- the trade-off is it
+    // doesn't feed the hook's own refreshing/lastUpdated, but the "Loading…"
+    // state below already covers the visible gap.
+    generationRef.current += 1
     setDepartures(null)
     setStopInfo(null)
     setError(null)
-    refresh()
+    load()
     const id = liveMode ? setInterval(refresh, REFRESH_INTERVAL_MS) : undefined
     return () => {
       if (id) clearInterval(id)

@@ -4,7 +4,7 @@ import { RainRadarPanel, type RainRadarPanelHandle } from './RainRadarPanel'
 import { getCoords, type Coords } from '../lib/geolocation'
 import type { Theme } from '../lib/theme'
 import { useRegisterRefresh } from '../lib/useRegisterRefresh'
-import { formatUpdated } from '../lib/formatUpdated'
+import { formatUpdated, useRelativeTimeTick } from '../lib/formatUpdated'
 import { RefreshButton } from './RefreshButton'
 
 export function RadarWidget({ theme }: { theme: Theme }) {
@@ -26,10 +26,11 @@ export function RadarWidget({ theme }: { theme: Theme }) {
   // only via this hook's wrapped `refresh`, so relying on the hook alone
   // would leave the timestamp stale between manual/global refreshes.
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  useRelativeTimeTick()
 
   const { refreshing, refresh } = useRegisterRefresh(
     'radar',
-    () => panelRef.current?.refresh() ?? Promise.resolve(),
+    () => panelRef.current?.refresh() ?? Promise.resolve(false),
     coords !== null,
   )
 
