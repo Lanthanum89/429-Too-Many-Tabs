@@ -15,7 +15,9 @@ import {
 // U+FE0F variation selector) so they can be wrapped and desaturated in
 // light mode - see .email-emoji in index.css - without touching the rest
 // of the subject's text.
-const EMOJI_RUN = /[\p{Extended_Pictographic}‍\u{1F3FB}-\u{1F3FF}️]+/gu
+// The combined sequences are intentional: emoji can include joiners, modifiers and variation selectors.
+// eslint-disable-next-line no-misleading-character-class
+const EMOJI_RUN = /[\p{Extended_Pictographic}\u200D\u{1F3FB}-\u{1F3FF}\uFE0F]+/gu
 
 function renderSubject(subject: string) {
   const parts = subject.split(EMOJI_RUN)
@@ -120,7 +122,7 @@ export function EmailWidget() {
 
   return (
     <Card className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <h2 className="font-mono text-lg font-bold text-accent-neon">Email</h2>
         {unreadCount !== null && (
           <button
@@ -158,6 +160,17 @@ export function EmailWidget() {
             }`}
           >
             {starredCount} starred
+          </button>
+        )}
+        {(unreadOnly || starredOnly) && (
+          <button
+            onClick={() => {
+              setUnreadOnly(false)
+              setStarredOnly(false)
+            }}
+            className="key-sm rounded-none border-2 border-line px-2 py-0.5 text-xs font-semibold text-muted hover:border-accent-neon hover:text-accent-neon"
+          >
+            Clear filters
           </button>
         )}
       </div>

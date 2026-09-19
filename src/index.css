@@ -271,11 +271,9 @@ body {
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 0.2s ease;
 }
 
-/* Hover lifts the card into its own shadow, same as the buttons. */
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 6px 6px 0 var(--color-line-strong);
-}
+/* Cards are containers, not controls. Keep them visually stable so hover does
+   not imply the whole card is clickable; buttons and links retain the
+   physical lift/press affordance. */
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
@@ -307,6 +305,33 @@ button {
 
 button:hover:not(:disabled) {
   text-shadow: none;
+}
+
+/* A visible, consistent focus ring for keyboard and switch users. The
+   outline sits outside the chunky sticker borders so it remains legible in
+   both themes without changing component dimensions. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-accent-neon);
+  outline-offset: 3px;
+}
+
+/* Preserve the dashboard's personality without forcing constant motion on
+   users who ask their OS to reduce it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .key:hover:not(:disabled),
+  .key-sm:hover:not(:disabled),
+  .theme-toggle:hover {
+    transform: none;
+  }
 }
 
 /* Scaled in container-query units against .dashboard-clock's own grid
@@ -559,6 +584,19 @@ button:hover:not(:disabled) {
   text-shadow: none;
   margin: 0;
   transition: color 0.3s ease;
+}
+
+/* On stacked layouts the page can be several screens tall. Keep refresh and
+   theme controls reachable without making the four-column desktop header
+   float over the grid. */
+@media (max-width: 1024px) {
+  .dashboard > header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--color-void) 94%, transparent);
+    backdrop-filter: blur(8px);
+  }
 }
 
 .dashboard-clock {
