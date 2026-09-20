@@ -27,6 +27,12 @@ interface CalendarApiEvent {
   htmlLink?: string
 }
 
+interface CalendarListEntry {
+  id: string
+  selected?: boolean
+  deleted?: boolean
+}
+
 let cachedToken: GoogleToken | null = loadCachedToken(STORAGE_KEY)
 
 async function getToken(): Promise<string> {
@@ -47,9 +53,32 @@ export function toDateKey(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<CalendarEvent[]> {
-  const token = await getToken()
+// Every calendar the account is subscribed to, not just the ones it owns -
+// shared calendars, a partner's calendar, "Holidays", all show up here too.
+// Filtered to `selected !== false` so it matches what's actually checked on
+// in Google Calendar's own UI, rather than dragging in every calendar
+// someone was ever added to (most people leave a few unchecked on purpose).
+async function fetchCalendarIds(token: string): Promise<string[]> {
+  const res = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
 
+  if (!res.ok) {
+    throw new Error(`Calendar API error: ${res.status}`)
+  }
+
+  const data = (await res.json()) as { items?: CalendarListEntry[] }
+  return (data.items ?? [])
+    .filter((cal) => cal.selected !== false && !cal.deleted)
+    .map((cal) => cal.id)
+}
+
+async function fetchEventsForCalendar(
+  token: string,
+  calendarId: string,
+  rangeStart: Date,
+  rangeEnd: Date,
+): Promise<CalendarEvent[]> {
   const params = new URLSearchParams({
     timeMin: rangeStart.toISOString(),
     timeMax: rangeEnd.toISOString(),
@@ -59,7 +88,7 @@ async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<Cal
   })
 
   const res = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`,
     { headers: { Authorization: `Bearer ${token}` } },
   )
 
@@ -72,7 +101,11 @@ async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<Cal
     const allDay = !item.start?.dateTime
     const start = new Date(item.start?.dateTime ?? item.start?.date ?? Date.now())
     return {
-      id: item.id,
+      // Event ids are only unique within their own calendar, not across
+      // calendars - without the calendarId prefix, two calendars whose ids
+      // happened to collide would silently drop one event as a duplicate
+      // React key.
+      id: `${calendarId}:${item.id}`,
       title: item.summary ?? '(no title)',
       start,
       allDay,
@@ -80,6 +113,17 @@ async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<Cal
       htmlLink: item.htmlLink ?? 'https://calendar.google.com/calendar/r',
     }
   })
+}
+
+async function fetchEventsInRange(rangeStart: Date, rangeEnd: Date): Promise<CalendarEvent[]> {
+  const token = await getToken()
+  const calendarIds = await fetchCalendarIds(token)
+
+  const perCalendar = await Promise.all(
+    calendarIds.map((id) => fetchEventsForCalendar(token, id, rangeStart, rangeEnd)),
+  )
+
+  return perCalendar.flat().sort((a, b) => a.start.getTime() - b.start.getTime())
 }
 
 // Fetches every event in the `days`-day span starting on `from`'s calendar
