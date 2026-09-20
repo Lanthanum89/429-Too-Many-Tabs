@@ -22,13 +22,11 @@ export function WeekCalendar() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const today = useMemo(() => new Date(), [])
-
   async function connect(): Promise<boolean> {
     setLoading(true)
     setError(null)
     try {
-      setEvents(await fetchUpcomingEvents(today, UPCOMING_DAYS))
+      setEvents(await fetchUpcomingEvents(new Date(), UPCOMING_DAYS))
       return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load calendar')
@@ -66,28 +64,32 @@ export function WeekCalendar() {
     return map
   }, [events])
 
-  // Get upcoming events for next 3 days
-  const upcomingEvents = useMemo(() => {
-    const nextThreeDays = Array.from({ length: UPCOMING_DAYS }, (_, i) => {
-      const day = new Date(today)
-      day.setDate(day.getDate() + i)
-      return toDateKey(day)
+  // Grouped fresh on every render (cheap - at most a handful of events)
+  // against `new Date()`, not a `today` captured once at mount -- this
+  // dashboard is meant to stay open for days at a stretch, and a frozen
+  // `today` would keep grouping against a date further and further in
+  // the past. useRelativeTimeTick above forces a render every 30s, which
+  // is what keeps this crossing over at midnight instead of only ever
+  // re-running on the next manual refresh.
+  const today = new Date()
+  const nextThreeDays = Array.from({ length: UPCOMING_DAYS }, (_, i) => {
+    const day = new Date(today)
+    day.setDate(day.getDate() + i)
+    return toDateKey(day)
+  })
+
+  const upcomingEvents: (CalendarEvent & { dayLabel: string })[] = []
+  nextThreeDays.forEach((dayKey, i) => {
+    const dayEvents = eventsByDay.get(dayKey) ?? []
+    const date = new Date(today)
+    date.setDate(date.getDate() + i)
+    const dayLabel = i === 0 ? 'Today' : date.toLocaleDateString([], { weekday: 'short' })
+
+    dayEvents.forEach((event) => {
+      upcomingEvents.push({ ...event, dayLabel })
     })
-
-    const allEvents: (CalendarEvent & { dayLabel: string })[] = []
-    nextThreeDays.forEach((dayKey, i) => {
-      const dayEvents = eventsByDay.get(dayKey) ?? []
-      const date = new Date(today)
-      date.setDate(date.getDate() + i)
-      const dayLabel = i === 0 ? 'Today' : date.toLocaleDateString([], { weekday: 'short' })
-
-      dayEvents.forEach((event) => {
-        allEvents.push({ ...event, dayLabel })
-      })
-    })
-
-    return allEvents.sort((a, b) => a.start.getTime() - b.start.getTime())
-  }, [events, today, eventsByDay])
+  })
+  upcomingEvents.sort((a, b) => a.start.getTime() - b.start.getTime())
 
   return (
     <Card className="flex flex-col gap-3">
