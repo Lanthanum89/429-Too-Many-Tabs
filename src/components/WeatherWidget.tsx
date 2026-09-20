@@ -221,28 +221,28 @@ export function WeatherWidget() {
               </div>
             </div>
             {view === 'now' && weather.hourly.length > 0 && (
-              <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
+              <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3 pr-1">
                 {weather.hourly.map((h, i) => {
                   const hour = new Date(h.time).getHours()
                   return (
-                    <div key={i} className="flex items-center gap-2 text-sm">
-                      <span className="w-16 text-dim">{hour}:00</span>
-                      <span className="font-clock w-16 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
-                      <span className="w-16 text-right text-dim">{Math.round(h.precipitationChance)}% rain</span>
+                    <div key={i} className="flex items-center gap-1.5 text-xs">
+                      <span className="w-12 text-dim">{hour}:00</span>
+                      <span className="font-clock w-12 text-right font-semibold">{Math.round(h.temperatureC)}°</span>
+                      <span className="w-14 text-right text-dim">{Math.round(h.precipitationChance)}% rain</span>
                     </div>
                   )
                 })}
               </div>
             )}
             {view === 'forecast' && weather.daily.length > 0 && (
-              <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3">
+              <div className="ml-auto flex flex-col gap-1.5 border-l border-line pl-3 pr-1">
                 {weather.daily.map((d, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    <span className="w-16 text-dim">{dayLabel(d.date)}</span>
-                    <span className="font-clock w-16 text-right font-semibold">
+                  <div key={i} className="flex items-center gap-1.5 text-xs">
+                    <span className="w-12 text-dim">{dayLabel(d.date)}</span>
+                    <span className="font-clock w-12 text-right font-semibold">
                       {Math.round(d.tempMaxC)}°/{Math.round(d.tempMinC)}°
                     </span>
-                    <span className="w-16 text-right text-dim">{Math.round(d.precipitationChance)}% rain</span>
+                    <span className="w-14 text-right text-dim">{Math.round(d.precipitationChance)}% rain</span>
                   </div>
                 ))}
               </div>
